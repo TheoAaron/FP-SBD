@@ -1,0 +1,46 @@
+# Dependency folders
+node_modules/
+.next/
+dist/
+
+# Production builds
+out/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime
+.pnp.*
+.cache/
+coverage/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/editor configs
+.vscode/
+.idea/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Database-related
+*.sqlite
+*.db
+*.db-journal
+dump.sql
+
+# Test output
+test-results/
+coverage/
+
+# Others
+*.tgz
+*.swp
+*.swo
