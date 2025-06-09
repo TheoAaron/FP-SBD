@@ -1,6 +1,7 @@
 import "./../globals.css";
 import LayoutWrapper from "@/components/LayoutWrapper";
 import type { Metadata } from "next";
+import React from 'react'
 
 export const metadata: Metadata = {
   title: "tokIT",
@@ -13,10 +14,11 @@ export default function CartLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
+    <div className="min-h-screen bg-gray-50">
+      {/* Cart page layout wrapper */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
         {children}
-      </body>
-    </html>
-  );
-}
+      </div>
+    </div>
+  )
+};
