@@ -108,12 +108,6 @@ export default function Cart() {
       {/* Breadcrumb */}
       <nav className="mb-8">
         <ol className="flex items-center space-x-2 text-sm text-gray-600">
-          <li>
-            <Link href="/" className="hover:text-gray-900 transition-colors">
-              Home
-            </Link>
-          </li>
-          <li className="text-gray-400">/</li>
           <li className="text-gray-900 font-medium">Cart ({itemCount} items)</li>
         </ol>
       </nav>
@@ -210,13 +204,36 @@ export default function Cart() {
           <div className="flex flex-col sm:flex-row justify-between items-center mt-8 gap-4">
             <Link
               href="/"
-              className="w-full sm:w-auto px-6 py-3 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors text-center"
+              className="
+                bg-gray-100 
+                hover:bg-gray-200 
+                text-gray-700 
+                font-semibold 
+                py-2 
+                px-4 
+                rounded 
+                transition-colors 
+                duration-200
+              "
             >
-              Return To Shop
-            </Link>
-            <button className="w-full sm:w-auto px-6 py-3 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
-              Update Cart
-            </button>
+          Return To Shop
+        </Link>
+            <button
+  className="
+    bg-gray-100 
+    hover:bg-gray-200 
+    text-gray-700 
+    font-semibold 
+    py-2 
+    px-4 
+    rounded 
+    transition-colors 
+    duration-200
+  "
+>
+  Update Cart
+</button>
+
           </div>
 
           {/* Coupon Section */}
@@ -230,13 +247,13 @@ export default function Cart() {
                 className="flex-1 px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-red-500"
                 disabled={isLoading}
               />
-              <button
-                onClick={handleApplyCoupon}
-                disabled={isLoading}
-                className="px-6 py-3 bg-red-500 text-white rounded-md hover:bg-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? 'Applying...' : 'Apply Coupon'}
-              </button>
+  <button
+    onClick={handleApplyCoupon}
+    disabled={isLoading}
+    className="px-6 py-3 bg-red-500 text-white rounded-md hover:bg-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-colors duration-200"
+  >
+    {isLoading ? 'Applying...' : 'Apply Coupon'}
+  </button>
             </div>
             {couponMessage && (
               <p className={`mt-2 text-sm ${couponMessage.includes('success') ? 'text-green-600' : 'text-red-500'}`}>
@@ -279,9 +296,22 @@ export default function Cart() {
               </div>
             </div>
 
-            <button className="w-full mt-6 px-6 py-3 bg-red-500 text-white rounded-md hover:bg-red-500 transition-colors font-medium">
-              Proceed to Checkout
-            </button>
+           <button
+  className="
+    bg-red-500 
+    hover:bg-red-600 
+    text-white 
+    font-semibold 
+    py-3 
+    rounded 
+    w-full 
+    transition-colors 
+    duration-200
+  "
+>
+  Proceed to Checkout
+</button>
+
 
             <div className="mt-4 text-center">
               <p className="text-sm text-gray-600">
