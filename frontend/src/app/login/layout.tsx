@@ -1,22 +1,14 @@
-import "./../globals.css";
-import LayoutWrapper from "@/components/LayoutWrapper";
-import type { Metadata } from "next";
+import { ReactNode } from 'react';
 
-export const metadata: Metadata = {
-  title: "tokIT",
-  description: "TOKO IT",
+export const metadata = {
+  title: 'Login',
+  description: 'Login to your account',
 };
 
-export default function LoginLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function SigninLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
-      <body>
-        {children}
-      </body>
-    </html>
+    <main className="min-h-screen flex justify-center items-center bg-gray-50 p-6">
+      {children}
+    </main>
   );
 }

@@ -5,7 +5,7 @@ const cors = require("cors");
 const connectMongo = require("./config/mongo");
 const { connectMySQL } = require("./config/mysql");
 
-const userRoutes = require("./routes/userRoutes"); 
+const authRoutes = require("./routes/authRoutes");
 const User = require("./models/mysql/user");
 
 const app = express();
@@ -15,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routing
-app.use("/api/users", userRoutes); // ← pasang route di sini
+app.use("/api/auth", authRoutes); // add auth routes for login and register
 
 app.get("/", (req, res) => res.send("🛒 Backend running with Mongo & MySQL"));
 
