@@ -1,10 +1,16 @@
-// src/app/page.tsx
+// src/app/page.ts
+import Carousel from '@/components/Carousel';
+
+const images = [
+  { src: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=300&fit=crop', alt: 'First Slide' },
+  { src: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=300&fit=crop', alt: 'Second Slide' },
+  { src: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop', alt: 'Third Slide' },
+];
 
 export default function Home() {
   return (
     <>
-      {/* <h2 className="text-2xl font-semibold mb-4">Home Page</h2>
-      <p>This is the home page content.</p> */}
+      {<Carousel images={images} />}
     </>
   );
 }

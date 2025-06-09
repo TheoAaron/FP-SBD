@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { FiSearch, FiHeart, FiShoppingCart } from 'react-icons/fi';
 import { FaUserCircle } from 'react-icons/fa';
+import { useState } from 'react';
 
 const Navbar: React.FC = () => {
   const pathname = usePathname();
@@ -13,6 +14,9 @@ const Navbar: React.FC = () => {
     pathname === path
       ? 'border-b-2 border-black pb-1'
       : 'pb-1 hover:border-b';
+
+  const [showPopup, setShowPopup] = useState(false);
+
 
   return (
     <nav className="w-full border-b shadow-sm">
@@ -36,9 +40,24 @@ const Navbar: React.FC = () => {
               className="px-3 py-1 pl-4 rounded-full bg-gray-100 text-sm focus:outline-none"
             />
           </div>
-          <FiHeart className="text-xl cursor-pointer" />
-          <FiShoppingCart className="text-xl cursor-pointer" />
-          <FaUserCircle className="text-xl text-red-600 cursor-pointer" />
+          <Link href="/wishlist">
+            <FiHeart className="text-xl cursor-pointer" />
+          </Link>
+          <Link href="/cart">
+            <FiShoppingCart className="text-xl cursor-pointer" />
+          </Link>
+          <div className="relative">
+          <FaUserCircle
+            className="text-xl text-red-600 cursor-pointer"
+            onClick={() => setShowPopup((prev) => !prev)}
+          />
+          {showPopup && (
+            <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-md p-2 z-50">
+              <a href="/profile" className="block px-4 py-2 hover:bg-gray-100">Profile</a>
+              <a href="/logout" className="block px-4 py-2 hover:bg-gray-100">Logout</a>
+            </div>
+          )}
+        </div>
         </div>
       </div>
 

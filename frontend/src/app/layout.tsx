@@ -2,6 +2,7 @@ import "./globals.css";
 import LayoutWrapper from "@/components/LayoutWrapper";
 import type { Metadata } from "next";
 
+
 export const metadata: Metadata = {
   title: "tokIT",
   description: "TOKO IT",
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <LayoutWrapper>{children}</LayoutWrapper>
+        <LayoutWrapper>
+          {children}          
+        </LayoutWrapper>
       </body>
     </html>
   );
