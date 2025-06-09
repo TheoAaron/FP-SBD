@@ -1,6 +1,7 @@
 'use client';
 import { Heart, Eye, ShoppingCart } from "lucide-react";
 import StarRating from "@/components/StarRating";
+import Link from "next/link";
 
 interface Product {
   id: number;
@@ -148,9 +149,9 @@ export default function ExploreProducts() {
 
       {/* View All Button */}
       <div className="flex justify-center mt-10">
-        <button className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded transition-colors">
+        <Link href="/product" className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded transition-colors">
           View All Products
-        </button>
+        </Link>
       </div>
     </div>
   );

@@ -16,7 +16,9 @@ export default function Home() {
   return (    
     <div>
       <Carousel images={images} />
-      <CategorySection />
+      <div className="max-w-6xl mx-auto px-6 py-10">
+        <CategorySection />
+      </div>
       <BestSellingProducts />
       <DiscoveryProduct />
     </div>

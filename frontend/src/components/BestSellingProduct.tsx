@@ -2,6 +2,7 @@
 import { Heart, Eye, ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import StarRating from "@/components/StarRating";
+import Link from "next/link";
 
 interface Product {
   id: number;
@@ -75,9 +76,9 @@ export default function BestSellingProducts({
 
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-3xl font-bold text-gray-900">{title}</h2>
-        <button className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded transition-colors">
+        <Link href="/product" className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded transition-colors">
           View All
-        </button>
+        </Link>
       </div>
 
       {/* Products Grid */}
