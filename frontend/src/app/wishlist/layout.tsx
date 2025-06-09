@@ -1,4 +1,4 @@
-import "./globals.css";
+import "./../globals.css";
 import LayoutWrapper from "@/components/LayoutWrapper";
 import type { Metadata } from "next";
 
@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: "TOKO IT",
 };
 
-export default function RootLayout({
+export default function WishlistLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <LayoutWrapper>{children}</LayoutWrapper>
+        {children}
       </body>
     </html>
   );
