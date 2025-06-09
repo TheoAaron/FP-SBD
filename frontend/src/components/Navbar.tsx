@@ -139,11 +139,17 @@ const Navbar: React.FC = () => {
             />
           </div>
 
-          <Link href="/wishlist">
+          <Link href="/wishlist" className="relative">
             <FiHeart className="text-xl cursor-pointer" />
+            <span className="absolute -top-2 -right-2 text-[10px] bg-red-500 text-white px-1 rounded-full">
+              4
+            </span>
           </Link>
-          <Link href="/cart">
+          <Link href="/cart" className="relative">
             <FiShoppingCart className="text-xl cursor-pointer" />
+            <span className="absolute -top-2 -right-2 text-[10px] bg-red-500 text-white px-1 rounded-full">
+              4
+            </span>
           </Link>
 
           {/* Profile Icon with Popup */}

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Camera,
   Headphones,
@@ -19,16 +19,24 @@ const categories = [
 ];
 
 const CategorySection: React.FC = () => {
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeCategory = searchParams.get("category");
+
+  const handleCategoryClick = (categoryLabel: string) => {
+    if (activeCategory === categoryLabel) {
+      router.push("/product"); // Reset ke semua produk
+    } else {
+      router.push(`/product?category=${categoryLabel}`);
+    }
+  };
 
   return (
-    <div className="w-50% bg-white py-10 ml-13">
-      <div className="max-w-6xl mx-auto">
+    <div className="w-100% bg-white py-10">
+      <div className="max-w-7xl">
         <div className="flex items-center gap-4 mb-8">
           <div className="w-1 h-8 bg-[#db4444] rounded"></div>
-          <h2 className="font-medium text-red-500">
-            Categories
-          </h2>
+          <h2 className="font-medium text-red-500">Categories</h2>
         </div>
         <h1 className="text-3xl font-bold mb-8">Browse By Category</h1>
         <div className="flex items-center justify-between mb-4">
@@ -36,11 +44,13 @@ const CategorySection: React.FC = () => {
             {categories.map((category, index) => (
               <div
                 key={index}
-                onClick={() => setActiveIndex(index)}
-                className={`flex flex-col items-center justify-center w-full h-32 border rounded-md cursor-pointer transition
-                  ${activeIndex === index
-                    ? "bg-white-400 border-red-500"
-                    : "bg-white border-gray-500 hover:bg-red-300"}`}
+                onClick={() => handleCategoryClick(category.label)}
+                className={`flex flex-col items-center justify-center w-full h-32 border-2 rounded-md cursor-pointer transition
+                  ${
+                    activeCategory === category.label
+                      ? "border-red-500 bg-red-500 text-white"
+                      : "border-gray-300 hover:border-red-500 hover:bg-red-500 hover:text-white"
+                  }`}
               >
                 {category.icon}
                 <span className="mt-2 text-sm font-medium">
