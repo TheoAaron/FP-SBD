@@ -7,10 +7,15 @@ const images = [
   { src: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop', alt: 'Third Slide' },
 ];
 
+import BestSellingProducts from '../components/BestSellingProduct.tsx';
+import DiscoveryProduct from '../components/DiscoveryProduct.tsx'
+
 export default function Home() {
-  return (
-    <>
-      {<Carousel images={images} />}
-    </>
+  return (    
+    <div>
+      <Carousel images={images} />
+      <BestSellingProducts />
+      <DiscoveryProduct />
+    </div>
   );
 }
