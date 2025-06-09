@@ -117,7 +117,15 @@ const Navbar: React.FC = () => {
         {/* Nav Links */}
         <div className="space-x-6 text-sm">
           <Link href="/" className={linkClass('/')}>Home</Link>
-          <Link href="/contact" className={linkClass('/contact')}>Contact</Link>
+          <a
+          href="https://wa.me/6282145665062"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={linkClass('/contact')}
+            >
+              Contact
+              </a>
+
           <Link href="/about" className={linkClass('/about')}>About</Link>
         </div>
 

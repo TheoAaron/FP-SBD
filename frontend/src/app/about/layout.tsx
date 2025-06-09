@@ -1,5 +1,6 @@
 import "./../globals.css";
 import LayoutWrapper from "@/components/LayoutWrapper";
+import AboutSection from "@/components/AboutSection";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -7,7 +8,7 @@ export const metadata: Metadata = {
   description: "TOKO IT",
 };
 
-export default function CartLayout({
+export default function AboutLayout({
   children,
 }: {
   children: React.ReactNode;

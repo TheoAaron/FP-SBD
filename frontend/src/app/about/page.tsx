@@ -1,10 +1,9 @@
-// src/app/page.tsx
+import AboutSection from "@/components/AboutSection";
 
-export default function About() {
+export default function AboutPage() {
   return (
     <>
-      <h2 className="text-2xl font-semibold mb-4">About Page</h2>
-      <p>This is the about page content.</p>
+      <AboutSection />
     </>
   );
 }
