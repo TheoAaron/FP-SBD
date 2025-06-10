@@ -20,11 +20,6 @@ export default function OrderLayout({
         {children}
       </div>
     </div>
-      <LayoutWrapper>
-        <div className="flex flex-col min-h-screen">
-          <main className="flex-grow">{children}</main>
-        </div>
-      </LayoutWrapper>
       </body>
     </html>
   );
