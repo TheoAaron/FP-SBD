@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import toast, { Toaster } from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast';
 
 // form submission handler
 async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -23,6 +23,7 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         if (res.ok) {
             toast.success('Registration successful');
             // optionally redirect
+            window.location.href = '/login';
         } else {
             toast.error('Registration failed');
         }
