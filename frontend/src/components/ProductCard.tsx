@@ -18,23 +18,25 @@ interface ProductCardProps {
 export default function ProductCard({ product, onEdit, onDelete }: ProductCardProps) {
   return (
     <div className="relative bg-gray-100 rounded-lg p-6 group hover:shadow-md transition-shadow">
-      {/* Edit and Delete Icons */}
+      {/* Edit Icon - Kiri Atas */}
       <div className="absolute top-3 left-3 z-10">
         <button
           onClick={onEdit}
-          className="text-gray-500 hover:text-blue-600 p-1"
+          className="text-gray-400 hover:text-blue-600 p-1 transition-colors"
           aria-label="Edit product"
         >
-          <FiEdit2 size={16} />
+          <FiEdit2 size={18} />
         </button>
       </div>
+      
+      {/* Delete Icon - Kanan Atas */}
       <div className="absolute top-3 right-3 z-10">
         <button
           onClick={onDelete}
-          className="text-gray-500 hover:text-red-600 p-1"
+          className="text-gray-400 hover:text-red-600 p-1 transition-colors"
           aria-label="Delete product"
         >
-          <FiTrash2 size={16} />
+          <FiTrash2 size={18} />
         </button>
       </div>
 

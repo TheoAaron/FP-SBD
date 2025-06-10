@@ -44,7 +44,7 @@ const mockProducts: Product[] = [
     price: 750,
     stock: 6
   },
-  // Duplikat untuk baris kedua seperti di gambar
+  // Duplikat untuk baris kedua
   {
     id: '5',
     name: 'Gucci duffle bag',
@@ -85,14 +85,23 @@ export default function AdminProductsPage() {
     product.name.toLowerCase().includes(search.toLowerCase())
   )
 
+  // Fungsi Edit Product
   const handleEdit = (id: string) => {
     router.push(`/admin/products/edit/${id}`)
   }
 
+  // Fungsi Delete Product
   const handleDelete = (id: string) => {
-    if (confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
+    const product = products.find(p => p.id === id)
+    if (confirm(`Apakah Anda yakin ingin menghapus "${product?.name}"?`)) {
       setProducts(products.filter(product => product.id !== id))
+      alert('Produk berhasil dihapus!')
     }
+  }
+
+  // Fungsi Add Product
+  const handleAddProduct = () => {
+    router.push('/admin/products/new')
   }
 
   return (
@@ -101,12 +110,12 @@ export default function AdminProductsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-semibold text-gray-900">All produk</h1>
-          <Link 
-            href="/admin/products/new"
+          <button 
+            onClick={handleAddProduct}
             className="border border-gray-300 px-6 py-2 rounded-md text-gray-700 hover:bg-gray-50 transition-colors font-medium"
           >
             Add New Product
-          </Link>
+          </button>
         </div>
 
         {/* Search Bar */}
