@@ -4,7 +4,10 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "drop": "npx sequelize db:drop --env development",
+    "migrate": "node scripts/init.js",
+    "fresh": "npm run drop && npm run migrate"
   },
   "keywords": [],
   "author": "",
@@ -16,7 +19,8 @@
     "express": "^5.1.0",
     "mongoose": "^8.15.1",
     "mysql2": "^3.14.1",
-    "sequelize": "^6.37.7"
+    "sequelize": "^6.37.7",
+    "sequelize-cli": "^6.6.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
