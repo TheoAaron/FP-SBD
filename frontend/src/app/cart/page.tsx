@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useCart } from '../../components/useCart'
 import { CartItem } from '../../components/cart-types'
+import { FiTrash2 } from 'react-icons/fi'
 
 const mockInitialItems: CartItem[] = [
   {
@@ -35,16 +36,17 @@ export default function Cart() {
     itemCount,
     setCartItems
   } = useCart()
+
   useEffect(() => {
-    // Inisialisasi cart dengan mock data
-    setCartItems(mockInitialItems)
-  }, [setCartItems])
+  // Inisialisasi cart dengan mock data
+  setCartItems(mockInitialItems)
+}, [setCartItems])
 
 
   const [couponCode, setCouponCode] = useState('')
   const [couponMessage, setCouponMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  // Initialize cart with mock data (in real app, load from localStorage or API)
+   // Initialize cart with mock data (in real app, load from localStorage or API)
   useEffect(() => {
     // This would typically load cart from localStorage or API
     // For demo purposes, we're using mock data
@@ -116,7 +118,7 @@ export default function Cart() {
         {/* Cart Items Section */}
         <div className="lg:col-span-2">
           {/* Cart Table Header */}
-          <div className="hidden md:grid grid-cols-4 gap- py-4 border-b border-gray-200 font-medium text-gray-900">
+          <div className="hidden md:grid grid-cols-4 py-4 border-b border-gray-200 font-medium text-gray-900">
             <div>Product</div>
             <div className="text-center">Price</div>
             <div className="text-center">Quantity</div>
@@ -126,24 +128,23 @@ export default function Cart() {
           {/* Cart Items */}
           <div className="divide-y divide-gray-200">
             {cartState.items.map((item: CartItem) => (
-              <div key={item.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 py-6">
+              <div key={item.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 py-6 items-center">
                 {/* Product Info */}
                 <div className="flex items-center space-x-4">
+                  {/* Trash Icon Button */}
+                  <button
+                    onClick={() => removeItem(item.id)}
+                    className="mr-3 text-gray-400 hover:text-red-600 transition-colors"
+                    aria-label="Remove item"
+                  >
+                    <FiTrash2 size={22} />
+                  </button>
                   <div className="relative w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
-                    {/* Red placeholder for product image */}
-                    {/* <div className="w-8 h-8 bg-red-500 rounded"></div> */}
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="w-full h-full object-cover rounded"></img>
-                    {/* Remove button */}
-                    <button
-                      onClick={() => removeItem(item.id)}
-                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-500 transition-colors"
-                      aria-label="Remove item"
-                    >
-                      ×
-                    </button>
+                      className="w-full h-full object-cover rounded"
+                    />
                   </div>
                   <div>
                     <h3 className="font-medium text-gray-900">{item.name}</h3>
@@ -219,7 +220,7 @@ export default function Cart() {
               Return To Shop
             </Link>
             <button
-              className="
+  className="
     bg-gray-100 
     hover:bg-gray-200 
     text-gray-700 
@@ -230,13 +231,37 @@ export default function Cart() {
     transition-colors 
     duration-200
   "
-            >
-              Update Cart
-            </button>
+>
+  Update Cart
+</button>
 
           </div>
 
           {/* Coupon Section */}
+          <div className="mt-8">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <input
+                type="text"
+                placeholder="Coupon Code"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value)}
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                disabled={isLoading}
+              />
+  <button
+    onClick={handleApplyCoupon}
+    disabled={isLoading}
+    className="px-6 py-3 bg-red-500 text-white rounded-md hover:bg-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-colors duration-200"
+  >
+    {isLoading ? 'Applying...' : 'Apply Coupon'}
+  </button>
+            </div>
+            {couponMessage && (
+              <p className={`mt-2 text-sm ${couponMessage.includes('success') ? 'text-green-600' : 'text-red-500'}`}>
+                {couponMessage}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Cart Total Section */}
@@ -249,7 +274,6 @@ export default function Cart() {
                 <span className="text-gray-600">Subtotal:</span>
                 <span className="font-medium">{formatCurrency(cartState.subtotal)}</span>
               </div>
-
               {cartState.discount && cartState.discount > 0 && (
                 <div className="flex justify-between items-center pb-4 border-b border-gray-200">
                   <span className="text-gray-600">
@@ -272,8 +296,8 @@ export default function Cart() {
               </div>
             </div>
 
-            <button
-              className="
+           <button
+  className="
     bg-red-500 
     hover:bg-red-600 
     text-white 
@@ -284,9 +308,9 @@ export default function Cart() {
     transition-colors 
     duration-200
   "
-            >
-              Proceed to Checkout
-            </button>
+>
+  Proceed to Checkout
+</button>
 
 
             <div className="mt-4 text-center">
@@ -300,4 +324,3 @@ export default function Cart() {
     </div>
   )
 }
-
