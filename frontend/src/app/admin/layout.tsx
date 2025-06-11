@@ -3,20 +3,18 @@ import LayoutWrapper from "@/components/LayoutWrapper";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "tokIT",
-  description: "TOKO IT",
+  title: "tokET",
+  description: "TOKO ETerion",
 };
 
-export default function AdminLayout({
+// src/app/admin/products/layout.tsx
+export default function AdminProductsLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body>
-        {children}
-      </body>
-    </html>
-  );
-}
+    <>
+      {children}
+    </>
+  )}

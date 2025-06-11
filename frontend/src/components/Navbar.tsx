@@ -88,6 +88,10 @@ const Navbar: React.FC = () => {
   const pathname = usePathname();
   const [showPopup, setShowPopup] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
+  
+ // Checking untuk admin page
+  const isAdmin = pathname.startsWith('/admin');
+  const logoText = isAdmin ? "tokET" : "tokIT";
 
   // Close popup on outside click
   useEffect(() => {
@@ -187,4 +191,6 @@ const Navbar: React.FC = () => {
   );
 };
 
+
+ 
 export default Navbar;

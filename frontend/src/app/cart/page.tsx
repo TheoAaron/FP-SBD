@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useCart } from '../../components/useCart'
 import { CartItem } from '../../components/cart-types'
+import { FiTrash2 } from 'react-icons/fi'
 
 const mockInitialItems: CartItem[] = [
   {
@@ -35,6 +36,7 @@ export default function Cart() {
     itemCount,
     setCartItems
   } = useCart()
+
   useEffect(() => {
   // Inisialisasi cart dengan mock data
   setCartItems(mockInitialItems)
@@ -116,7 +118,7 @@ export default function Cart() {
         {/* Cart Items Section */}
         <div className="lg:col-span-2">
           {/* Cart Table Header */}
-          <div className="hidden md:grid grid-cols-4 gap- py-4 border-b border-gray-200 font-medium text-gray-900">
+          <div className="hidden md:grid grid-cols-4 py-4 border-b border-gray-200 font-medium text-gray-900">
             <div>Product</div>
             <div className="text-center">Price</div>
             <div className="text-center">Quantity</div>
@@ -126,24 +128,23 @@ export default function Cart() {
           {/* Cart Items */}
           <div className="divide-y divide-gray-200">
             {cartState.items.map((item: CartItem) => (
-              <div key={item.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 py-6">
+              <div key={item.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 py-6 items-center">
                 {/* Product Info */}
                 <div className="flex items-center space-x-4">
+                  {/* Trash Icon Button */}
+                  <button
+                    onClick={() => removeItem(item.id)}
+                    className="mr-3 text-gray-400 hover:text-red-600 transition-colors"
+                    aria-label="Remove item"
+                  >
+                    <FiTrash2 size={22} />
+                  </button>
                   <div className="relative w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
-                    {/* Red placeholder for product image */}
-                    {/* <div className="w-8 h-8 bg-red-500 rounded"></div> */}
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="w-full h-full object-cover rounded"></img>
-                    {/* Remove button */}
-                    <button
-                      onClick={() => removeItem(item.id)}
-                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-500 transition-colors"
-                      aria-label="Remove item"
-                    >
-                      ×
-                    </button>
+                      className="w-full h-full object-cover rounded"
+                    />
                   </div>
                   <div>
                     <h3 className="font-medium text-gray-900">{item.name}</h3>
@@ -171,10 +172,12 @@ export default function Cart() {
                       -
                     </button>
                     <input
-                      type="number"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       value={item.quantity.toString().padStart(2, '0')}
                       onChange={(e) => {
-                        const newQty = parseInt(e.target.value) || 1
+                        const newQty = parseInt(e.target.value.replace(/\D/g, '')) || 1
                         handleQuantityChange(item.id, newQty)
                       }}
                       className="w-16 px-2 py-1 text-center border-0 focus:ring-0"
@@ -216,8 +219,8 @@ export default function Cart() {
                 duration-200
               "
             >
-          Return To Shop
-        </Link>
+              Return To Shop
+            </Link>
             <button
   className="
     bg-gray-100 
@@ -273,7 +276,6 @@ export default function Cart() {
                 <span className="text-gray-600">Subtotal:</span>
                 <span className="font-medium">{formatCurrency(cartState.subtotal)}</span>
               </div>
-
               {cartState.discount && cartState.discount > 0 && (
                 <div className="flex justify-between items-center pb-4 border-b border-gray-200">
                   <span className="text-gray-600">
@@ -324,4 +326,3 @@ export default function Cart() {
     </div>
   )
 }
-
