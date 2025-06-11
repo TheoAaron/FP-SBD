@@ -5,9 +5,9 @@ import DiscoveryProduct from '@/components/DiscoveryProduct'
 import CategorySection from "@/components/Category";
 
 const images = [
-  { src: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=300&fit=crop', alt: 'First Slide' },
-  { src: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=300&fit=crop', alt: 'Second Slide' },
-  { src: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop', alt: 'Third Slide' },
+  { src: 'https://images.unsplash.com/photo-1556656793-08538906a9f8?w=800&h=400&fit=crop', alt: 'First Slide' },
+  { src: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=400&fit=crop', alt: 'Second Slide' },
+  { src: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=400&fit=crop', alt: 'Third Slide' },
 ];
 
 

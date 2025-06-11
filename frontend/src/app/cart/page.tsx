@@ -172,10 +172,12 @@ export default function Cart() {
                       -
                     </button>
                     <input
-                      type="number"
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
                       value={item.quantity.toString().padStart(2, '0')}
                       onChange={(e) => {
-                        const newQty = parseInt(e.target.value) || 1
+                        const newQty = parseInt(e.target.value.replace(/\D/g, '')) || 1
                         handleQuantityChange(item.id, newQty)
                       }}
                       className="w-16 px-2 py-1 text-center border-0 focus:ring-0"
