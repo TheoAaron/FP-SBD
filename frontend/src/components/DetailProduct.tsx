@@ -62,7 +62,7 @@ export default function DetailProduct({ id_produk }: ProductDetailProps) {
         Add to Cart
     </div>
     <div className="w-10 h-10 left-[1094px] top-[303px] absolute rounded outline outline-1 outline-black/50 overflow-hidden">
-      <HeartIcon className="w-10 h-10 text-gray-700" style={{ padding: '6px' }} />
+      <HeartIcon className="w-10 h-10 text-gray-700 p-2" />
     </div>
     <div className="w-96 h-44 left-[735px] top-[385px] absolute rounded outline outline-1 outline-offset-[-1px] outline-black/50 overflow-hidden">
         <div className="w-96 h-0 left-0 top-[90px] absolute opacity-50">

@@ -36,15 +36,15 @@ export default function Cart() {
     setCartItems
   } = useCart()
   useEffect(() => {
-  // Inisialisasi cart dengan mock data
-  setCartItems(mockInitialItems)
-}, [setCartItems])
+    // Inisialisasi cart dengan mock data
+    setCartItems(mockInitialItems)
+  }, [setCartItems])
 
 
   const [couponCode, setCouponCode] = useState('')
   const [couponMessage, setCouponMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-   // Initialize cart with mock data (in real app, load from localStorage or API)
+  // Initialize cart with mock data (in real app, load from localStorage or API)
   useEffect(() => {
     // This would typically load cart from localStorage or API
     // For demo purposes, we're using mock data
@@ -216,10 +216,10 @@ export default function Cart() {
                 duration-200
               "
             >
-          Return To Shop
-        </Link>
+              Return To Shop
+            </Link>
             <button
-  className="
+              className="
     bg-gray-100 
     hover:bg-gray-200 
     text-gray-700 
@@ -230,37 +230,13 @@ export default function Cart() {
     transition-colors 
     duration-200
   "
->
-  Update Cart
-</button>
+            >
+              Update Cart
+            </button>
 
           </div>
 
           {/* Coupon Section */}
-          <div className="mt-8">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <input
-                type="text"
-                placeholder="Coupon Code"
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value)}
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                disabled={isLoading}
-              />
-  <button
-    onClick={handleApplyCoupon}
-    disabled={isLoading}
-    className="px-6 py-3 bg-red-500 text-white rounded-md hover:bg-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold transition-colors duration-200"
-  >
-    {isLoading ? 'Applying...' : 'Apply Coupon'}
-  </button>
-            </div>
-            {couponMessage && (
-              <p className={`mt-2 text-sm ${couponMessage.includes('success') ? 'text-green-600' : 'text-red-500'}`}>
-                {couponMessage}
-              </p>
-            )}
-          </div>
         </div>
 
         {/* Cart Total Section */}
@@ -296,8 +272,8 @@ export default function Cart() {
               </div>
             </div>
 
-           <button
-  className="
+            <button
+              className="
     bg-red-500 
     hover:bg-red-600 
     text-white 
@@ -308,9 +284,9 @@ export default function Cart() {
     transition-colors 
     duration-200
   "
->
-  Proceed to Checkout
-</button>
+            >
+              Proceed to Checkout
+            </button>
 
 
             <div className="mt-4 text-center">

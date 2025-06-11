@@ -8,6 +8,7 @@ import Link from 'next/link'
 interface Product {
   id?: string
   name: string
+  description: string
   image: string
   price: number
   oldPrice?: number
@@ -23,18 +24,19 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
   const router = useRouter()
   const [formData, setFormData] = useState({
     name: product?.name || '',
+    description: product?.description || '',
     image: product?.image || '',
     price: product?.price?.toString() || '',
     oldPrice: product?.oldPrice?.toString() || '',
     stock: product?.stock?.toString() || ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-
   // Update form ketika product berubah (untuk edit mode)
   useEffect(() => {
     if (product) {
       setFormData({
         name: product.name,
+        description: product.description,
         image: product.image,
         price: product.price.toString(),
         oldPrice: product.oldPrice?.toString() || '',
@@ -43,7 +45,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
     }
   }, [product])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -57,10 +59,10 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
     try {
       // Simulasi API call
       await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      const productData = {
+        const productData = {
         ...(mode === 'edit' && product?.id && { id: product.id }),
         name: formData.name,
+        description: formData.description,
         image: formData.image,
         price: parseFloat(formData.price),
         oldPrice: formData.oldPrice ? parseFloat(formData.oldPrice) : undefined,
@@ -88,8 +90,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
         <div className="bg-white rounded-lg shadow p-8">
           <h1 className="text-2xl font-bold mb-8">{title}</h1>
           
-          <form onSubmit={handleSubmit}>
-            <div className="mb-6">
+          <form onSubmit={handleSubmit}>            <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Nama Produk *
               </label>
@@ -100,6 +101,21 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Masukkan nama produk"
+                required
+              />
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Deskripsi Produk *
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={4}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Masukkan deskripsi produk"
                 required
               />
             </div>
@@ -129,9 +145,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
                   />
                 </div>
               )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            </div>            <div className={`${mode === 'edit' ? 'grid grid-cols-2 gap-4' : ''} mb-6`}>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Harga *
@@ -148,21 +162,23 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
                   required
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Harga Lama (Opsional)
-                </label>
-                <input
-                  type="number"
-                  name="oldPrice"
-                  value={formData.oldPrice}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="0"
-                  min="0"
-                  step="0.01"
-                />
-              </div>
+              {mode === 'edit' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Harga Lama (Opsional)
+                  </label>
+                  <input
+                    type="number"
+                    name="oldPrice"
+                    value={formData.oldPrice}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="mb-8">
