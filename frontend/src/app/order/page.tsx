@@ -55,10 +55,10 @@ export default function OrdersPage() {
                   <th className="px-6 py-4 text-left text-sm font-medium text-gray-900 uppercase tracking-wider">
                     Product
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-900 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-center text-sm font-medium text-gray-900 uppercase tracking-wider">
                     Subtotal
                   </th>
-                  <th className="px-6 py-4 text-left text-sm font-medium text-gray-900 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-center text-sm font-medium text-gray-900 uppercase tracking-wider">
                     Payment Method
                   </th>
                   <th className="px-6 py-4 text-left text-sm font-medium text-gray-900 uppercase tracking-wider">
@@ -73,7 +73,7 @@ export default function OrdersPage() {
                 {orders.map((order) => (
                   <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-6 whitespace-nowrap">
-                      <div className="flex flex-col items-center space-y-2">
+                      <div className="flex flex-col space-y-2">
                         {/* Gambar Produk */}
                         <div className="flex-shrink-0 w-16 h-16">
                           <img
@@ -85,7 +85,7 @@ export default function OrdersPage() {
                           />
                         </div>
                         {/* Label Item dengan format "Item 1 +2" */}
-                        <div className="text-center">
+                        <div className="text">
                           <div className="text-sm font-medium text-gray-900">
                             {order.name}
                             {order.additionalItems > 0 && (
@@ -105,7 +105,7 @@ export default function OrdersPage() {
                         {order.paymentMethod}
                       </div>
                     </td>
-                    <td className="px-6 py-6 whitespace-nowrap text-center">
+                    <td className="px-6 py-6 whitespace-nowrap text">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                         order.paymentStatus === 'Pending' 
                           ? 'bg-yellow-100 text-yellow-800'
@@ -116,7 +116,7 @@ export default function OrdersPage() {
                         {order.paymentStatus}
                       </span>
                     </td>
-                    <td className="px-6 py-6 whitespace-nowrap text-center">
+                    <td className="px-6 py-6 whitespace-nowrap text">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                         order.shippingStatus === 'Shipped' 
                           ? 'bg-blue-100 text-blue-800'
