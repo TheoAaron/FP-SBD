@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "drop": "npx sequelize db:drop --env development",
+    "drop": "node scripts/init.js",
     "migrate": "node scripts/init.js",
     "fresh": "npm run drop && npm run migrate"
   },

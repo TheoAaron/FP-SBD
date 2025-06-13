@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../../config/database');
+const sequelize = require('../../config/mysql');
 
 const Coupon = sequelize.define('Coupon', {
   id_kupon: {
