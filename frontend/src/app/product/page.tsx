@@ -33,9 +33,9 @@ export default function ProductPage() {
           {selectedCategory ? `Explore Our ${selectedCategory}` : 'All Products'}
         </h3>
 
-        <div className="flex gap-8 overflow-x-auto py-4 no-scrollbar">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 py-4">
           {filteredProducts.map(product => (
-            <div key={product.id} className="min-w-[250px] flex-shrink-0 group border rounded-lg p-4 hover:shadow-md transition">
+            <div key={product.id} className="group border rounded-lg p-4 hover:shadow-md transition">
               <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-64 overflow-hidden">
                 <img
                   src={product.image}
