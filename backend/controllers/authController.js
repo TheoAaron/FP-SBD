@@ -8,20 +8,20 @@ const login = async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) {
       return res.status(400).json({ message: "Username and password are required" });
-    }
-
-    const [rows] = await pool.query('SELECT * FROM users WHERE username = ? AND password = ?', [username, password]);
+    }    const [rows] = await pool.query('SELECT * FROM users WHERE username = ? AND password = ?', [username, password]);
     
     if (rows.length === 0) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
+    
+    const user = rows[0]; // Get the first user from results
     const token = jwt.sign(
-      { id: rows.id, email: rows.email, role: rows.role },
+      { id: user.id_user, email: user.email, role: user.role },
       JWT_SECRET,
       { expiresIn: '1d' }
     );
 
-    res.status(200).json({ message: "Login successful",token, user: rows[0] });
+    res.status(200).json({ message: "Login successful", token, user: user });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
