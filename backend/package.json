@@ -7,7 +7,8 @@
     "dev": "nodemon server.js",
     "drop": "node scripts/init.js",
     "migrate": "node scripts/init.js",
-    "fresh": "npm run drop && npm run migrate"
+    "fresh": "npm run drop && npm run migrate",
+    "seed": "npx sequelize-cli db:seed:all"
   },
   "keywords": [],
   "author": "",

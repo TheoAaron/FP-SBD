@@ -25,7 +25,7 @@ module.exports = {
         },
         onDelete: 'SET NULL'
       },
-      id_shipment_detail: {
+      id_shipment: {
         type: Sequelize.UUID,
         allowNull: false,
         unique: true,

@@ -13,6 +13,12 @@ module.exports = {
       },
       diskon: Sequelize.FLOAT(10, 2),
       expired_at: Sequelize.DATE,
+      expired_at: Sequelize.DATE,
+      status: {
+        type: Sequelize.ENUM('active', 'expired'),
+        allowNull: false,
+        defaultValue: 'active'
+      },
       createdAt: Sequelize.DATE,
       updatedAt: Sequelize.DATE
     });
