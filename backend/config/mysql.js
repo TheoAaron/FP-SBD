@@ -1,4 +1,5 @@
 const { Sequelize } = require("sequelize");
+const mysql = require('mysql2/promise');
 
 const sequelize = new Sequelize(
   process.env.DB_NAME,
@@ -10,13 +11,29 @@ const sequelize = new Sequelize(
   }
 );
 
+// const connectMySQL = async () => {
+//   try {
+//     await sequelize.authenticate();
+//     console.log("✅ MySQL connected");
+//   } catch (error) {
+//     console.error("❌ Unable to connect to MySQL:", error);
+//   }
+// };
+
+const pool = mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
+});
+
 const connectMySQL = async () => {
   try {
-    await sequelize.authenticate();
+    await pool.getConnection();
     console.log("✅ MySQL connected");
   } catch (error) {
     console.error("❌ Unable to connect to MySQL:", error);
   }
-};
+}
 
-module.exports = { sequelize, connectMySQL };
+module.exports = { sequelize, pool, connectMySQL };

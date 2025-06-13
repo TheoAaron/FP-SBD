@@ -6,6 +6,7 @@ const connectMongo = require("./config/mongo");
 const { connectMySQL } = require("./config/mysql");
 
 const authRoutes = require("./routes/authRoutes");
+const testRoutes = require("./routes/testRoutes");
 const User = require("./models/mysql/User");
 
 const app = express();
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes); // add auth routes for login and register
 
 app.get("/", (req, res) => res.send("🛒 Backend running with Mongo & MySQL"));
+app.use("/api", testRoutes);
 
 const start = async () => {
   await connectMongo();
