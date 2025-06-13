@@ -48,7 +48,7 @@ const members: Member[] = [
   },
 ];
 
-const image = "all.jpg";
+const image = "about.jpg";
 
 const AboutSection = () => {
   const rows = [];
