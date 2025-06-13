@@ -9,7 +9,7 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     const form = event.currentTarget;
     const formData = new FormData(form);
     const payload = {
-        email: formData.get('email'),
+        username: formData.get('email'),
         password: formData.get('password'),
     };
     try {
@@ -21,6 +21,10 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         if (res.ok) {
             toast.success('Login successful');
             // optionally redirect
+            const data = await res.json();
+            if (data.token) {
+                sessionStorage.setItem('jwtToken', data.token);
+            }
         } else {
             toast.error('Login failed');
         }
@@ -56,7 +60,7 @@ export default function LoginLayout() {
                                             name="email"
                                             type="text"
                                             className="w-80 border-b border-black opacity-100 text-black text-base font-normal font-['Poppins'] leading-normal bg-transparent placeholder-opacity-20"
-                                            placeholder="Enter your email"
+                                            placeholder="Enter your Username"
                                         />
                                     </div>
 
