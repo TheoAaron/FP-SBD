@@ -179,7 +179,7 @@ const path = require('path');
 
 // Ambil config Sequelize
 const dbConfig = require('../config/config').development;
-const mongoUri = `mongodb://localhost:27017/${dbConfig.database}`;
+const mongoUri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.DB_NAME}`;
 const isDrop = process.env.npm_lifecycle_event === 'drop';
 
 async function init() {

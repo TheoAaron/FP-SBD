@@ -6,7 +6,7 @@ const connectMongo = require("./config/mongo");
 const { connectMySQL } = require("./config/mysql");
 
 const authRoutes = require("./routes/authRoutes");
-const User = require("./models/mysql/user");
+const User = require("./models/mysql/User");
 
 const app = express();
 const PORT = process.env.PORT || 3001;

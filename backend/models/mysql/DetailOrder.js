@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../../config/mysql');
+const {sequelize} = require('../../config/mysql');
 
 const DetailOrder = sequelize.define('DetailOrder', {
   id_detail_order: {
