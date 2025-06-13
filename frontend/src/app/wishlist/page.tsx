@@ -90,7 +90,8 @@ export default function WishlistPage() {
         {wishlist.map(product => (
           <div key={product.id} className="border rounded-lg p-4 group">
             <div className="relative h-48 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden group mb-4">
-              <button className="absolute top-3 right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center text-black hover:bg-gray-200 transition-colors z-10">
+              {/* Trash Icon - Hidden by default, shows on hover */}
+              <button className="absolute top-3 right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center text-black hover:bg-gray-200 transition-all duration-300 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 z-10">
                 <Trash2 className="w-5 h-5" />
               </button>
               <img
@@ -126,7 +127,8 @@ export default function WishlistPage() {
         {lastView.map(product => (
           <div key={product.id} className="border rounded-lg p-4 group">
             <div className="relative h-48 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden group mb-4">
-              <button className="absolute top-3 right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center text-black hover:bg-gray-200 transition-colors z-10">
+              {/* Eye Icon - Hidden by default, shows on hover */}
+              <button className="absolute top-3 right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center text-black hover:bg-gray-200 transition-all duration-300 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 z-10">
                 <Eye className="w-5 h-5" />
               </button>
               <img
