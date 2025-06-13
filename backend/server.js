@@ -7,6 +7,7 @@ const { connectMySQL } = require("./config/mysql");
 
 const testRoutes = require("./routes/testRoutes");
 const authRoutes = require("./routes/authRoutes");
+const productRoutes = require("./routes/productRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -18,6 +19,7 @@ app.use(express.json());
 app.get("/", (req, res) => res.send("🛒 Backend running with Mongo & MySQL"));
 app.use("/api", testRoutes);
 app.use("/api/auth", authRoutes );
+app.use("/api", productRoutes);
 
 
 const start = async () => {
