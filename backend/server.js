@@ -8,12 +8,9 @@ const { connectMySQL } = require("./config/mysql");
 const testRoutes = require("./routes/testRoutes");
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
-<<<<<<< HEAD
 const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const adminMiddleware = require("./middlewares/admin");
-=======
->>>>>>> f938691 (add bestseller&singleproduct api)
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -25,13 +22,10 @@ app.use(express.json());
 app.get("/", (req, res) => res.send("🛒 Backend running with Mongo & MySQL"));
 app.use("/api", testRoutes);
 app.use("/api/auth", authRoutes );
-<<<<<<< HEAD
 app.use("/api", productRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/admin", adminRoutes);
-=======
 app.use("/api/products", productRoutes);
->>>>>>> f938691 (add bestseller&singleproduct api)
 
 
 const start = async () => {
