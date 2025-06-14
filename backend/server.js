@@ -24,7 +24,7 @@ app.use("/api", testRoutes);
 app.use("/api/auth", authRoutes );
 app.use("/api", productRoutes);
 app.use("/api/user", userRoutes);
-app.use("/api/admin",adminMiddleware, adminRoutes);
+app.use("/api/admin", adminRoutes);
 
 
 const start = async () => {
