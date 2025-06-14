@@ -3,7 +3,8 @@ const crypto = require('crypto');
 
 // Fungsi hash password pakai SHA-256
 function hashPassword(password) {
-  return crypto.createHash('sha256').update(password).digest('hex');
+  const salt = process.env.PASSWORD_SALT;
+  return crypto.createHash('sha256').update(`${password}${salt}`).digest('hex');
 }
 
 module.exports = {

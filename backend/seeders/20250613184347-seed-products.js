@@ -1,50 +1,65 @@
+'use strict';
+
 const { v4: uuidv4 } = require('uuid');
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    const products = [
-      {
-        id_produk: uuidv4(),
-        nama_produk: 'Mouse Gaming RGB',
-        avg_rating: 4.5,
-        harga: 150000.00,
-        description: 'Mouse gaming dengan pencahayaan RGB dan DPI hingga 6400.',
-        image: 'mouse-gaming.jpg',
-        stock: 50,
-        total_review: 12,
-        kategori: 'Elektronik',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id_produk: uuidv4(),
-        nama_produk: 'Kemeja Linen Pria',
-        avg_rating: 4.2,
-        harga: 120000.00,
-        description: 'Kemeja pria bahan linen premium, cocok untuk acara formal maupun santai.',
-        image: 'kemeja-linen.jpg',
-        stock: 100,
-        total_review: 8,
-        kategori: 'Pakaian',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id_produk: uuidv4(),
-        nama_produk: 'Tumbler Stainless 500ml',
-        avg_rating: 4.7,
-        harga: 60000.00,
-        description: 'Tumbler stainless steel, tahan panas dan dingin, cocok untuk dibawa bepergian.',
-        image: 'tumbler.jpg',
-        stock: 75,
-        total_review: 22,
-        kategori: 'Aksesoris',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    ];
+    const now = new Date();
 
-    await queryInterface.bulkInsert('products', products);
+    await queryInterface.bulkInsert('products', [
+      {
+        id_produk: uuidv4(),
+        nama_produk: 'iPhone 15 Pro',
+        avg_rating: 4.7,
+        harga: 17990000,
+        description: 'Smartphone flagship dengan chip A17 Pro dan kamera canggih.',
+        image: 'iphone15pro.jpg',
+        stock: 25,
+        total_review: 120,
+        kategori: 'phone',
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id_produk: uuidv4(),
+        nama_produk: 'PlayStation 5',
+        avg_rating: 4.9,
+        harga: 8490000,
+        description: 'Konsol generasi terbaru dari Sony dengan performa tinggi.',
+        image: 'ps5.jpg',
+        stock: 40,
+        total_review: 250,
+        kategori: 'gaming',
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id_produk: uuidv4(),
+        nama_produk: 'MacBook Pro M3',
+        avg_rating: 4.8,
+        harga: 31999000,
+        description: 'Laptop profesional dengan chip Apple M3 dan layar Retina.',
+        image: 'macbookpro.jpg',
+        stock: 10,
+        total_review: 85,
+        kategori: 'computer',
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id_produk: uuidv4(),
+        nama_produk: 'Sony WH-1000XM5',
+        avg_rating: 4.6,
+        harga: 4990000,
+        description: 'Headphone noise cancelling terbaik dari Sony.',
+        image: 'sonywh1000xm5.jpg',
+        stock: 30,
+        total_review: 180,
+        kategori: 'audio',
+        createdAt: now,
+        updatedAt: now
+      },
+    ]);
   },
 
   down: async (queryInterface, Sequelize) => {
