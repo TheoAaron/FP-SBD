@@ -28,8 +28,6 @@ app.use("/api/user", userRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/products", productRoutes);
 
-app.use("/api/reviews", reviewRoutes);
-
 const start = async () => {
   await connectMongo();
   await connectMySQL();

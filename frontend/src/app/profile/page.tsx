@@ -10,6 +10,10 @@ interface UserProfile {
   email: string;
   role: string;
   name?: string;
+  first_name?: string;
+  last_name?: string;
+  address?: string;
+  phone_number?: string;
 }
 
 export default function Profile() {
@@ -50,7 +54,6 @@ export default function Profile() {
         setUserProfile(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Terjadi kesalahan saat mengambil data profil');
-        // Redirect ke home jika ada error
         router.push('/');
       } finally {
         setLoading(false);
@@ -89,7 +92,7 @@ export default function Profile() {
         <li className="text-red-500 font-medium">{userProfile?.name || userProfile?.email || 'User'}</li>
       </ol>      <div className="flex">     
         <ProfileSidebar />
-        <EditProfile />
+        <EditProfile userProfile={userProfile} />
       </div>
     </div>
   );

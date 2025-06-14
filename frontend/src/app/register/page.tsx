@@ -23,7 +23,6 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         if (res.ok) {
             toast.success('Registration successful');
             // optionally redirect
-            window.location.href = '/login';
         } else {
             toast.error('Registration failed');
         }
@@ -57,7 +56,7 @@ export default function SigninPage() {
                                             name="name"
                                             type="text"
                                             className="w-80 border-b border-black outline-none text-black text-base font-['Poppins'] bg-transparent placeholder-opacity-200"
-                                            placeholder="Enter your name"
+                                            placeholder="Username Here"
                                         />
                                     </div>
 
@@ -68,7 +67,7 @@ export default function SigninPage() {
                                             name="email"
                                             type="text"
                                             className="w-80 border-b border-black opacity-100 text-black text-base font-normal font-['Poppins'] leading-normal bg-transparent placeholder-opacity-20"
-                                            placeholder="Enter your email"
+                                            placeholder="Email Here"
                                         />
                                     </div>
 
@@ -79,7 +78,7 @@ export default function SigninPage() {
                                             name="password"
                                             type="password"
                                             className="w-80 border-b border-black outline-none text-black text-base font-['Poppins'] bg-transparent placeholder-opacity-50"
-                                            placeholder="Enter your password"
+                                            placeholder="Password Here, but sshh quitely"
                                         />
                                     </div>
                                 </div>

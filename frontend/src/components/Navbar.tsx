@@ -6,11 +6,14 @@ import Link from 'next/link';
 import Image from 'next/image'; // Import Image component
 import { FiSearch, FiHeart, FiShoppingCart, FiLogOut } from 'react-icons/fi';
 import { FaUser, FaUserCircle } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
 
 const Navbar: React.FC = () => {
+
   const pathname = usePathname();
   const [showPopup, setShowPopup] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
   
  // Checking untuk admin page
   const isAdmin = pathname.startsWith('/admin');
@@ -60,13 +63,11 @@ const Navbar: React.FC = () => {
 
         {/* Search and Icons */}
         <div className="flex items-center space-x-6">
-          <div className="relative">
             <input
               type="text"
               placeholder="What are you looking for?"
               className="px-4 py-2 pl-5 rounded-full bg-gray-100 text-lg focus:outline-none" // Increased font size
             />
-          </div>
 
           <Link href="/wishlist" className="relative">
             <FiHeart className="text-3xl cursor-pointer" /> {/* Increased icon size */}
@@ -93,16 +94,19 @@ const Navbar: React.FC = () => {
                   href="/profile"
                   className="flex items-center gap-3 px-5 py-3 rounded hover:bg-gray-100 transition-colors text-lg" // Increased padding, gap and font size
                 >
-                  <FaUser className="text-lg" /> {/* Increased icon size */}
+                  <FaUser className="text-lg" /> 
                   Profile
                 </Link>
-                <Link
-                  href="/logout"
-                  className="flex items-center gap-3 px-5 py-3 rounded hover:bg-gray-100 transition-colors text-lg" // Increased padding, gap and font size
+                <button
+                  onClick={() => {
+                  sessionStorage.removeItem("jwtToken");
+                  router.push('/login')
+                  }}
+                  className="flex items-center gap-3 px-5 py-3 rounded hover:bg-gray-100 transition-colors text-lg w-full text-left" // Increased padding, gap and font size, added w-full and text-left for button styling
                 >
                   <FiLogOut className="text-lg" /> {/* Increased icon size */}
                   Logout
-                </Link>
+                </button>
               </div>
             )}
 
