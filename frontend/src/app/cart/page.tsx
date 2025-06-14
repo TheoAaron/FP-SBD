@@ -298,23 +298,21 @@ export default function Cart() {
               </div>
             </div>
 
-           <button
-  className="
-    bg-red-500 
-    hover:bg-red-600 
-    text-white 
-    font-semibold 
-    py-3 
-    rounded 
-    w-full 
-    transition-colors 
-    duration-200
-  "
->
-  Proceed to Checkout
-</button>
-
-
+            <button
+                className="
+                bg-red-500 
+                hover:bg-red-600 
+                text-white 
+                font-semibold 
+                py-3 
+                rounded 
+                w-full 
+                transition-colors 
+                duration-200
+              "
+            >
+              Proceed to Checkout
+            </button>
             <div className="mt-4 text-center">
               <p className="text-sm text-gray-600">
                 Total items: <span className="font-medium">{itemCount}</span>
