@@ -3,6 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { Toaster, toast } from 'react-hot-toast';
+import { redirect } from 'next/dist/server/api-utils';
+import { Route, Router } from 'lucide-react';
 
 // form submission handler
 async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -20,11 +22,12 @@ async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
         });
+        const results = await res.json();
         if (res.ok) {
-            toast.success('Registration successful');
-            // optionally redirect
+            toast.success(results.message);
+            window.location.href = '/login';
         } else {
-            toast.error('Registration failed');
+            toast.error(results.message);
         }
     } catch (err) {
         toast.error('Error registering user');

@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import toast, { Toaster } from 'react-hot-toast';
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 
 export default function LoginLayout() {
     const router = useRouter();
@@ -29,10 +29,11 @@ export default function LoginLayout() {
                 if (data.token) {
                     sessionStorage.setItem('jwtToken', data.token);
                     // Redirect ke home setelah login berhasil
-                    router.push('/');
+                    window.location.href = '/';
                 }
             } else {
-                toast.error('Login failed');
+                const dataa = await res.json();
+                toast.error(dataa.message || 'Login failed');
             }
         } catch (err) {
             toast.error('Error logging in');
