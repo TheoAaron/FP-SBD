@@ -1,18 +1,42 @@
 const mysql = require('mysql2/promise');
 
-const pool = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
-});
+// Konfigurasi untuk Railway atau local
+const config = {
+  host: process.env.RAILWAY_MYSQL_HOST || process.env.DB_HOST || 'localhost',
+  port: process.env.RAILWAY_MYSQL_PORT || process.env.DB_PORT || 3306,
+  user: process.env.RAILWAY_MYSQL_USER || process.env.DB_USER || 'root',
+  password: process.env.RAILWAY_MYSQL_PASSWORD || process.env.DB_PASSWORD || '',
+  database: process.env.RAILWAY_MYSQL_DATABASE || process.env.DB_NAME || 'sbdjaya',
+  // Tambahan config untuk production
+  connectTimeout: 60000,
+  acquireTimeout: 60000,
+  timeout: 60000,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+};
+
+// Jika ada MYSQL_URL dari Railway, gunakan itu
+let pool;
+if (process.env.MYSQL_URL) {
+  pool = mysql.createPool(process.env.MYSQL_URL);
+} else {
+  pool = mysql.createPool(config);
+}
 
 const connectMySQL = async () => {
   try {
-    await pool.getConnection();
-    console.log("✅ MySQL connected");
+    const connection = await pool.getConnection();
+    const host = config.host || 'from URL';
+    console.log(`✅ MySQL connected to ${host}`);
+    connection.release();
   } catch (error) {
-    console.error("❌ Unable to connect to MySQL:", error);
+    console.error("❌ Unable to connect to MySQL:", error.message);
+    console.log("Current MySQL config:", {
+      host: config.host,
+      port: config.port,
+      user: config.user,
+      database: config.database,
+      hasPassword: !!config.password
+    });
   }
 }
 
