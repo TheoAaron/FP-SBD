@@ -1,12 +1,12 @@
-import DetailProduct, { ProductDetailProps } from "@/components/DetailProduct";
+import DetailProduct from "@/components/DetailProduct";
 import { dummyProducts } from '@/lib/dummyProducts';
 import UserReview from '@/components/userReview';
-import StarRating from '@/components/StarRating';
 import RelatedProductsCarousel from '@/components/RelatedProductsCarousel';
 
 
-export default async function ProductDetailPage({ params }: { params: { id: string } }) {
-  const id_produk = parseInt(params.id, 10);
+export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const id_produk = parseInt(resolvedParams.id, 10);
   // Find current product
   const current = dummyProducts.find(p => p.id_produk === id_produk);
   if (!current) return <div>Product not found</div>;

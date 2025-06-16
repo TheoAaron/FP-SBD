@@ -3,10 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import toast, { Toaster } from 'react-hot-toast';
-import { redirect, useRouter } from 'next/navigation';
 
 export default function LoginLayout() {
-    const router = useRouter();
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();

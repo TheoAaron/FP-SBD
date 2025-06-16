@@ -58,10 +58,8 @@ export default function Profile() {
       } finally {
         setLoading(false);
       }
-    };
-
-    fetchUserProfile();
-  }, []);  if (loading) {
+    };    fetchUserProfile();
+  }, [router]);if (loading) {
     return (
       <div className="px-[10vw] py-8">
         <div className="flex justify-center items-center">

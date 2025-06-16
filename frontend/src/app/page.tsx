@@ -1,4 +1,5 @@
 // src/app/page.ts
+import { Suspense } from 'react';
 import Carousel from '@/components/Carousel';
 import BestSellingProducts from '@/components/BestSellingProduct';
 import DiscoveryProduct from '@/components/DiscoveryProduct'
@@ -17,7 +18,9 @@ export default function Home() {
     <div>
       <Carousel images={images} />
       <div className="max-w-6xl mx-auto px-6 py-10">
-        <CategorySection />
+        <Suspense fallback={<div>Loading categories...</div>}>
+          <CategorySection />
+        </Suspense>
       </div>
       <BestSellingProducts />
       <DiscoveryProduct />

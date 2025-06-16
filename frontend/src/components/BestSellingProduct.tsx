@@ -1,6 +1,5 @@
 'use client';
 import { Heart, Eye, ShoppingCart } from "lucide-react";
-import { useState } from "react";
 import StarRating from "@/components/StarRating";
 import Link from "next/link";
 

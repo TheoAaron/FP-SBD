@@ -1,22 +1,43 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { dummyOrders, Order } from '@/lib/dummyOrders'
 
 interface OrderDetailPageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
-export default async function OrderDetailPage({ params }: OrderDetailPageProps) {
-  const order = dummyOrders.find(o => o.id === params.id)
+export default function OrderDetailPage({ params }: OrderDetailPageProps) {
+  const [order, setOrder] = useState<Order | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadOrder = async () => {
+      const resolvedParams = await params
+      const foundOrder = dummyOrders.find(o => o.id === resolvedParams.id)
+      setOrder(foundOrder || null)
+      setLoading(false)
+    }
+    loadOrder()
+  }, [params])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600">Loading order details...</p>
+        </div>
+      </div>
+    )
+  }
 
   if (!order) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">Order not found</h2>
-          <p className="text-gray-600 mb-8">The order you're looking for doesn't exist</p>
+          <p className="text-gray-600 mb-8">The order you&apos;re looking for doesn&apos;t exist</p>
           <Link
             href="/profile"
             className="inline-flex items-center px-6 py-3 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"

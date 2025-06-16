@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import CategorySection from "@/components/Category";
 import StarRating from "@/components/StarRating";
@@ -17,7 +18,7 @@ const products = [
   { id: 10, category: 'Gaming', name: 'HAVIT HV-G92 Gamepad', image: 'https://images.unsplash.com/photo-1604392002974-02e716b36dc6?auto=format&fit=crop&w=300&q=80', price: 560, rating: 5, reviews: 65 },
 ];
 
-export default function ProductPage() {
+function ProductContent() {
   const searchParams = useSearchParams();
   const selectedCategory = searchParams.get('category');
   const filteredProducts = selectedCategory
@@ -26,7 +27,9 @@ export default function ProductPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
-      <CategorySection />
+      <Suspense fallback={<div>Loading categories...</div>}>
+        <CategorySection />
+      </Suspense>
 
       <div className="mt-12">
         <h3 className="text-3xl font-bold mb-8">
@@ -53,8 +56,7 @@ export default function ProductPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <StarRating rating={product.rating} />
-                  <span className="text-gray-600 text-sm font-medium">{product.rating.toFixed(1)}</span>
-                  <span className="text-gray-400 text-sm">({product.reviews} reviews)</span>
+                  <span className="text-gray-600 text-sm font-medium">{product.rating.toFixed(1)}</span>                  <span className="text-gray-400 text-sm">({product.reviews} reviews)</span>
                 </div>
               </div>
             </div>
@@ -62,5 +64,13 @@ export default function ProductPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProductPage() {
+  return (
+    <Suspense fallback={<div>Loading products...</div>}>
+      <ProductContent />
+    </Suspense>
   );
 }

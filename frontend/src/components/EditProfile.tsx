@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -92,11 +91,8 @@ export default function EditProfile({ userProfile }: EditProfileProps) {
       if (!token) {
         console.log('No token found'); // Debug log
         toast.error('Token tidak ditemukan. Silakan login ulang.');
-        return;
-      }
-
-      // Prepare data to send (exclude empty password fields)
-      const dataToSend: any = {
+        return;      }      // Prepare data to send (exclude empty password fields)
+      const dataToSend: ProfileFormData = {
         first_name: formData.first_name,
         last_name: formData.last_name,
         email: formData.email,

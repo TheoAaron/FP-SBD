@@ -3,8 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { Toaster, toast } from 'react-hot-toast';
-import { redirect } from 'next/dist/server/api-utils';
-import { Route, Router } from 'lucide-react';
 
 // form submission handler
 async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

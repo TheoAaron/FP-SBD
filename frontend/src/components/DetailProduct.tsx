@@ -2,19 +2,14 @@
 import React, { useState } from 'react';
 import { dummyProducts } from '@/lib/dummyProducts';
 import StarRating from '@/components/StarRating';
-import { Heart, HeartIcon } from 'lucide-react';
-
-
-<HeartIcon className="w-5 h-5 text-gray-700" />
-
-
+import { Heart } from 'lucide-react';
 
 export type ProductDetailProps = { id_produk: number };
 
 export default function DetailProduct({ id_produk }: ProductDetailProps) {
+  const [quantity, setQuantity] = useState(1);
   const product = dummyProducts.find(p => p.id_produk === id_produk);
   if (!product) return <div>Product not found</div>;
-  const [quantity, setQuantity] = useState(1);
 
   return (
    <div className="w-[1134px] h-[605px] relative">
@@ -60,9 +55,8 @@ export default function DetailProduct({ id_produk }: ProductDetailProps) {
 
     <div data-button="Small" data-hover="No" className="absolute left-[904px] top-[301px] flex items-center h-11 px-12 bg-red-500 rounded text-neutral-50 font-medium justify-center gap-2.5">
         Add to Cart
-    </div>
-    <div className="w-10 h-10 left-[1094px] top-[303px] absolute rounded outline outline-1 outline-black/50 overflow-hidden">
-      <HeartIcon className="w-10 h-10 text-gray-700 p-2" />
+    </div>    <div className="w-10 h-10 left-[1094px] top-[303px] absolute rounded outline outline-1 outline-black/50 overflow-hidden">
+      <Heart className="w-10 h-10 text-gray-700 p-2" />
     </div>
     <div className="w-96 h-44 left-[735px] top-[385px] absolute rounded outline outline-1 outline-offset-[-1px] outline-black/50 overflow-hidden">
         <div className="w-96 h-0 left-0 top-[90px] absolute opacity-50">

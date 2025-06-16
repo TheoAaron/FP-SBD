@@ -4,15 +4,25 @@ import React, { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image'; // Import Image component
-import { FiSearch, FiHeart, FiShoppingCart, FiLogOut } from 'react-icons/fi';
+import { FiHeart, FiShoppingCart, FiLogOut } from 'react-icons/fi';
 import { FaUser, FaUserCircle } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
+
+interface UserProfile {
+  id: number;
+  email: string;
+  role: string;
+  name?: string;
+  first_name?: string;
+  last_name?: string;
+  profile_picture?: string;
+}
 
 const Navbar: React.FC = () => {
   const pathname = usePathname();
   const [showPopup, setShowPopup] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userProfile, setUserProfile] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -41,12 +51,7 @@ const Navbar: React.FC = () => {
     
     return () => {
       window.removeEventListener('storage', checkLoginStatus);
-    };
-  }, []);
-  
- // Checking untuk admin page
-  const isAdmin = pathname.startsWith('/admin');
-  const logoText = isAdmin ? "tokET" : "tokIT";
+    };  }, []);
 
   // Close popup on outside click
   useEffect(() => {
