@@ -80,14 +80,8 @@ const Navbar: React.FC = () => {
     <nav className="w-full border-b shadow-sm bg-white sticky top-0 z-50">
       <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
         {/* Logo */}
-        <Link href="/" className="flex-shrink-0">
-          <Image 
-            src="/tokit.svg" 
-            alt="tokIT Logo" 
-            width={100} 
-            height={50}
-            className="w-20 h-10 sm:w-24 sm:h-12 md:w-28 md:h-14"
-          />
+        <Link href="/">
+          <Image src="/tokit.svg" alt="tokIT Logo" width={200} height={80} /> {/* Increased logo size */}
         </Link>
 
         {/* Desktop Nav Links - Hidden on mobile */}
