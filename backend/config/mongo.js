@@ -1,6 +1,6 @@
 const { MongoClient } = require("mongodb");
 
-const MONGO_URI = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.DB_NAME}`;
+const MONGO_URI = process.env.MONGODB_URI;
 const client = new MongoClient(MONGO_URI);
 
 let dbConnection;
@@ -12,7 +12,9 @@ const connectDB = async () => {
   }
   try {
     await client.connect();
-    dbConnection = client.db(process.env.DB_NAME);
+    // Extract database name from MongoDB URI or use default
+    const dbName = process.env.DB_NAME || "sbdjaya";
+    dbConnection = client.db(dbName);
     console.log("MongoDB connected ✅");
     return dbConnection;
   } catch (err) {
