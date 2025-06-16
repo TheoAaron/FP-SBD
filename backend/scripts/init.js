@@ -6,8 +6,12 @@ const mongoose = require('mongoose');
 const path = require('path');
 
 // Ambil config Sequelize
-const dbConfig = require('../config/config').development;
-const mongoUri = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.DB_NAME}`;
+// Tentukan environment-nya. Jika NODE_ENV tidak ada, anggap 'development'.
+const env = process.env.NODE_ENV || 'development';
+
+// Ambil config Sequelize sesuai dengan environment yang aktif
+const dbConfig = require('../config/config.js')[env];
+const mongoUri = `mongodb+srv://Rozak:Rizkinass1@cluster0.hn1jbqx.mongodb.net/sbdjaya?retryWrites=true&w=majority&appName=Cluster01`;
 const isDrop = process.env.npm_lifecycle_event === 'drop';
 
 async function init() {
