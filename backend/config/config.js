@@ -9,5 +9,15 @@ module.exports = {
     port: process.env.DB_PORT,
     dialect: 'mysql',
     logging: false
-  }
-};
+  },
+  production: {
+    // Variabel-variabel ini disediakan OTOMATIS oleh Railway
+    username: process.env.MYSQLUSER,
+    password: process.env.MYSQLPASSWORD,
+    database: process.env.MYSQLDATABASE,
+    host: process.env.MYSQLHOST,
+    port: process.env.MYSQLPORT,
+    dialect: 'mysql',
+   
+}
+}
