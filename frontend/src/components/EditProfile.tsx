@@ -115,14 +115,16 @@ export default function EditProfile({ userProfile }: EditProfileProps) {
       }
       }
 
-      const response = await fetch('http://localhost:8080/api/user/profile', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/auth/register`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(dataToSend)
-      });      const result = await response.json();
+      });
+
+      const result = await response.json();
       console.log('Response:', response.status, result); // Debug log
 
       if (response.ok) {

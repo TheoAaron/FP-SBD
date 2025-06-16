@@ -16,7 +16,7 @@ export default function LoginLayout() {
         };
         try {
 
-            const res = await fetch('http://localhost:8080/api/auth/login', {
+             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload),
@@ -26,7 +26,6 @@ export default function LoginLayout() {
                 const data = await res.json();
                 if (data.token) {
                     sessionStorage.setItem('jwtToken', data.token);
-                    // Redirect ke home setelah login berhasil
                     window.location.href = '/';
                 }
             } else {
