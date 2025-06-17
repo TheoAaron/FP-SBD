@@ -75,7 +75,7 @@ export default function EditProfile({ userProfile }: EditProfileProps) {
     e.preventDefault();
     setLoading(true);
     
-    console.log('Form submitted!'); // Debug log    // Cek apakah ada perubahan data
+    console.log('Form submitted!'); 
     if (!hasDataChanged()) {
       toast('Tidak ada perubahan data untuk disimpan', {
         icon: '💡',
@@ -115,7 +115,7 @@ export default function EditProfile({ userProfile }: EditProfileProps) {
       }
       }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/auth/register`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/user/profile`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
