@@ -119,7 +119,6 @@ export default function EditProfile({ userProfile }: EditProfileProps) {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
-          
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(dataToSend)
