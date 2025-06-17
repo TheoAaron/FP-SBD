@@ -24,39 +24,39 @@ function ProductContent() {
   const filteredProducts = selectedCategory
     ? products.filter(p => p.category === selectedCategory)
     : products;
-
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
       <Suspense fallback={<div>Loading categories...</div>}>
         <CategorySection />
       </Suspense>
 
-      <div className="mt-12">
-        <h3 className="text-3xl font-bold mb-8">
+      <div className="mt-8 sm:mt-12">
+        <h3 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">
           {selectedCategory ? `Explore Our ${selectedCategory}` : 'All Products'}
         </h3>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 py-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 py-4">
           {filteredProducts.map(product => (
-            <div key={product.id} className="group border rounded-lg p-4 hover:shadow-md transition">
-              <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-64 overflow-hidden">
+            <div key={product.id} className="group border rounded-lg p-3 sm:p-4 hover:shadow-md transition">
+              <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-48 sm:h-64 overflow-hidden">
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="object-contain h-full w-full p-4 group-hover:scale-105 transition-transform duration-300"
+                  className="object-contain h-full w-full p-3 sm:p-4 group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
-              <div className="mt-4">
-                <h4 className="font-medium text-lg text-gray-800">{product.name}</h4>
-                <div className="flex items-center justify-between my-2">
-                  <p className="text-red-500 font-semibold text-lg">${product.price}</p>
+              <div className="mt-3 sm:mt-4">
+                <h4 className="font-medium text-base sm:text-lg text-gray-800 line-clamp-2 mb-2">{product.name}</h4>
+                <div className="flex items-center justify-between mb-2 flex-wrap gap-1">
+                  <p className="text-red-500 font-semibold text-base sm:text-lg">${product.price}</p>
                   {product.originalPrice && (
-                    <p className="text-gray-400 line-through">${product.originalPrice}</p>
+                    <p className="text-gray-400 line-through text-sm">${product.originalPrice}</p>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <StarRating rating={product.rating} />
-                  <span className="text-gray-600 text-sm font-medium">{product.rating.toFixed(1)}</span>                  <span className="text-gray-400 text-sm">({product.reviews} reviews)</span>
+                  <span className="text-gray-600 text-sm font-medium">{product.rating.toFixed(1)}</span>
+                  <span className="text-gray-400 text-sm">({product.reviews} reviews)</span>
                 </div>
               </div>
             </div>

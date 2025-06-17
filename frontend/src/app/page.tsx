@@ -11,19 +11,35 @@ const images = [
   { src: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=400&fit=crop', alt: 'Third Slide' },
 ];
 
-
-
 export default function Home() {
   return (    
-    <div>
-      <Carousel images={images} />
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <Suspense fallback={<div>Loading categories...</div>}>
+    <div className="min-h-screen">
+      {/* Hero Carousel */}
+      <div className="w-full">
+        <Carousel images={images} />
+      </div>
+      
+      {/* Categories Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <Suspense fallback={
+          <div className="flex justify-center items-center h-32">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-2 text-gray-600">Loading categories...</span>
+          </div>
+        }>
           <CategorySection />
         </Suspense>
       </div>
-      <BestSellingProducts />
-      <DiscoveryProduct />
+      
+      {/* Best Selling Products */}
+      <div className="bg-gray-50 py-8 sm:py-12">
+        <BestSellingProducts />
+      </div>
+      
+      {/* Discovery Products */}
+      <div className="py-8 sm:py-12">
+        <DiscoveryProduct />
+      </div>
     </div>
   );
 }

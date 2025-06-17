@@ -36,65 +36,83 @@ export default function LoginLayout() {
             toast.error('Error logging in');
             console.error('Error:', err);
         }
-    }
-    return (
+    }    return (
         <>
             <Toaster position="top-right" />
-            <div className="inline-flex justify-start items-center gap-32">
-                <div className="w-[805px] h-[781px] relative bg-slate-300 rounded-tr rounded-br overflow-hidden">
-                    <img className="w-[805px] h-[782px] left-[-px] top-[px] absolute" src="https://magnoliahome.co.in/wp-content/uploads/2021/08/Jasper-Arm-Chair-1.1-1.jpg" />
+            <div className="min-h-screen flex flex-col lg:flex-row">
+                {/* Image Section - Hidden on mobile, shown on desktop */}
+                <div className="hidden lg:block lg:w-1/2 relative bg-slate-300 overflow-hidden">
+                    <img 
+                        className="w-full h-full object-cover" 
+                        src="https://magnoliahome.co.in/wp-content/uploads/2021/08/Jasper-Arm-Chair-1.1-1.jpg" 
+                        alt="Chair"
+                    />
                 </div>
-                <div className="inline-flex flex-col justify-start items-start gap-10">
-                    <div className="flex flex-col justify-start items-start gap-4">
-                        <div className="justify-start text-black text-4xl font-medium font-['Inter'] leading-loose tracking-wider">Log in to Exclusive</div>
-                        <div className="justify-start text-black text-base font-normal font-['Poppins'] leading-normal">Enter your details below</div>
-                    </div>
-                    <div className="flex flex-col justify-start items-center gap-10">
-                        <form className="flex flex-col justify-start items-start gap-10" onSubmit={handleSubmit}>
-                            <div className="flex flex-col justify-start items-start gap-10">
-                                <div className="flex flex-col justify-start items-start gap-12">
 
+                {/* Form Section */}
+                <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+                    <div className="w-full max-w-md space-y-6 sm:space-y-8">
+                        {/* Header */}
+                        <div className="text-center lg:text-left space-y-2 sm:space-y-4">
+                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-medium text-black leading-tight">
+                                Log in to Exclusive
+                            </h1>
+                            <p className="text-sm sm:text-base text-black">
+                                Enter your details below
+                            </p>
+                        </div>
 
-                                    {/* Email or Phone */}
-                                    <div className="flex flex-col gap-2 w-96">
-
-                                        <input
-                                            name="email"
-                                            type="text"
-                                            className="w-80 border-b border-black opacity-100 text-black text-base font-normal font-['Poppins'] leading-normal bg-transparent placeholder-opacity-20"
-                                            placeholder="Enter your Username"
-                                        />
-                                    </div>
-
-                                    {/* Password */}
-                                    <div className="flex flex-col gap-2 w-96">
-
-                                        <input
-                                            name="password"
-                                            type="password"
-                                            className="w-80 border-b border-black outline-none text-black text-base font-['Poppins'] bg-transparent placeholder-opacity-50"
-                                            placeholder="Enter your password"
-                                        />
-                                    </div>
-                                </div>
-
+                        {/* Form */}
+                        <form className="space-y-6 sm:space-y-8" onSubmit={handleSubmit}>
+                            {/* Email or Phone */}
+                            <div className="space-y-2">
+                                <input
+                                    name="email"
+                                    type="text"
+                                    className="w-full border-b border-black/50 focus:border-black outline-none text-black text-sm sm:text-base font-normal bg-transparent placeholder-black/50 pb-2 px-0 transition-colors touch-manipulation"
+                                    placeholder="Enter your Username"
+                                    required
+                                />
                             </div>
-                            <div className="flex flex-col justify-start items-start gap-4">
+
+                            {/* Password */}
+                            <div className="space-y-2">
+                                <input
+                                    name="password"
+                                    type="password"
+                                    className="w-full border-b border-black/50 focus:border-black outline-none text-black text-sm sm:text-base font-normal bg-transparent placeholder-black/50 pb-2 px-0 transition-colors touch-manipulation"
+                                    placeholder="Enter your password"
+                                    required
+                                />
+                            </div>
+
+                            {/* Submit Button */}
+                            <div className="space-y-4">
                                 <button
                                     type="submit"
-                                    className="px-12 py-4 bg-red-500 rounded inline-flex justify-center items-center gap-2.5 text-neutral-50 text-base font-medium font-['Poppins'] leading-normal"
+                                    className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-red-500 hover:bg-red-600 active:bg-red-600 rounded text-white text-sm sm:text-base font-medium transition-colors touch-manipulation"
                                 >
                                     Login
                                 </button>
-                                <div className="flex flex-col justify-start items-center gap-8">
-                                    <div className="inline-flex justify-start items-center gap-4">
-                                        <Link href="/login" className="inline-flex flex-col justify-start items-start gap-1">
-                                            <span className="justify-start text-red-500 text-base font-normal font-['Poppins'] leading-normal">Forgot Password?</span>
-                                            <div className="w-12 h-0 relative opacity-50">
-                                                <div className="w-36 h-0 left-0 top-0 absolute outline outline-1 outline-offset-[-0.50px] outline-red-500"></div>
-                                            </div>
-                                        </Link>
-                                    </div>
+
+                                {/* Forgot Password */}
+                                <div className="text-center lg:text-left">
+                                    <Link 
+                                        href="/login" 
+                                        className="text-red-500 text-sm sm:text-base hover:text-red-600 active:text-red-600 underline transition-colors"
+                                    >
+                                        Forgot Password?
+                                    </Link>
+                                </div>
+
+                                {/* Sign Up Link */}                                <div className="text-center lg:text-left text-sm sm:text-base text-black/70">
+                                    Don&apos;t have an account?{' '}
+                                    <Link
+                                        href="/register" 
+                                        className="text-red-500 hover:text-red-600 active:text-red-600 underline transition-colors"
+                                    >
+                                        Sign up
+                                    </Link>
                                 </div>
                             </div>
                         </form>
