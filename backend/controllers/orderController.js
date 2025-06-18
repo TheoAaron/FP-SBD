@@ -130,9 +130,7 @@ async function getOrderById(req, res) {
     }
 
     const userId = req.user.id;
-    console.log('Authenticated user ID:', userId);
-
-    const [orderRows] = await pool.query(
+    console.log('Authenticated user ID:', userId);    const [orderRows] = await pool.query(
       `SELECT 
         o.id_order,
         o.id_user,
@@ -146,8 +144,12 @@ async function getOrderById(req, res) {
         o.id_shipment,
         c.kode_kupon,
         c.diskon,
-        sd.shipping_method,
-        sd.shipping_cost
+        sd.first_name,
+        sd.street_address,
+        sd.kota,
+        sd.kode_pos,
+        sd.no_telepon,
+        sd.negara
       FROM orders o
       LEFT JOIN coupons c ON o.id_kupon = c.id_kupon
       LEFT JOIN shipment_details sd ON o.id_shipment = sd.id_shipment
@@ -161,16 +163,17 @@ async function getOrderById(req, res) {
     }
 
     const order = orderRows[0];
-    console.log('Order found:', order.id_order);
-
-    const [orderDetailsRows] = await pool.query(
+    console.log('Order found:', order.id_order);    const [orderDetailsRows] = await pool.query(
       `SELECT 
         od.id_detail_order,
         od.id_produk,
         od.qty,
         p.nama_produk,
         p.harga,
-        p.gambar_produk,
+        p.image,
+        p.description,
+        p.avg_rating,
+        p.stock,
         (od.qty * p.harga) as subtotal
       FROM detail_orders od
       JOIN products p ON od.id_produk = p.id_produk
@@ -184,8 +187,7 @@ async function getOrderById(req, res) {
     const orderDetails = {
       id_order: order.id_order,
       tracking_number: order.no_resi,
-      user_id: order.id_user,
-      total: order.total,
+      user_id: order.id_user,total: order.total,
       status_pembayaran: order.status_pembayaran,
       status_pengiriman: order.status_pengiriman,
       metode_pembayaran: order.metode_pembayaran,
@@ -195,17 +197,23 @@ async function getOrderById(req, res) {
         diskon: order.diskon
       } : null,
       shipping: order.id_shipment ? {
-        shipping_method: order.shipping_method,
-        shipping_cost: order.shipping_cost
-      } : null,
-      items: orderDetailsRows.map(item => ({
+        recipient_name: order.first_name,
+        street_address: order.street_address,
+        city: order.kota,
+        postal_code: order.kode_pos,
+        phone: order.no_telepon,
+        country: order.negara
+      } : null,      items: orderDetailsRows.map(item => ({
         id_detail_order: item.id_detail_order,
         product_id: item.id_produk,
         product_name: item.nama_produk,
         price: item.harga,
         quantity: item.qty,
         subtotal: item.subtotal,
-        image: item.gambar_produk
+        image: item.image,
+        description: item.description,
+        rating: item.avg_rating,
+        stock: item.stock
       }))
     };
 
