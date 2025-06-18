@@ -6,11 +6,43 @@ import Link from 'next/link';
 import Image from 'next/image'; // Import Image component
 import { FiSearch, FiHeart, FiShoppingCart, FiLogOut } from 'react-icons/fi';
 import { FaUser, FaUserCircle } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
 
 const Navbar: React.FC = () => {
   const pathname = usePathname();
   const [showPopup, setShowPopup] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const popupRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  // Check login status
+  useEffect(() => {
+    const checkLoginStatus = () => {
+      const token = sessionStorage.getItem('jwtToken');
+      setIsLoggedIn(!!token);
+      
+      // Optionally get user info from sessionStorage
+      const userInfo = sessionStorage.getItem('user');
+      if (userInfo) {
+        try {
+          setUserProfile(JSON.parse(userInfo));
+        } catch (error) {
+          console.error('Error parsing user info:', error);
+        }
+      }
+    };
+
+    // Check on component mount
+    checkLoginStatus();
+
+    // Listen for storage changes (when user logs in/out in another tab)
+    window.addEventListener('storage', checkLoginStatus);
+    
+    return () => {
+      window.removeEventListener('storage', checkLoginStatus);
+    };
+  }, []);
   
  // Checking untuk admin page
   const isAdmin = pathname.startsWith('/admin');
@@ -60,13 +92,11 @@ const Navbar: React.FC = () => {
 
         {/* Search and Icons */}
         <div className="flex items-center space-x-6">
-          <div className="relative">
             <input
               type="text"
               placeholder="What are you looking for?"
               className="px-4 py-2 pl-5 rounded-full bg-gray-100 text-lg focus:outline-none" // Increased font size
             />
-          </div>
 
           <Link href="/wishlist" className="relative">
             <FiHeart className="text-3xl cursor-pointer" /> {/* Increased icon size */}
@@ -79,34 +109,81 @@ const Navbar: React.FC = () => {
             <span className="absolute -top-2 -right-2 text-sm bg-red-500 text-white px-2 rounded-full"> {/* Increased badge size */}
               4
             </span>
-          </Link>
-
-          {/* Profile Icon with Popup */}
-          <div className="relative" ref={popupRef}>
-            <FaUserCircle
-              className="text-3xl text-red-600 cursor-pointer" // Increased icon size
-              onClick={() => setShowPopup((prev) => !prev)}
-            />
-            {showPopup && (
-              <div className="absolute right-0 mt-2 w-52 bg-white border rounded shadow-md p-3 z-50 text-black"> {/* Increased popup width and padding */}
-                <Link
-                  href="/profile"
-                  className="flex items-center gap-3 px-5 py-3 rounded hover:bg-gray-100 transition-colors text-lg" // Increased padding, gap and font size
-                >
-                  <FaUser className="text-lg" /> {/* Increased icon size */}
-                  Profile
-                </Link>
-                <Link
-                  href="/logout"
-                  className="flex items-center gap-3 px-5 py-3 rounded hover:bg-gray-100 transition-colors text-lg" // Increased padding, gap and font size
-                >
-                  <FiLogOut className="text-lg" /> {/* Increased icon size */}
-                  Logout
-                </Link>
-              </div>
-            )}
-
-          </div>
+          </Link>          {/* Profile Icon or Login Button */}
+          {isLoggedIn ? (
+            <div className="relative" ref={popupRef}>
+              {/* Profile Picture or Default Icon */}
+              {userProfile?.profile_picture ? (
+                <img
+                  src={userProfile.profile_picture}
+                  alt="Profile"
+                  className="w-10 h-10 rounded-full cursor-pointer border-2 border-red-600"
+                  onClick={() => setShowPopup((prev) => !prev)}
+                />
+              ) : (
+                <FaUserCircle
+                  className="text-3xl text-red-600 cursor-pointer"
+                  onClick={() => setShowPopup((prev) => !prev)}
+                />
+              )}
+              
+              {showPopup && (
+                <div className="absolute right-0 mt-2 w-52 bg-white border rounded shadow-md p-3 z-50 text-black">
+                  <div className="px-5 py-2 border-b border-gray-200 mb-2">
+                    <p className="text-sm text-gray-600">Welcome!</p>
+                    <p className="font-semibold">
+                      {userProfile?.first_name || userProfile?.name || userProfile?.email || 'User'}
+                    </p>
+                  </div>
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-3 px-5 py-3 rounded hover:bg-gray-100 transition-colors text-lg"
+                    onClick={() => setShowPopup(false)}
+                  >
+                    <FaUser className="text-lg" /> 
+                    My Profile
+                  </Link>
+                  <Link
+                    href="/order"
+                    className="flex items-center gap-3 px-5 py-3 rounded hover:bg-gray-100 transition-colors text-lg"
+                    onClick={() => setShowPopup(false)}
+                  >
+                    <FiShoppingCart className="text-lg" /> 
+                    My Orders
+                  </Link>
+                  <button
+                    onClick={() => {
+                      sessionStorage.removeItem("jwtToken");
+                      sessionStorage.removeItem("user");
+                      setIsLoggedIn(false);
+                      setUserProfile(null);
+                      setShowPopup(false);
+                      router.push('/');
+                    }}
+                    className="flex items-center gap-3 px-5 py-3 rounded hover:bg-gray-100 transition-colors text-lg w-full text-left"
+                  >
+                    <FiLogOut className="text-lg" />
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center space-x-3">
+              <Link
+                href="/login"
+                className="px-4 py-2 text-red-600 font-semibold hover:text-red-800 transition-colors"
+              >
+                Login
+              </Link>
+              <Link
+                href="/register"
+                className="px-4 py-2 bg-red-600 text-white font-semibold rounded hover:bg-red-700 transition-colors"
+              >
+                Sign Up
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
