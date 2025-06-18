@@ -53,7 +53,7 @@ const getProductById = async (req, res) => {
   }
 
   try {
-    const query = 'SELECT * FROM products WHERE id = ?';
+    const query = 'SELECT * FROM products WHERE id_produk = ?';
     const [rows] = await pool.query(query, [productId]);
 
     if (rows.length === 0) {
