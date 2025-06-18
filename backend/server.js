@@ -15,6 +15,7 @@ const reviewRoutes = require("./routes/reviewRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
+const shipmentRoutes = require("./routes/shipmentRoutes");
 
 
 const cartRoutes = require("./routes/cartRoutes");
@@ -37,6 +38,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/shipments", shipmentRoutes);
 
 const start = async () => {
   await connectDB();
