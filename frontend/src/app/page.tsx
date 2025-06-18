@@ -15,7 +15,7 @@ const images = [
 
 
 export default async function Home() {
-  const res = await fetch(`http://localhost:8080/api/products`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/products`, {
     cache: 'no-store' // ensures fresh data every request; remove if you want static
   });
   const products: Product[] = await res.json();
