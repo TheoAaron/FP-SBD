@@ -33,7 +33,7 @@ module.exports = {
         id_shipment: shipment.id_shipment,
         status_pembayaran: index % 2 === 0 ? 'paid' : 'pending',
         status_pengiriman: index % 2 === 0 ? 'delivered' : 'shipped',
-        metode_pembayaran: index % 2 === 0 ? 'transfer bank' : 'e-wallet',
+        metode_pembayaran: index % 2 === 0 ? 'transfer bank' : 'cod',
         total: 250000 + (index * 50000),
         datetime: new Date(),
         no_resi: index % 2 === 0 ? `RESI123${index}` : null,

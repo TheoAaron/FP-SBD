@@ -33,8 +33,9 @@ const Order = sequelize.define('Order', {
     defaultValue: 'shipped'
   },
   metode_pembayaran: {
-    type: DataTypes.STRING,
-    allowNull: false
+    type: DataTypes.ENUM('cod', 'transfer bank'),
+    allowNull: false,
+    defaultValue: 'cod'
   },
   total: {
     type: DataTypes.FLOAT(10, 2),
