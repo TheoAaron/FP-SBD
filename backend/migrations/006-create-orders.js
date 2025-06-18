@@ -43,7 +43,10 @@ module.exports = {
         type: Sequelize.ENUM('shipped', 'delivered'),
         defaultValue: 'shipped'
       },
-      metode_pembayaran: Sequelize.STRING,
+      metode_pembayaran: {
+        type: Sequelize.ENUM('cod', 'transfer bank'),
+        defaultValue: 'cod',
+      },
       total: Sequelize.FLOAT(10, 2),
       datetime: Sequelize.DATE,
       no_resi: Sequelize.STRING,

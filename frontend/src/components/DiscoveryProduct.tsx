@@ -2,89 +2,16 @@
 import { Heart, Eye, ShoppingCart } from "lucide-react";
 import StarRating from "@/components/StarRating";
 import Link from "next/link";
+import { UUID } from "crypto";
+import { Product } from '@/types/product';
 
-interface Product {
-  id: number;
-  name: string;
-  image: string;
-  price: number;
-  originalPrice?: number;
-  rating: number;
-  reviews: number;
-  colors?: string[];
+interface ExploreProductsProps {
+  products: Product[];
 }
 
-const products: Product[] = [
-  {
-    id: 1,
-    name: "Breed Dry Dog Food",
-    image: "https://images.unsplash.com/photo-1605792657660-596af9009e82?auto=format&fit=crop&w=300&q=80",
-    price: 100,
-    rating: 4,
-    reviews: 35
-  },
-  {
-    id: 2,
-    name: "CANON EOS DSLR Camera",
-    image: "https://images.unsplash.com/photo-1597466765990-64ad1c35dafc?auto=format&fit=crop&w=300&q=80",
-    price: 360,
-    rating: 4,
-    reviews: 95
-  },
-  {
-    id: 3,
-    name: "ASUS FHD Gaming Laptop",
-    image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=300&q=80",
-    price: 700,
-    rating: 5,
-    reviews: 325
-  },
-  {
-    id: 4,
-    name: "Curology Product Set",
-    image: "https://images.unsplash.com/photo-1588776814546-4eb2f0daea42?auto=format&fit=crop&w=300&q=80",
-    price: 500,
-    rating: 4,
-    reviews: 145
-  },
-  {
-    id: 5,
-    name: "Kids Electric Car",
-    image: "https://images.unsplash.com/photo-1592194996308-7b43878e84a6?auto=format&fit=crop&w=300&q=80",
-    price: 960,
-    rating: 5,
-    reviews: 65,
-    colors: ["#000", "#f00"]
-  },
-  {
-    id: 6,
-    name: "Jr. Zoom Soccer Cleats",
-    image: "https://images.unsplash.com/photo-1606813903192-149652f93ad4?auto=format&fit=crop&w=300&q=80",
-    price: 1160,
-    rating: 4.5,
-    reviews: 35
-  },
-  {
-    id: 7,
-    name: "GP11 Shooter USB Gamepad",
-    image: "https://images.unsplash.com/photo-1606813903172-60aaed29f729?auto=format&fit=crop&w=300&q=80",
-    price: 660,
-    rating: 4,
-    reviews: 55,
-    colors: ["#000", "#f00", "#0f0"]
-  },
-  {
-    id: 8,
-    name: "Quilted Satin Jacket",
-    image: "https://images.unsplash.com/photo-1602810318383-6e44b98d07a3?auto=format&fit=crop&w=300&q=80",
-    price: 660,
-    rating: 4,
-    reviews: 55,
-    colors: ["#004", "#faa"]
-  }
-];
-
-export default function ExploreProducts() {
+export default function ExploreProducts({
+  products,
+}: ExploreProductsProps) {  
   return (
     <div className="max-w-6xl mx-auto p-6 bg-white">
       {/* Header */}
@@ -100,14 +27,14 @@ export default function ExploreProducts() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {products.map((product) => (
           <div
-            key={product.id}
+            key={product.id_produk}
             className="group relative border rounded-lg p-4 hover:shadow-lg transition flex flex-col"
           >
             {/* Image */}
             <div className="relative bg-gray-100 rounded-lg h-52 mb-4 flex items-center justify-center overflow-hidden">
               <img
                 src={product.image}
-                alt={product.name}
+                alt={product.nama_produk}
                 className="object-contain w-full h-full"
               />
               {/* Hover buttons */}
@@ -130,17 +57,17 @@ export default function ExploreProducts() {
 
             {/* Info */}
             <div className="flex-grow">
-              <h3 className="font-medium text-gray-900 text-sm">{product.name}</h3>
+              <h3 className="font-medium text-gray-900 text-sm">{product.nama_produk}</h3>
               <div className="flex items-center gap-2 text-sm">
-                <span className="text-red-500 font-semibold">${product.price}</span>
-                {product.originalPrice && (
-                  <span className="text-gray-400 line-through">${product.originalPrice}</span>
+                <span className="text-red-500 font-semibold">${product.harga}</span>
+                {product.harga && (
+                  <span className="text-gray-400 line-through">${product.harga}</span>
                 )}
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <StarRating rating={product.rating} />
-                <span className="text-gray-600 text-sm font-medium">{product.rating.toFixed(1)}</span>
-                <span className="text-gray-400 text-sm">({product.reviews})</span>
+                <StarRating rating={product.avg_rating} />
+                <span className="text-gray-600 text-sm font-medium">{product.avg_rating.toFixed(1)}</span>
+                <span className="text-gray-400 text-sm">({product.total_review})</span>
               </div>
             </div>
           </div>

@@ -4,17 +4,17 @@ import {
   Camera,
   Headphones,
   Laptop,
-  Phone,
   Watch,
   Gamepad2,
 } from "lucide-react";
+import { MdPhoneAndroid } from 'react-icons/md';
 
 const categories = [
-  { icon: <Phone size={32} />, label: "Phones" },
-  { icon: <Laptop size={32} />, label: "Computers" },
-  { icon: <Watch size={32} />, label: "SmartWatch" },
+  { icon: <MdPhoneAndroid size={32} />, label: "Phone" },
+  { icon: <Laptop size={32} />, label: "Computer" },
+  { icon: <Watch size={32} />, label: "Watch" },
   { icon: <Camera size={32} />, label: "Camera" },
-  { icon: <Headphones size={32} />, label: "HeadPhones" },
+  { icon: <Headphones size={32} />, label: "Audio" },
   { icon: <Gamepad2 size={32} />, label: "Gaming" },
 ];
 

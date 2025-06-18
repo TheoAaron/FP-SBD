@@ -1,19 +1,12 @@
 'use client';
 import { Heart, Eye, ShoppingCart } from "lucide-react";
-import { useState } from "react";
+// import { useState } from "react";
 import StarRating from "@/components/StarRating";
 import Link from "next/link";
+import { Product } from '@/types/product';
 
-interface Product {
-  id: number;
-  name: string;
-  image: string;
-  price: number;
-  originalPrice?: number;
-  rating: number;
-  reviews: number;
-  quantity?: number;
-}
+
+
 
 interface BestSellingProductsProps {
   products?: Product[];
@@ -21,46 +14,9 @@ interface BestSellingProductsProps {
   subtitle?: string;
 }
 
-const defaultProducts: Product[] = [
-  {
-    id: 1,
-    name: "The north coat",
-    image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=300&fit=crop",
-    price: 260,
-    originalPrice: 360,
-    rating: 5,
-    reviews: 65
-  },
-  {
-    id: 2,
-    name: "Gucci duffle bag",
-    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=300&fit=crop",
-    price: 960,
-    originalPrice: 1160,
-    rating: 5,
-    reviews: 65
-  },
-  {
-    id: 3,
-    name: "RGB liquid CPU Cooler",
-    image: "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=300&h=300&fit=crop",
-    price: 160,
-    originalPrice: 170,
-    rating: 5,
-    reviews: 65
-  },
-  {
-    id: 4,
-    name: "Small BookSelf",
-    image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop",
-    price: 360,
-    rating: 5,
-    reviews: 65
-  }
-];
 
 export default function BestSellingProducts({
-  products = defaultProducts,
+  products,
   title = "Best Selling Products",
   subtitle = "This Month"
 }: BestSellingProductsProps) {
@@ -83,13 +39,13 @@ export default function BestSellingProducts({
 
       {/* Products Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {products.map((product) => (
-          <div key={product.id} className="group">
+        {products?.map((product) => (
+          <div key={product.id_produk} className="group">
             {/* Product Image Container */}
             <div className="relative bg-gray-100 rounded-lg p-6 mb-4 h-64 flex items-center justify-center overflow-hidden">
               <img
                 src={product.image}
-                alt={product.name}
+                alt={product.nama_produk}
                 className="w-full h-full object-cover rounded-lg"
               />
 
@@ -114,21 +70,21 @@ export default function BestSellingProducts({
 
             {/* Product Info */}
             <div className="space-y-2">
-              <h3 className="font-medium text-gray-900">{product.name}</h3>
+              <h3 className="font-medium text-gray-900">{product.nama_produk}</h3>
 
               {/* Price */}
               <div className="flex items-center gap-2">
-                <span className="text-red-500 font-medium">${product.price}</span>
-                {product.originalPrice && (
-                  <span className="text-gray-400 line-through">${product.originalPrice}</span>
+                <span className="text-red-500 font-medium">${product.harga}</span>
+                {product.harga && (
+                  <span className="text-gray-400 line-through">${product.harga}</span>
                 )}
               </div>
 
               {/* Rating */}
               <div className="flex items-center gap-2">
-                <StarRating rating={product.rating} />
-                <span className="text-gray-600 text-sm font-medium">{product.rating.toFixed(1)}</span>
-                <span className="text-gray-400 text-sm">({product.reviews})</span>
+                <StarRating rating={product.avg_rating} />
+                <span className="text-gray-600 text-sm font-medium">{product.avg_rating.toFixed(1)}</span>
+                <span className="text-gray-400 text-sm">({product.total_review})</span>
               </div>
             </div>
           </div>
