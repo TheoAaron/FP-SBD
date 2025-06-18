@@ -21,6 +21,7 @@ const addReview = async (req, res) => {
     const id_produk = req.params.id_produk;
     const id_user = req.user.id;
     const { rating, review } = req.body;
+    
 
     if (!rating || !review) {
         return res.status(400).json({ message: "Silahkan Rating dan Reviewnya diisi!" });
