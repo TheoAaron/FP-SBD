@@ -1,84 +1,99 @@
-// src/app/admin/products/page.tsx
 'use client'
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
+
+import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import ProductCard from '../../components/ProductCard'
 import { Product } from '../../types/product'
-
+import {jwtDecode} from 'jwt-decode'
 
 
 export default function AdminProductsPage() {
-  const [search, setSearch] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [products, setProducts] = useState<Product | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  const [search, setSearch] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [products, setProducts] = useState<Product[]>([])
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+
 
   useEffect(() => {
-  const checkAuth = async () => {
-    try {
-      const res = await fetch('/api/user/profile')
-      if (!res.ok) throw new Error('Unauthorized')
-      const user = await res.json()
-      if (user.role !== 'admin') {
+    const checkAuthAndFetch = async () => {
+      const token = sessionStorage.getItem('jwtToken')
+
+      if (!token) {
         router.push('/login')
+        return
       }
-    } catch {
-      router.push('/login')
-    }
-  }
 
-  const fetchProducts = async () => {
-    try {
-      const res = await fetch('http://localhost:8080/api/admin/products')
-      if (!res.ok) throw new Error('Gagal memuat produk')
-      const data: Product[] = await res.json()
-      setProducts(data)
-    } catch (error) {
-      console.error('Fetch error:', error)
-      alert('Gagal memuat data produk')
-    } finally {
-      setLoading(false)
-    }
-  }
+      try {
+        const decodedToken = jwtDecode<{ role: string }>(token)
+        if (decodedToken.role !== 'admin') {
+          router.push('/login')
+          return
+        }
 
-  checkAuth().then(fetchProducts)
-}, [router])
+        // If the user is admin, fetch the products
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/product`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch products')
+        }
+        const data = await response.json()
+        setProducts(data)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    checkAuthAndFetch()
+  }, [router])  
 
 
   const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(search.toLowerCase())
+    product.nama_produk.toLowerCase().includes(search.toLowerCase())
   )
 
-  // Fungsi Edit Product
   const handleEdit = (id: string) => {
-    router.push(`/admin/products/edit/${id}`)
+    router.push(`/admin/edit/${id}`)
   }
 
-  // Fungsi Delete Product
   const handleDelete = (id: string) => {
-    const product = products.find(p => p.id === id)
-    if (confirm(`Apakah Anda yakin ingin menghapus "${product?.name}"?`)) {
-      setProducts(products.filter(product => product.id !== id))
-      alert('Produk berhasil dihapus!')
+    if (confirm('Are you sure you want to delete this product?')) {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/product/${id}`, {
+        method: 'DELETE'
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to delete product')
+          }
+          setProducts(products.filter(product => product.id_produk !== id))
+        })
+        .catch(err => {
+          setError(err instanceof Error ? err.message : 'An error occurred while deleting the product')
+        })
     }
   }
 
-  // Fungsi Add Product
   const handleAddProduct = () => {
-    router.push('/admin/products/new')
+    router.push('/admin/add/')
   }
 
+  
+  if (loading) {
+    return <div className="p-10 text-center text-gray-600">Loading...</div>
+  if (error) {
+    return <div className="p-10 text-center text-red-500">{error}</div>
+  }
+  }else{
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="max-w-7xl mx-auto px-8 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900">All produk</h1>
-          <button 
+          <h1 className="text-2xl font-semibold text-gray-900">All Produk</h1>
+          <button
             onClick={handleAddProduct}
-            className="border border-gray-300 px-6 py-2 rounded-md text-gray-700 hover:bg-gray-50 transition-colors font-medium"
+            className="border border-gray-300 px-6 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition-colors font-medium"
           >
             Add New Product
           </button>
@@ -103,24 +118,35 @@ export default function AdminProductsPage() {
         </div>
 
         {/* Product Grid */}
-        <div className="grid grid-cols-4 gap-8 mb-16">
-          {filteredProducts.map(product => (
-            <ProductCard 
-              key={product.id}
-              product={product}
-              onEdit={() => handleEdit(product.id)}
-              onDelete={() => handleDelete(product.id)}
-            />
-          ))}
-        </div>
+        {/* jika product kosong */}
+        {filteredProducts.length === 0 && (
+          <div className="text-center text-gray-500 mb-8">
+            <p className="text-lg">No products found</p>
+            <p className="text-sm">Add a new product.</p>
+          </div>
+        )}
+
+
+        {/* jika ada */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-16">
+            {filteredProducts.map(product => (
+              <ProductCard
+                key={product.id_produk}
+                product={product}
+                onEdit={() => handleEdit(product.id_produk)}
+                onDelete={() => handleDelete(product.id_produk)}
+              />
+            ))}
+          </div>
       </main>
 
-      {/* Footer */}
+      {/* Footer
       <footer className="bg-black text-white py-6">
         <div className="max-w-7xl mx-auto px-8 text-center">
           <p className="text-sm">© Copyright SBD Kelompok 1 anjay 2025</p>
         </div>
-      </footer>
+      </footer> */}
     </div>
   )
+}
 }

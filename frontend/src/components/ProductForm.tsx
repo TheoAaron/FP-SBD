@@ -4,16 +4,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Product } from '@/types/product'
 
-interface Product {
-  id?: string
-  name: string
-  description: string
-  image: string
-  price: number
-  oldPrice?: number
-  stock: number
-}
 
 interface ProductFormProps {
   product?: Product
@@ -23,24 +15,23 @@ interface ProductFormProps {
 export default function ProductForm({ product, mode }: ProductFormProps) {
   const router = useRouter()
   const [formData, setFormData] = useState({
-    name: product?.name || '',
+    name: product?.nama_produk || '',
     description: product?.description || '',
     image: product?.image || '',
-    price: product?.price?.toString() || '',
-    oldPrice: product?.oldPrice?.toString() || '',
+    price: product?.harga.toString() || '',
+    kategori: product?.kategori || '',    
     stock: product?.stock?.toString() || ''
   })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  // Update form ketika product berubah (untuk edit mode)
+  const [isSubmitting, setIsSubmitting] = useState(false)  
   useEffect(() => {
     if (product) {
       setFormData({
-        name: product.name,
+        name: product.nama_produk,
         description: product.description,
         image: product.image,
-        price: product.price.toString(),
-        oldPrice: product.oldPrice?.toString() || '',
-        stock: product.stock.toString()
+        price: product.harga?.toString() || '',
+        kategori: product.kategori || '',
+        stock: product.stock?.toString()|| ''
       })
     }
   }, [product])
@@ -53,30 +44,57 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault()    
+    try {
     setIsSubmitting(true)
 
-    try {
-      // Simulasi API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-        const productData = {
-        ...(mode === 'edit' && product?.id && { id: product.id }),
-        name: formData.name,
-        description: formData.description,
-        image: formData.image,
-        price: parseFloat(formData.price),
-        oldPrice: formData.oldPrice ? parseFloat(formData.oldPrice) : undefined,
-        stock: parseInt(formData.stock)      }
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
-      console.log(`${mode === 'create' ? 'Created' : 'Updated'} product:`, productData)
-      alert(`Produk berhasil ${mode === 'create' ? 'ditambahkan' : 'diperbarui'}!`)
-      router.push('/admin/products')
-    } catch (catchError) {
-      console.error('Error submitting product:', catchError)
-      alert(`Terjadi kesalahan saat ${mode === 'create' ? 'menambahkan' : 'memperbarui'} produk`)
-    } finally {
-      setIsSubmitting(false)
+    const productData: Product = {
+      id_produk: product?.id_produk || '',
+      nama_produk: formData.name,
+      description: formData.description,
+      avg_rating: product?.avg_rating || 0,
+      harga: formData.price ? parseFloat(formData.price) : 0,
+      total_review: product?.total_review || 0,
+      kategori: product?.kategori || formData.kategori,
+      image: formData.image,
+      stock: parseInt(formData.stock, 10)
     }
+
+    let response
+
+    if (mode === 'create') {
+      response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/product`,{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(productData)
+      })
+    } else if (mode === 'edit' && product) {
+      productData.id_produk = product.id_produk
+
+      response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/product/${productData.id_produk}`,{
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(productData)
+      })
+    }
+
+    if (!response?.ok) {
+      throw new Error(`Gagal ${mode === 'create' ? 'menambahkan' : 'memperbarui'} produk`)
+    }
+
+    router.push('/admin')
+  } catch (catchError) {
+    console.error('Error submitting product:', catchError)
+    alert(`Terjadi kesalahan saat ${mode === 'create' ? 'menambahkan' : 'memperbarui'} produk`)
+  } finally {
+    setIsSubmitting(false)
+  }
   }
 
   const isCreateMode = mode === 'create'
@@ -90,7 +108,8 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
         <div className="bg-white rounded-lg shadow p-8">
           <h1 className="text-2xl font-bold mb-8">{title}</h1>
           
-          <form onSubmit={handleSubmit}>            <div className="mb-6">
+          <form onSubmit={handleSubmit}>            
+            <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Nama Produk *
               </label>
@@ -122,6 +141,25 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
+                Kategori
+              </label>
+              <select
+                name="kategori"
+                value={formData.kategori}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">Pilih Kategori</option>
+                <option value="gaming">Gaming</option>
+                <option value="phone">Phone</option>
+                <option value="audio">Audio</option>
+                <option value="camera">Camera</option>
+                <option value="computer">Computer</option>
+                </select>          
+            </div>
+            
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 URL Gambar *
               </label>
               <input
@@ -145,13 +183,14 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
                   />
                 </div>
               )}
-            </div>            <div className={`${mode === 'edit' ? 'grid grid-cols-2 gap-4' : ''} mb-6`}>
+            </div>            
+            <div className={`mb-6`}>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Harga *
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   name="price"
                   value={formData.price}
                   onChange={handleChange}
@@ -161,24 +200,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
                   step="0.01"
                   required
                 />
-              </div>
-              {mode === 'edit' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Harga Lama (Opsional)
-                  </label>
-                  <input
-                    type="number"
-                    name="oldPrice"
-                    value={formData.oldPrice}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="0"
-                    min="0"
-                    step="0.01"
-                  />
-                </div>
-              )}
+              </div>              
             </div>
 
             <div className="mb-8">
@@ -206,7 +228,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
                 {isSubmitting ? submittingText : submitText}
               </button>
               <Link
-                href="/admin/products"
+                href="/admin"
                 className="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600 transition-colors inline-block text-center"
               >
                 Batal

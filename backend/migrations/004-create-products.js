@@ -5,7 +5,8 @@ module.exports = {
       id_produk: {
         type: Sequelize.UUID,
         primaryKey: true,
-        allowNull: false
+        allowNull: false,
+        defaultValue: Sequelize.literal('(UUID())')
       },
       nama_produk: Sequelize.STRING,
       avg_rating: {

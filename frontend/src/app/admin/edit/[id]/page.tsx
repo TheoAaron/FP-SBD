@@ -4,16 +4,9 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import ProductForm from '@/components/ProductForm'
-
-interface Product {
-  id: string
-  name: string
-  description: string
-  image: string
-  price: number
-  oldPrice?: number
-  stock: number
-}
+import { Product } from '@/types/product'
+import { useRouter } from 'next/navigation'
+import {jwtDecode} from 'jwt-decode'
 
 export default function EditProductPage() {
   const params = useParams()
@@ -21,67 +14,70 @@ export default function EditProductPage() {
   const [product, setProduct] = useState<Product | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    const loadProduct = async () => {
-      try {
-        // Simulasi fetch data dari API
-        await new Promise(resolve => setTimeout(resolve, 500))
-          // Mock data berdasarkan ID
-        const mockData: Record<string, Product> = {
-          '1': {
-            id: '1',
-            name: 'Gucci duffle bag',
-            description: 'Luxury duffle bag made from premium materials with elegant design perfect for travel.',
-            image: '/images/gucci-bag.jpg',
-            price: 960,
-            oldPrice: 1160,
-            stock: 15
-          },
-          '2': {
-            id: '2',
-            name: 'RGB liquid CPU Cooler',
-            description: 'High-performance liquid cooling system with RGB lighting for gaming PCs.',
-            image: '/images/cooler.jpg',
-            price: 1960,
-            stock: 8
-          },
-          '3': {
-            id: '3',
-            name: 'GP11 Shooter USB Gamepad',
-            description: 'Professional gaming controller with precision controls and ergonomic design.',
-            image: '/images/gamepad.jpg',
-            price: 550,
-            stock: 12
-          },
-          '4': {
-            id: '4',
-            name: 'Quilted Satin Jacket',
-            description: 'Stylish quilted satin jacket perfect for casual and semi-formal occasions.',
-            image: '/images/jacket.jpg',
-            price: 750,
-            stock: 6
+  // useEffect(() => {
+  //   const loadProduct = async () => {
+  //     try {
+  //       // Simulasi fetch data dari API
+  //       await new Promise(resolve => setTimeout(resolve, 500))
+  //       // Ganti dengan fetch dari API Anda
+  //       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/product/${productId}`)
+  //       if (!response.ok) {
+  //         throw new Error('Failed to fetch product')
+  //       }
+  //       const productData: Product = await response.json()
+        
+  //       if (!productData) {
+  //         throw new Error('Product not found')
+  //       }
+  //       setProduct(productData)
+  //     } catch (error) {
+  //       console.error('Error loading product:', error)
+  //     } finally {
+  //       setIsLoading(false)
+  //     }
+  //   }
+
+  //   loadProduct()
+  // }, [productId])
+
+  const router = useRouter()
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+    const token = sessionStorage.getItem('jwtToken')
+    useEffect(() => {
+      const checkAuth = async () => {
+        if (!token) {
+          router.push('/login')
+          return
+        }
+  
+        try {
+          const decodedToken = jwtDecode<{ role: string }>(token)
+          if (decodedToken.role !== 'admin') {
+            router.push('/login')
+            return
           }
+          // If the user is admin, fetch the product
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/product/${productId}`)
+          if (!response.ok) {
+            throw new Error('Failed to fetch product')
+          }
+          const productData: Product = await response.json()
+          
+          if (!productData) {
+            throw new Error('Product not found')
+          }
+          setProduct(productData)          
+          
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'An error occurred')
+        } finally {
+          setLoading(false)
         }
-
-        const productData = mockData[productId] || {
-          id: productId,
-          name: 'Sample Product',
-          description: 'Sample product description for testing purposes.',
-          image: '/images/sample.jpg',
-          price: 100,
-          stock: 10
-        }
-
-        setProduct(productData)
-      } catch (error) {
-        console.error('Error loading product:', error)
-      } finally {
-        setIsLoading(false)
       }
-    }
-
-    loadProduct()
-  }, [productId])
+  
+      checkAuth()
+    }, [token, router])
 
   if (isLoading) {
     return (
@@ -99,7 +95,7 @@ export default function EditProductPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">Produk tidak ditemukan</p>
-          <a href="/admin/products" className="text-blue-500 hover:underline">
+          <a href="/admin/product" className="text-blue-500 hover:underline">
             Kembali ke daftar produk
           </a>
         </div>

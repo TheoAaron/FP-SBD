@@ -75,9 +75,9 @@ export default function BestSellingProducts({
               {/* Price */}
               <div className="flex items-center gap-2">
                 <span className="text-red-500 font-medium">${product.harga}</span>
-                {product.harga && (
+                {/* {product.harga && (
                   <span className="text-gray-400 line-through">${product.harga}</span>
-                )}
+                )} */}
               </div>
 
               {/* Rating */}

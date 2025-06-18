@@ -5,7 +5,8 @@ module.exports = {
       id_detail_order: {
         type: Sequelize.UUID,
         primaryKey: true,
-        allowNull: false
+        allowNull: false,
+        defaultValue: Sequelize.literal('(UUID())')
       },
       id_order: {
         type: Sequelize.UUID,

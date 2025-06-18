@@ -1,16 +1,10 @@
 // src/components/ProductCard.tsx
 import Image from 'next/image'
 import { FiEdit2, FiTrash2 } from 'react-icons/fi'
+import { Product } from '../types/product'
 
 interface ProductCardProps {
-  product: {
-    id: string
-    name: string
-    image: string
-    price: number
-    oldPrice?: number
-    stock: number
-  }
+  product: Product
   onEdit: () => void
   onDelete: () => void
 }
@@ -42,9 +36,9 @@ export default function ProductCard({ product, onEdit, onDelete }: ProductCardPr
 
       {/* Product Image */}
       <div className="flex justify-center items-center h-28 sm:h-32 mb-3 sm:mb-4 mt-6 sm:mt-4">
-        <Image
+        <img
           src={product.image}
-          alt={product.name}
+          alt={product.nama_produk}
           width={120}
           height={120}
           className="object-contain max-h-full w-auto"
@@ -54,17 +48,17 @@ export default function ProductCard({ product, onEdit, onDelete }: ProductCardPr
       {/* Product Info */}
       <div className="text-center">
         <h3 className="font-medium text-gray-900 mb-2 text-sm line-clamp-2">
-          {product.name}
+          {product.nama_produk}
         </h3>
         <div className="flex items-center justify-center gap-2 flex-wrap">
           <span className="text-red-500 font-semibold text-sm sm:text-base">
-            ${product.price}
+            ${product.harga}
           </span>
-          {product.oldPrice && (
+          {/* {product.harga && (
             <span className="text-gray-400 line-through text-xs sm:text-sm">
-              ${product.oldPrice}
+              ${product.harga}
             </span>
-          )}
+          )} */}
         </div>
         <div className="text-xs sm:text-sm text-gray-500 mt-1">
           Stock: {product.stock}

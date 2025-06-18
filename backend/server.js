@@ -10,10 +10,11 @@ const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
 const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
-const adminMiddleware = require("./middlewares/admin");
 const reviewRoutes = require("./routes/reviewRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
+const adminMiddleware = require("./middlewares/admin");
+const authMiddleware = require("./middlewares/auth");
 
 
 const cartRoutes = require("./routes/cartRoutes");
@@ -29,7 +30,7 @@ app.get("/", (req, res) => res.send("🛒 Backend running with Mongo & MySQL"));
 app.use("/api/auth", authRoutes );
 app.use("/api/products", productRoutes);
 app.use("/api/user", userRoutes);
-app.use("/api/admin", adminRoutes);
+app.use("/api/admin",authMiddleware,adminMiddleware, adminRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/wishlist", wishlistRoutes);

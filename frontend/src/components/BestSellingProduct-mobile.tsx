@@ -135,11 +135,11 @@ export default function BestSellingProducts({
                   <span className="text-red-500 font-semibold text-sm sm:text-base">
                     ${product.price}
                   </span>
-                  {product.originalPrice && (
+                  {/* {product.originalPrice && (
                     <span className="text-gray-400 line-through text-xs sm:text-sm">
                       ${product.originalPrice}
                     </span>
-                  )}
+                  )} */}
                 </div>
                 
                 <div className="flex items-center gap-1 sm:gap-2">

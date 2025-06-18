@@ -71,9 +71,9 @@ export default function ExploreProducts({ products }: ExploreProductsProps)  {
               <h3 className="font-medium text-gray-900 text-sm">{product.nama_produk}</h3>
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-red-500 font-semibold">${product.harga}</span>
-                {product.harga && (
+                {/* {product.harga && (
                   <span className="text-gray-400 line-through">${product.harga}</span>
-                )}
+                )} */}
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <StarRating rating={product.avg_rating} />

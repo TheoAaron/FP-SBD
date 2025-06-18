@@ -5,7 +5,8 @@ module.exports = {
       id_kupon: {
         type: Sequelize.UUID,
         primaryKey: true,
-        allowNull: false
+        allowNull: false,
+        defaultValue: Sequelize.literal('(UUID())')
       },
       kode_kupon: {
         type: Sequelize.STRING,

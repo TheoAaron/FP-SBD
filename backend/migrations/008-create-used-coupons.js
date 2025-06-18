@@ -4,9 +4,9 @@ module.exports = {
     await queryInterface.createTable('used_coupons', {
       id_used_coupon: {
         type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4,
+        defaultValue: Sequelize.literal('(UUID())'),
         primaryKey: true,
-        allowNull: false
+        allowNull: false,        
       },
       id_user: {
         type: Sequelize.UUID,

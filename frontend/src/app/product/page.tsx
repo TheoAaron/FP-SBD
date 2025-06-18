@@ -49,9 +49,9 @@ function ProductContent() {
                 <h4 className="font-medium text-base sm:text-lg text-gray-800 line-clamp-2 mb-2">{product.name}</h4>
                 <div className="flex items-center justify-between mb-2 flex-wrap gap-1">
                   <p className="text-red-500 font-semibold text-base sm:text-lg">${product.price}</p>
-                  {product.originalPrice && (
+                  {/* {product.originalPrice && (
                     <p className="text-gray-400 line-through text-sm">${product.originalPrice}</p>
-                  )}
+                  )} */}
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <StarRating rating={product.rating} />
