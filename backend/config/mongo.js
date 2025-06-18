@@ -27,4 +27,3 @@ const getDB = () => {
 
 module.exports = { connectDB, getDB };
 
-module.exports = { connectDB, getDB };

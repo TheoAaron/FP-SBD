@@ -1,4 +1,3 @@
-const { UUIDV4 } = require('sequelize');
 const { pool } = require('../config/mysql');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');

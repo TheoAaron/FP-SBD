@@ -4,7 +4,7 @@ const getCart = async (req, res) => {
     const userId = req.user.id;
 
     try {
-        const cart = await db.collection("cart").findOne({ user_id: userId });
+        const cart = await db.collection("cart").findOne({ id_user: userId });
         if (!cart) {
             return res.status(404).json({ message: "Cart not found" });
         }
@@ -16,16 +16,16 @@ const getCart = async (req, res) => {
 const addToCart = async (req, res) => {
     const db = getDB();
     const userId = req.user.id;
-    const { product_id, quantity } = req.body;
+    const { product_id, qty } = req.body;
 
-    if (!product_id || !quantity) {
-        return res.status(400).json({ message: "Product ID and quantity are required" });
+    if (!product_id || !qty) {
+        return res.status(400).json({ message: "Product ID and qty are required" });
     }
 
     try {
         const cart = await db.collection("cart").findOneAndUpdate(
             { id_user: userId },
-            { $push: { produk: { product_id, quantity } } },
+            { $push: { produk: { product_id, qty } } },
             { upsert: true, returnDocument: 'after' }
         );
         res.status(201).json(cart.value);
@@ -33,28 +33,36 @@ const addToCart = async (req, res) => {
         res.status(500).json({ message: "Failed to add to cart", error });
     }
 }
-const deleteFromCart = async (req, res) => {
-    const db = getDB();
-    const userId = req.user.id;
-    const { product_id } = req.body;
 
-    if (!product_id) {
-        return res.status(400).json({ message: "Product ID is required" });
+
+const updateCart = async (req, res) => {
+    const db = getDB();
+    const userId = req.user?.id;
+
+    if (!userId) {
+        return res.status(401).json({ message: "Unauthorized: User ID not found" });
+    }
+
+    const produk = req.body.produk; 
+    if (!Array.isArray(produk) || produk.length === 0) {
+        return res.status(400).json({ message: "Produk array is required and cannot be empty" });
     }
 
     try {
-        const cart = await db.collection("cart").findOneAndUpdate(
-            { user_id: userId },
-            { $pull: { items: { product_id } } },
-            { returnDocument: 'after' }
+        const result = await db.collection("cart").findOneAndUpdate(
+            { id_user: userId },                 
+            { $set: { produk: produk } },        
+            { upsert: true, returnDocument: 'after' } 
         );
-        if (!cart.value) {
+
+        if (!result) {
             return res.status(404).json({ message: "Cart not found" });
         }
-        res.json(cart.value);
-    } catch (error) {
-        res.status(500).json({ message: "Failed to delete from cart", error });
-    }
-}
 
-module.exports = { getCart, addToCart, deleteFromCart };
+        return res.status(200).json({ message: "Success Update Cart" });
+    } catch (error) {
+        return res.status(500).json({ message: "Failed to update cart", error: error.message });
+    }
+};
+
+module.exports = { getCart, addToCart, updateCart };

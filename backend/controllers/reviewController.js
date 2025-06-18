@@ -3,7 +3,6 @@ const { getDB } = require("../config/mongo");
 // import { getDB } from "../config/mongo.js"; // ESM style
  // pastikan koneksi dibuat sebelum akses DB
 // Ambil instance DB
-const { getDB } = require("../config/mongo.js"); // CommonJS style
 // Ambil semua review untuk produk tertentu
 const getReviewsByProduct = async (req, res) => {
     const db = getDB(); 
