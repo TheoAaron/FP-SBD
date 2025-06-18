@@ -13,6 +13,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const adminMiddleware = require("./middlewares/admin");
 const reviewRoutes = require("./routes/reviewRoutes");
 const orderRoutes = require("./routes/orderRoutes");
+const wishlistRoutes = require("./routes/wishlistRoutes");
 
 
 
@@ -26,12 +27,12 @@ app.use(express.json());
 app.get("/", (req, res) => res.send("🛒 Backend running with Mongo & MySQL"));
 app.use("/api", testRoutes);
 app.use("/api/auth", authRoutes );
-app.use("/api", productRoutes);
+app.use("/api/products", productRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/reviews", reviewRoutes);
-app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/wishlist", wishlistRoutes);
 
 const start = async () => {
   await connectDB();
