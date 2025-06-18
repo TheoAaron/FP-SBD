@@ -6,70 +6,115 @@ const { v4: uuidv4 } = require('uuid');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'APINGANTENG';
 
-async function createOrder(req, res) {
-    console.log('Received request to create order');
-  try {
-    console.log('createOrder function called');
-    console.log('User from auth middleware:', req.user);
-      const { payment_details, order_details} = req.body;
-    const { kode_kupon, id_shipment, metode_pembayaran } = req.body;
-    
-    let status_pembayaran = 'paid';
-    if (metode_pembayaran === 'cod') {
-        status_pembayaran = 'pending';}
+function generateTrackingNumber() {
+  const prefix = 'TRK';
+  const randomNumbers = Math.floor(10000 + Math.random() * 90000);
+  return `${prefix}${randomNumbers}`;
+}
 
-    let status_pengiriman = 'delivered';
-    if (metode_pembayaran === 'cod') {
-        status_pengiriman = 'shipped';}
+async function createOrder(req, res) {
+  console.log('Received request to create order');
+  try {
+    console.log('=== ORDER CREATION DEBUG ===');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log('User from auth middleware:', req.user);
     
-    // Query coupon if kode_kupon is provided
-    let id_kupon = null;
-    if (kode_kupon) {
-      const [couponRows] = await pool.query('SELECT id_kupon FROM coupons WHERE kode_kupon = ?', [kode_kupon]);
-      if (couponRows.length > 0) {
-        id_kupon = couponRows[0].id_kupon;
-        console.log('Coupon found:', id_kupon);
-      } else {
-        console.log('Coupon not found:', kode_kupon);
-      }
+    const {order_details, kode_kupon, id_shipment, metode_pembayaran, total } = req.body;
+    const currentDateTime = new Date();
+
+    if (!order_details || !Array.isArray(order_details) || order_details.length === 0) {
+      console.log('ERROR: Invalid order_details');
+      return res.status(400).json({ error: 'order_details must be a non-empty array' });
+    }
+    
+    if (!metode_pembayaran) {
+      console.log('ERROR: Missing metode_pembayaran');
+      return res.status(400).json({ error: 'metode_pembayaran is required' });
     }
 
-    // Validate that we have an authenticated user
     if (!req.user || !req.user.id) {
       console.log('Authentication issue: req.user not properly set');
       return res.status(401).json({ message: "Authentication required - user ID not found in token" });
     }
     
-    // Validate required fields
-    if (!payment_details || !order_details) {
-      return res.status(400).json({ message: "Missing required order information" });
-    }
-    
-    // Use the user ID from the token instead of requiring it in the body
     const userId = req.user.id;
     console.log('Using user ID from token:', userId);
     
-    if (!Array.isArray(order_details) || order_details.length === 0) {
-      return res.status(400).json({ message: "Order must contain at least one product" });
-    }    const orderId = `order_${Date.now()}`;
-
-    // Use userId from auth token instead of from request body
-    await pool  .query(
-      'INSERT INTO orders ( id_order, id_user, id_kupon, id_shipment, status_pembayaran, status_pengiriman, metode_pembayaran, total, datetime, no_resi', 
-      [uuidv4(), userId, id_kupon, id_shipment, status_pembayaran,, new Date()]
-    );
-
-    for (const item of order_details) {
-      const { product_id, quantity, price } = item;
-      await pool.query(
-        'INSERT INTO detail_orders (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)', 
-        [orderId, product_id, quantity, price]
-      );
+    let status_pembayaran = 'paid';
+    if (metode_pembayaran === 'cod') {
+      status_pembayaran = 'pending';
     }
 
+    let status_pengiriman = 'delivered';
+    if (metode_pembayaran === 'cod') {
+      status_pengiriman = 'shipped';
+    }
+
+    let tracking_number = generateTrackingNumber();
+    console.log('Generated tracking number:', tracking_number);    
+    let id_kupon = null;
+    if (kode_kupon) {
+      console.log('Processing coupon:', kode_kupon);
+      try {
+        const [couponRows] = await pool.query('SELECT id_kupon FROM coupons WHERE kode_kupon = ?', [kode_kupon]);
+        if (couponRows.length > 0) {
+          id_kupon = couponRows[0].id_kupon;
+          console.log('Coupon found:', id_kupon);
+        } else {
+          console.log('Coupon not found:', kode_kupon);
+        }
+      } catch (couponError) {
+        console.log('Coupon query error:', couponError.message);
+      }
+    }
+
+    let orderId = uuidv4();
+    console.log('Generated order ID:', orderId);
+
+    console.log('Inserting order...');
+    console.log('Order values:', [orderId, userId, id_kupon, id_shipment, status_pembayaran, status_pengiriman, metode_pembayaran, total, currentDateTime, tracking_number]);
+    
+    await pool.query(
+      'INSERT INTO orders (id_order, id_user, id_kupon, id_shipment, status_pembayaran, status_pengiriman, metode_pembayaran, total, datetime, no_resi) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [orderId, userId, id_kupon, id_shipment, status_pembayaran, status_pengiriman, metode_pembayaran, total, currentDateTime, tracking_number]
+    );
+    
+    console.log('Order inserted successfully');
+
+    console.log('Inserting order details...');
+    for (const item of order_details) {  
+      const { product_id, quantity, price } = item;
+      console.log('Inserting item:', { product_id, quantity, price });
+      await pool.query(
+        'INSERT INTO detail_orders (id_detail_order, id_order, id_produk, qty) VALUES (?, ?, ?, ?)', 
+        [uuidv4(), orderId, product_id, quantity]
+      );
+    }
+    
+    console.log('All order details inserted successfully');
+    res.status(201).json({
+      success: true,
+      message: 'Order created successfully',
+      order: {
+        id_order: orderId,
+        tracking_number: tracking_number,
+        total: total,
+        status_pembayaran: status_pembayaran,
+        status_pengiriman: status_pengiriman
+      }
+    });
+
   } catch (error) {
-    console.error('Error placing order:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    console.error('=== ORDER CREATION ERROR ===');
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('Error code:', error.code);
+    
+    res.status(500).json({ 
+      error: 'Internal server error', 
+      details: error.message,
+      code: error.code 
+    });
   }
 }
 async function postAllOrders(req, res) {

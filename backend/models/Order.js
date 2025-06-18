@@ -20,7 +20,7 @@ const Order = sequelize.define('Order', {
   id_shipment: {
     type: DataTypes.UUID,
     allowNull: false,
-    unique: true 
+    unique: false
   },
   status_pembayaran: {
     type: DataTypes.ENUM('pending', 'paid'),

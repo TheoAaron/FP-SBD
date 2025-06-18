@@ -28,7 +28,7 @@ module.exports = {
       id_shipment: {
         type: Sequelize.UUID,
         allowNull: false,
-        unique: true,
+        unique: false,
         references: {
           model: 'shipment_details',
           key: 'id_shipment'
