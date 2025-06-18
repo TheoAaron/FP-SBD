@@ -1,85 +1,51 @@
 // src/app/admin/products/page.tsx
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import ProductCard from '../../components/Productcard'
+import ProductCard from '../../components/ProductCard'
+import { Product } from '../../types/product'
 
-export interface Product {
-  id: string
-  name: string
-  image: string
-  price: number
-  oldPrice?: number
-  stock: number
-}
 
-const mockProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Gucci duffle bag',
-    image: '/images/gucci-bag.jpg',
-    price: 960,
-    oldPrice: 1160,
-    stock: 15
-  },
-  {
-    id: '2',
-    name: 'RGB liquid CPU Cooler',
-    image: '/images/cooler.jpg',
-    price: 1960,
-    stock: 8
-  },
-  {
-    id: '3',
-    name: 'GP11 Shooter USB Gamepad',
-    image: '/images/gamepad.jpg',
-    price: 550,
-    stock: 12
-  },
-  {
-    id: '4',
-    name: 'Quilted Satin Jacket',
-    image: '/images/jacket.jpg',
-    price: 750,
-    stock: 6
-  },
-  // Duplikat untuk baris kedua
-  {
-    id: '5',
-    name: 'Gucci duffle bag',
-    image: '/images/gucci-bag.jpg',
-    price: 960,
-    oldPrice: 1160,
-    stock: 15
-  },
-  {
-    id: '6',
-    name: 'RGB liquid CPU Cooler',
-    image: '/images/cooler.jpg',
-    price: 1960,
-    stock: 8
-  },
-  {
-    id: '7',
-    name: 'GP11 Shooter USB Gamepad',
-    image: '/images/gamepad.jpg',
-    price: 550,
-    stock: 12
-  },
-  {
-    id: '8',
-    name: 'Quilted Satin Jacket',
-    image: '/images/jacket.jpg',
-    price: 750,
-    stock: 6
-  }
-]
 
 export default function AdminProductsPage() {
-  const [search, setSearch] = useState('')
-  const [products, setProducts] = useState(mockProducts)
-  const router = useRouter()
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState<Product | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+  const checkAuth = async () => {
+    try {
+      const res = await fetch('/api/user/profile')
+      if (!res.ok) throw new Error('Unauthorized')
+      const user = await res.json()
+      if (user.role !== 'admin') {
+        router.push('/login')
+      }
+    } catch {
+      router.push('/login')
+    }
+  }
+
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch('http://localhost:8080/api/admin/products')
+      if (!res.ok) throw new Error('Gagal memuat produk')
+      const data: Product[] = await res.json()
+      setProducts(data)
+    } catch (error) {
+      console.error('Fetch error:', error)
+      alert('Gagal memuat data produk')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  checkAuth().then(fetchProducts)
+}, [router])
+
 
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(search.toLowerCase())
