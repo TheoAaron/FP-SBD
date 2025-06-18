@@ -16,13 +16,25 @@ const ShipmentDetail = sequelize.define('ShipmentDetail', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  last_name: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
   street_address: {
     type: DataTypes.STRING,
     allowNull: false
   },
+  apartment_floor: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
   kota: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  label: {
+    type: DataTypes.STRING,
+    allowNull: true
   },
   kode_pos: {
     type: DataTypes.STRING,
@@ -31,6 +43,10 @@ const ShipmentDetail = sequelize.define('ShipmentDetail', {
   no_telepon: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  email_address: {
+    type: DataTypes.STRING,
+    allowNull: true
   },
   negara: {
     type: DataTypes.STRING,

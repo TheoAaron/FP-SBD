@@ -6,7 +6,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'APINGANTENG';
 
 const getAllProducts = async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM products');
+    const { category } = req.query;
+    let query = 'SELECT * FROM products';
+    let params = [];
+    if (category) {
+      query += ' WHERE kategori = ?';
+      params.push(category);
+    }
+    const [rows] = await pool.query(query, params);
     res.status(200).json(rows);
   } catch (error) {
     console.error('Error fetching products:', error);

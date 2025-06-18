@@ -33,7 +33,10 @@ app.use("/api/user", userRoutes);
 app.use("/api/admin",authMiddleware,adminMiddleware, adminRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
 app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/shipments", shipmentRoutes);
 
 const start = async () => {
   await connectDB();
