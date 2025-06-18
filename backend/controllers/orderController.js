@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-const { UUIDV4 } = require('sequelize');
-=======
->>>>>>> ba716e84b04737628502ae863bd2b303c8ed37d4
 const { pool } = require('../config/mysql');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
@@ -120,33 +116,6 @@ async function createOrder(req, res) {
     });
   }
 }
-<<<<<<< HEAD
-async function postAllOrders(req, res) {
-  try {
-    const { userId, products } = req.body;
-
-    if (!userId || !products || !Array.isArray(products) || products.length === 0) {
-      return res.status(400).json({ message: "Invalid order data" });
-    }
-
-    const orderId = `order_${Date.now()}`;
-
-    await pool.query('INSERT INTO orders (id_user, status, created_at) VALUES ( ?, ?, ?)', [orderId, userId, 'pending', new Date()]);
-
-    for (const product of products) {
-      const { productId, quantity } = product;
-      await pool.query('INSERT INTO order_items (order_id, product_id, quantity) VALUES (?, ?, ?)', [orderId, productId, quantity]);
-    }
-
-    res.status(201).json({ message: "Order placed successfully", orderId });
-  } catch (error) {
-    console.error('Error placing order:', error);
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-}
-
-module.exports = { createOrder, postAllOrders };
-=======
 async function getOrderById(req, res) {
   try {
     console.log('=== GET ORDER BY ID ===');
@@ -266,4 +235,3 @@ async function getOrderById(req, res) {
 }
 
 module.exports = { createOrder, getOrderById};
->>>>>>> ba716e84b04737628502ae863bd2b303c8ed37d4
