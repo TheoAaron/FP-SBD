@@ -13,26 +13,43 @@ interface CarouselProps {
 
 const Carousel: React.FC<CarouselProps> = ({ images }) => {
   return (
-    <div className="w-50% mx-50 mt-6 custom-swiper">
+    <div className="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <div className="max-w-7xl mx-auto">
         <Swiper
-        modules={[Navigation, Pagination, Autoplay]}
-        spaceBetween={20}
-        slidesPerView={1}
-        // navigation
-        pagination={{ clickable: true }}
-        autoplay={{ delay: 3000 }}
-        loop={true}
+          modules={[Navigation, Pagination, Autoplay]}
+          spaceBetween={20}
+          slidesPerView={1}
+          navigation={{
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          }}
+          pagination={{ 
+            clickable: true,
+            bulletClass: 'swiper-pagination-bullet',
+            bulletActiveClass: 'swiper-pagination-bullet-active'
+          }}
+          autoplay={{ 
+            delay: 4000,
+            disableOnInteraction: false,
+          }}
+          loop={true}
+          className="rounded-lg shadow-lg overflow-hidden"
         >
-        {images.map((image, index) => (
+          {images.map((image, index) => (
             <SwiperSlide key={index}>
-            <img
-                src={image.src}
-                alt={image.alt || `Slide ${index + 1}`}
-                className="w-full h-90 object-cover rounded-lg"
-            />
+              <div className="relative w-full h-48 sm:h-64 md:h-80 lg:h-96">
+                <img
+                  src={image.src}
+                  alt={image.alt || `Slide ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+                {/* Optional overlay for better text readability */}
+                <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+              </div>
             </SwiperSlide>
-        ))}
+          ))}
         </Swiper>
+      </div>
     </div>
   );
 };

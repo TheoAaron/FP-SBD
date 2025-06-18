@@ -30,34 +30,60 @@ const CategorySection: React.FC = () => {
       router.push(`/product?category=${categoryLabel}`);
     }
   };
-
   return (
-    <div className="w-100% bg-white py-10">
-      <div className="max-w-7xl">
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-1 h-8 bg-[#db4444] rounded"></div>
-          <h2 className="font-medium text-red-500">Categories</h2>
+    <div className="w-full bg-white py-6 px-4 sm:py-10 sm:px-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center gap-4 mb-6 sm:mb-8">
+          <div className="w-1 h-6 sm:h-8 bg-[#db4444] rounded"></div>
+          <h2 className="font-medium text-red-500 text-sm sm:text-base">Categories</h2>
         </div>
-        <h1 className="text-3xl font-bold mb-8">Browse By Category</h1>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex space-x-4 w-[96%] overflow-x-auto scrollbar-hide">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">Browse By Category</h1>
+        
+        {/* Mobile: Grid layout, Desktop: Horizontal scroll */}
+        <div className="block sm:hidden">
+          <div className="grid grid-cols-2 gap-3">
             {categories.map((category, index) => (
               <div
                 key={index}
                 onClick={() => handleCategoryClick(category.label)}
-                className={`flex flex-col items-center justify-center w-full h-32 border-2 rounded-md cursor-pointer transition
+                className={`flex flex-col items-center justify-center h-24 border-2 rounded-md cursor-pointer transition-all touch-manipulation
                   ${
                     activeCategory === category.label
                       ? "border-red-500 bg-red-500 text-white"
-                      : "border-gray-300 hover:border-red-500 hover:bg-red-500 hover:text-white"
+                      : "border-gray-300 hover:border-red-500 active:border-red-500 active:bg-red-500 active:text-white"
                   }`}
               >
-                {category.icon}
-                <span className="mt-2 text-sm font-medium">
+                <div className="scale-75">{category.icon}</div>
+                <span className="mt-1 text-xs font-medium text-center">
                   {category.label}
                 </span>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Desktop: Horizontal scroll */}
+        <div className="hidden sm:block">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex space-x-4 w-full overflow-x-auto scrollbar-hide">
+              {categories.map((category, index) => (
+                <div
+                  key={index}
+                  onClick={() => handleCategoryClick(category.label)}
+                  className={`flex flex-col items-center justify-center min-w-[140px] h-32 border-2 rounded-md cursor-pointer transition-all
+                    ${
+                      activeCategory === category.label
+                        ? "border-red-500 bg-red-500 text-white"
+                        : "border-gray-300 hover:border-red-500 hover:bg-red-500 hover:text-white"
+                    }`}
+                >
+                  {category.icon}
+                  <span className="mt-2 text-sm font-medium">
+                    {category.label}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

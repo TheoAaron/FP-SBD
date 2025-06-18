@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 const { UUIDV4 } = require('sequelize');
+=======
+>>>>>>> ba716e84b04737628502ae863bd2b303c8ed37d4
 const { pool } = require('../config/mysql');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
@@ -117,6 +120,7 @@ async function createOrder(req, res) {
     });
   }
 }
+<<<<<<< HEAD
 async function postAllOrders(req, res) {
   try {
     const { userId, products } = req.body;
@@ -142,3 +146,124 @@ async function postAllOrders(req, res) {
 }
 
 module.exports = { createOrder, postAllOrders };
+=======
+async function getOrderById(req, res) {
+  try {
+    console.log('=== GET ORDER BY ID ===');
+    const { id } = req.params;
+    console.log('Order ID requested:', id);
+    console.log('User from auth:', req.user);
+
+    if (!req.user || !req.user.id) {
+      console.log('Authentication issue: req.user not properly set');
+      return res.status(401).json({ message: "Authentication required - user ID not found in token" });
+    }
+
+    const userId = req.user.id;
+    console.log('Authenticated user ID:', userId);    const [orderRows] = await pool.query(
+      `SELECT 
+        o.id_order,
+        o.id_user,
+        o.total,
+        o.status_pembayaran,
+        o.status_pengiriman,
+        o.metode_pembayaran,
+        o.datetime,
+        o.no_resi,
+        o.id_kupon,
+        o.id_shipment,
+        c.kode_kupon,
+        c.diskon,
+        sd.first_name,
+        sd.street_address,
+        sd.kota,
+        sd.kode_pos,
+        sd.no_telepon,
+        sd.negara
+      FROM orders o
+      LEFT JOIN coupons c ON o.id_kupon = c.id_kupon
+      LEFT JOIN shipment_details sd ON o.id_shipment = sd.id_shipment
+      WHERE o.id_order = ? AND o.id_user = ?`,
+      [id, userId]
+    );
+
+    if (orderRows.length === 0) {
+      console.log('Order not found or access denied');
+      return res.status(404).json({ message: "Order not found or access denied" });
+    }
+
+    const order = orderRows[0];
+    console.log('Order found:', order.id_order);    const [orderDetailsRows] = await pool.query(
+      `SELECT 
+        od.id_detail_order,
+        od.id_produk,
+        od.qty,
+        p.nama_produk,
+        p.harga,
+        p.image,
+        p.description,
+        p.avg_rating,
+        p.stock,
+        (od.qty * p.harga) as subtotal
+      FROM detail_orders od
+      JOIN products p ON od.id_produk = p.id_produk
+      WHERE od.id_order = ?`,
+      [id]
+    );
+
+    console.log('Order details found:', orderDetailsRows.length, 'items');
+
+   
+    const orderDetails = {
+      id_order: order.id_order,
+      tracking_number: order.no_resi,
+      user_id: order.id_user,total: order.total,
+      status_pembayaran: order.status_pembayaran,
+      status_pengiriman: order.status_pengiriman,
+      metode_pembayaran: order.metode_pembayaran,
+      datetime: order.datetime,
+      coupon: order.id_kupon ? {
+        kode_kupon: order.kode_kupon,
+        diskon: order.diskon
+      } : null,
+      shipping: order.id_shipment ? {
+        recipient_name: order.first_name,
+        street_address: order.street_address,
+        city: order.kota,
+        postal_code: order.kode_pos,
+        phone: order.no_telepon,
+        country: order.negara
+      } : null,      items: orderDetailsRows.map(item => ({
+        id_detail_order: item.id_detail_order,
+        product_id: item.id_produk,
+        product_name: item.nama_produk,
+        price: item.harga,
+        quantity: item.qty,
+        subtotal: item.subtotal,
+        image: item.image,
+        description: item.description,
+        rating: item.avg_rating,
+        stock: item.stock
+      }))
+    };
+
+    res.status(200).json({
+      success: true,
+      message: "Order details retrieved successfully",
+      order: orderDetails
+    });
+
+  } catch (error) {
+    console.error('=== GET ORDER ERROR ===');
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    
+    res.status(500).json({ 
+      error: 'Internal server error', 
+      details: error.message 
+    });
+  }
+}
+
+module.exports = { createOrder, getOrderById};
+>>>>>>> ba716e84b04737628502ae863bd2b303c8ed37d4

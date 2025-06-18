@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -76,7 +75,7 @@ export default function EditProfile({ userProfile }: EditProfileProps) {
     e.preventDefault();
     setLoading(true);
     
-    console.log('Form submitted!'); // Debug log    // Cek apakah ada perubahan data
+    console.log('Form submitted!'); 
     if (!hasDataChanged()) {
       toast('Tidak ada perubahan data untuk disimpan', {
         icon: '💡',
@@ -92,11 +91,8 @@ export default function EditProfile({ userProfile }: EditProfileProps) {
       if (!token) {
         console.log('No token found'); // Debug log
         toast.error('Token tidak ditemukan. Silakan login ulang.');
-        return;
-      }
-
-      // Prepare data to send (exclude empty password fields)
-      const dataToSend: any = {
+        return;      }      // Prepare data to send (exclude empty password fields)
+      const dataToSend: ProfileFormData = {
         first_name: formData.first_name,
         last_name: formData.last_name,
         email: formData.email,
@@ -119,14 +115,16 @@ export default function EditProfile({ userProfile }: EditProfileProps) {
       }
       }
 
-      const response = await fetch('http://localhost:8080/api/user/profile', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/user/profile`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(dataToSend)
-      });      const result = await response.json();
+      });
+
+      const result = await response.json();
       console.log('Response:', response.status, result); // Debug log
 
       if (response.ok) {

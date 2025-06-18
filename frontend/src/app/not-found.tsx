@@ -1,6 +1,5 @@
 // src/app/not-found.tsx
 import Link from "next/link";
-import { Search, Heart, ShoppingCart, User, ChevronDown } from "lucide-react";
 
 export default function NotFound() {
   return (

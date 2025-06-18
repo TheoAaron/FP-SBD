@@ -10,7 +10,7 @@ const checkPurchaseHistory = async (req, res, next) => {
     }
 
     const userId = req.user.id;
-    const productId = req.params.productId || req.body.productId;
+    const productId = req.params.id_produk || req.body.productId;
 
     if (!productId) {
       return res.status(400).json({ 

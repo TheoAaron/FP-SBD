@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
-const {connectDB, _} = require("./config/mongo");
+const { connectDB } = require("./config/mongo");
 const { connectMySQL } = require("./config/mysql");
 
 const testRoutes = require("./routes/testRoutes");
@@ -13,6 +13,10 @@ const adminRoutes = require("./routes/adminRoutes");
 const adminMiddleware = require("./middlewares/admin");
 const reviewRoutes = require("./routes/reviewRoutes");
 const orderRoutes = require("./routes/orderRoutes");
+const wishlistRoutes = require("./routes/wishlistRoutes");
+
+
+const cartRoutes = require("./routes/cartRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -26,8 +30,9 @@ app.use("/api/auth", authRoutes );
 // app.use("/api/products", productRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/wishlist", wishlistRoutes);
 
 const start = async () => {
   await connectDB();

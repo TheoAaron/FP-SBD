@@ -1,4 +1,5 @@
 // src/app/page.ts
+import { Suspense } from 'react';
 import Carousel from '@/components/Carousel';
 import BestSellingProducts from '@/components/BestSellingProduct';
 import DiscoveryProduct from '@/components/DiscoveryProduct'
@@ -20,10 +21,32 @@ export default async function Home() {
   const products: Product[] = await res.json();
   console.log(products);
   return (    
-    <div>
-      <Carousel images={images} />
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        <CategorySection />
+    <div className="min-h-screen">
+      {/* Hero Carousel */}
+      <div className="w-full">
+        <Carousel images={images} />
+      </div>
+      
+      {/* Categories Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        <Suspense fallback={
+          <div className="flex justify-center items-center h-32">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-2 text-gray-600">Loading categories...</span>
+          </div>
+        }>
+          <CategorySection />
+        </Suspense>
+      </div>
+      
+      {/* Best Selling Products */}
+      <div className="bg-gray-50 py-8 sm:py-12">
+        <BestSellingProducts />
+      </div>
+      
+      {/* Discovery Products */}
+      <div className="py-8 sm:py-12">
+        {/* <DiscoveryProduct product/> */}
       </div>
       <BestSellingProducts products={products}/>
       <DiscoveryProduct products={products}/>

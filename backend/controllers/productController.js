@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'APINGANTENG';
 
-// Function to get all products
+
 const getAllProducts = async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM products');

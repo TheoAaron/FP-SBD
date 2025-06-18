@@ -66,13 +66,13 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
         image: formData.image,
         price: parseFloat(formData.price),
         oldPrice: formData.oldPrice ? parseFloat(formData.oldPrice) : undefined,
-        stock: parseInt(formData.stock)
-      }
+        stock: parseInt(formData.stock)      }
 
       console.log(`${mode === 'create' ? 'Created' : 'Updated'} product:`, productData)
       alert(`Produk berhasil ${mode === 'create' ? 'ditambahkan' : 'diperbarui'}!`)
       router.push('/admin/products')
-    } catch (error) {
+    } catch (catchError) {
+      console.error('Error submitting product:', catchError)
       alert(`Terjadi kesalahan saat ${mode === 'create' ? 'menambahkan' : 'memperbarui'} produk`)
     } finally {
       setIsSubmitting(false)

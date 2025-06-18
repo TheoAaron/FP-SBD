@@ -79,81 +79,124 @@ const lastView: Product[] = [
 
 export default function WishlistPage() {
   return (
-    <div className="max-w-7xl mx-auto p-6">
-      {/* Wishlist */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-semibold">Wishlist ({wishlist.length})</h2>
-        <button className="border px-4 py-2 rounded hover:bg-gray-100">Move All To Bag</button>
+    <div className="max-w-7xl mx-auto p-4 sm:p-6">
+      {/* Wishlist Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
+        <h2 className="text-lg sm:text-xl font-semibold">Wishlist ({wishlist.length})</h2>
+        <button className="border px-4 py-2.5 rounded hover:bg-gray-100 active:bg-gray-100 text-sm sm:text-base touch-manipulation">
+          Move All To Bag
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+      {/* Wishlist Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-10">
         {wishlist.map(product => (
-          <div key={product.id} className="border rounded-lg p-4 group">
-            <div className="relative h-48 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden group mb-4">
-              {/* Trash Icon - Hidden by default, shows on hover */}
-              <button className="absolute top-3 right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center text-black hover:bg-gray-200 transition-all duration-300 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 z-10">
+          <div key={product.id} className="border rounded-lg p-3 sm:p-4 group">
+            <div className="relative h-40 sm:h-48 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden mb-3 sm:mb-4">
+              
+              {/* Desktop: Hover Trash Icon */}
+              <button className="absolute top-3 right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center text-black hover:bg-gray-200 transition-all duration-300 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 z-10 hidden sm:flex">
                 <Trash2 className="w-5 h-5" />
               </button>
+
+              {/* Mobile: Always visible Trash Icon */}
+              <button className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center text-black active:bg-gray-200 transition-colors z-10 sm:hidden touch-manipulation">
+                <Trash2 className="w-4 h-4" />
+              </button>
+
               <img
                 src={product.image}
                 alt={product.name}
-                className="object-contain w-full h-full p-4"
+                className="object-contain w-full h-full p-3 sm:p-4"
               />
-              <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4">
+              
+              {/* Desktop: Hover Add to Cart */}
+              <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4 hidden sm:block">
                 <button className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
                   <ShoppingCart className="w-4 h-4" />
                   Add To Cart
                 </button>
               </div>
             </div>
-            <h3 className="text-sm font-medium text-gray-800">{product.name}</h3>
-            <div className="flex items-center gap-2 text-sm">
+
+            <h3 className="text-sm font-medium text-gray-800 mb-2 line-clamp-2">{product.name}</h3>
+            <div className="flex items-center gap-2 text-sm mb-2">
               <span className="text-red-500 font-semibold">${product.price}</span>
               {product.originalPrice && (
                 <span className="text-gray-400 line-through">${product.originalPrice}</span>
               )}
+            </div>
+
+            {/* Mobile: Always visible Add to Cart */}
+            <div className="block sm:hidden">
+              <button className="w-full bg-black text-white py-2.5 rounded hover:bg-gray-800 active:bg-gray-800 transition-colors flex items-center justify-center gap-2 touch-manipulation">
+                <ShoppingCart className="w-4 h-4" />
+                <span className="text-sm">Add To Cart</span>
+              </button>
             </div>
           </div>
         ))}
       </div>
 
       {/* Last View Section */}
-      <div className="flex items-center gap-4 mb-4">
-        <div className="w-1 h-6 bg-red-500 rounded"></div>
-        <h3 className="text-lg font-semibold">Last View</h3>
+      <div className="flex items-center gap-4 mb-4 sm:mb-6">
+        <div className="w-1 h-5 sm:h-6 bg-red-500 rounded"></div>
+        <h3 className="text-base sm:text-lg font-semibold">Last View</h3>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Last View Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {lastView.map(product => (
-          <div key={product.id} className="border rounded-lg p-4 group">
-            <div className="relative h-48 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden group mb-4">
-              {/* Eye Icon - Hidden by default, shows on hover */}
-              <button className="absolute top-3 right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center text-black hover:bg-gray-200 transition-all duration-300 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 z-10">
+          <div key={product.id} className="border rounded-lg p-3 sm:p-4 group">
+            <div className="relative h-40 sm:h-48 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden mb-3 sm:mb-4">
+              
+              {/* Desktop: Hover Eye Icon */}
+              <button className="absolute top-3 right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center text-black hover:bg-gray-200 transition-all duration-300 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 z-10 hidden sm:flex">
                 <Eye className="w-5 h-5" />
               </button>
+
+              {/* Mobile: Always visible Eye Icon */}
+              <button className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center text-black active:bg-gray-200 transition-colors z-10 sm:hidden touch-manipulation">
+                <Eye className="w-4 h-4" />
+              </button>
+
               <img
                 src={product.image}
                 alt={product.name}
-                className="object-contain w-full h-full p-4"
+                className="object-contain w-full h-full p-3 sm:p-4"
               />
-              <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4">
+              
+              {/* Desktop: Hover Add to Cart */}
+              <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4 hidden sm:block">
                 <button className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
                   <ShoppingCart className="w-4 h-4" />
                   Add To Cart
                 </button>
               </div>
             </div>
-            <h3 className="text-sm font-medium text-gray-800">{product.name}</h3>
-            <div className="flex items-center gap-2 text-sm">
+
+            <h3 className="text-sm font-medium text-gray-800 mb-2 line-clamp-2">{product.name}</h3>
+            <div className="flex items-center gap-2 text-sm mb-2">
               <span className="text-red-500 font-semibold">${product.price}</span>
               {product.originalPrice && (
                 <span className="text-gray-400 line-through">${product.originalPrice}</span>
               )}
             </div>
-            <div className="flex items-center gap-2 text-sm mt-1">
-              <StarRating rating={product.rating || 0} />
-              <span className="text-gray-600 text-sm font-medium">{product.rating?.toFixed(1)}</span>
-              <span className="text-gray-400">({product.reviews})</span>
+            
+            {product.rating && (
+              <div className="flex items-center gap-2 text-sm mb-2">
+                <StarRating rating={product.rating} />
+                <span className="text-gray-600 text-sm font-medium">{product.rating.toFixed(1)}</span>
+                <span className="text-gray-400">({product.reviews})</span>
+              </div>
+            )}
+
+            {/* Mobile: Always visible Add to Cart */}
+            <div className="block sm:hidden">
+              <button className="w-full bg-black text-white py-2.5 rounded hover:bg-gray-800 active:bg-gray-800 transition-colors flex items-center justify-center gap-2 touch-manipulation">
+                <ShoppingCart className="w-4 h-4" />
+                <span className="text-sm">Add To Cart</span>
+              </button>
             </div>
           </div>
         ))}

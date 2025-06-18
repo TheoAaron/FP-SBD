@@ -140,3 +140,144 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Mobile-first responsive utilities */
+@layer utilities {
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+  
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+}
+
+/* Swiper responsive styles */
+.swiper-pagination-bullet {
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 1;
+}
+
+.swiper-pagination-bullet-active {
+  background: white;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  font-size: 16px;
+}
+
+/* Hide swiper navigation on mobile */
+@media (max-width: 768px) {
+  .swiper-button-next,
+  .swiper-button-prev {
+    display: none;
+  }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Mobile touch targets */
+@media (max-width: 768px) {
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Mobile-first responsive grid utilities */
+@media (max-width: 640px) {
+  .mobile-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  .mobile-grid-1 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Mobile form utilities */
+.mobile-form-input {
+  font-size: 16px; /* Prevents zoom on iOS */
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 0;
+}
+
+/* Mobile button utilities */
+.mobile-btn {
+  min-height: 44px; /* Apple's recommended touch target */
+  min-width: 44px;
+  padding: 12px 16px;
+}
+
+/* Enhanced touch targets for mobile */
+@media (max-width: 768px) {
+  button, 
+  [role="button"], 
+  input[type="submit"], 
+  input[type="button"],
+  .touch-manipulation {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+  
+  /* Improve form controls on mobile */
+  input, 
+  select, 
+  textarea {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  /* Better spacing for mobile cards */
+  .mobile-card {
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  
+  /* Mobile-friendly modals */
+  .mobile-modal {
+    margin: 16px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+  }
+}
+
+/* Responsive text utilities */
+.text-responsive {
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+.heading-responsive {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+}
