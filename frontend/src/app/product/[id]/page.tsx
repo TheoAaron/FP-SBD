@@ -1,5 +1,4 @@
 import DetailProduct from "@/components/DetailProduct";
-import { dummyProducts } from '@/lib/dummyProducts';
 import UserReview from '@/components/userReview';
 import RelatedProductsCarousel from '@/components/RelatedProductsCarousel';
 
@@ -7,11 +6,27 @@ import RelatedProductsCarousel from '@/components/RelatedProductsCarousel';
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
   const id_produk = parseInt(resolvedParams.id, 10);
-  // Find current product
-  const current = dummyProducts.find(p => p.id_produk === id_produk);
-  if (!current) return <div>Product not found</div>;
-  // Filter related products by same category
-  const related = dummyProducts.filter(p => p.category === current.category && p.id_produk !== id_produk);
+  
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/products/${id_produk}`, {
+    cache: 'no-store'
+  });
+  
+  if (!res.ok) {
+    return <div>Product not found</div>;
+  }
+  
+  const current = await res.json();
+  
+  const allProductsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/products`, {
+    cache: 'no-store'
+  });
+  
+  let related = [];
+  if (allProductsRes.ok) {
+    const allProducts = await allProductsRes.json();
+    // Filter related products by same category
+    related = allProducts.filter((p: any) => p.category === current.category && p.id_produk !== id_produk);
+  }
 
   return (
     <main className="max-w-7xl mx-auto p-6">
