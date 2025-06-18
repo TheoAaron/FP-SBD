@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
-const connectMongo = require("./config/mongo");
+const {connectDB, _} = require("./config/mongo");
 const { connectMySQL } = require("./config/mysql");
 
 const testRoutes = require("./routes/testRoutes");
@@ -27,10 +27,10 @@ app.use("/api/products", productRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/products", productRoutes);
-app.use("/api/orders", orderRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 const start = async () => {
-  await connectMongo();
+  await connectDB();
   await connectMySQL();
 
   app.listen(PORT, () => {
