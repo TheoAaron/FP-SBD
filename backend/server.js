@@ -16,6 +16,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
 
 
+const cartRoutes = require("./routes/cartRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3001;

@@ -1,6 +1,6 @@
+// import { MongoClient } from "mongodb";
 const { MongoClient } = require("mongodb");
-
-const MONGO_URI = process.env.MONGODB_URI;
+const MONGO_URI = `mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/${process.env.DB_NAME}`;
 const client = new MongoClient(MONGO_URI);
 
 let dbConnection;
@@ -24,5 +24,7 @@ const getDB = () => {
   if (!dbConnection) throw new Error("DB not connected");
   return dbConnection;
 };
+
+module.exports = { connectDB, getDB };
 
 module.exports = { connectDB, getDB };
