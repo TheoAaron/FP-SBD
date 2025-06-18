@@ -9,6 +9,9 @@ const testRoutes = require("./routes/testRoutes");
 const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
 const userRoutes = require("./routes/userRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const adminMiddleware = require("./middlewares/admin");
+const reviewRoutes = require("./routes/reviewRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -22,7 +25,8 @@ app.use("/api", testRoutes);
 app.use("/api/auth", authRoutes );
 app.use("/api", productRoutes);
 app.use("/api/user", userRoutes);
-
+app.use("/api/admin", adminRoutes);
+app.use("/api/products", productRoutes);
 
 const start = async () => {
   await connectMongo();

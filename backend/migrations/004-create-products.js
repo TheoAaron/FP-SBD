@@ -23,7 +23,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         defaultValue: 0
       },
-      kategori: Sequelize.STRING,
+      kategori: {
+        type: Sequelize.ENUM('phone', 'computer', 'gaming', 'watch', 'camera', 'audio'),
+        allowNull: false
+      },
       createdAt: Sequelize.DATE,
       updatedAt: Sequelize.DATE
     });

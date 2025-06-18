@@ -3,38 +3,43 @@
 import React from 'react';
 import Link from 'next/link';
 import toast, { Toaster } from 'react-hot-toast';
-
-async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    const payload = {
-        username: formData.get('email'),
-        password: formData.get('password'),
-    };
-    try {
-        const res = await fetch('http://localhost:8080/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        });
-        if (res.ok) {
-            toast.success('Login successful');
-            // optionally redirect
-            const data = await res.json();
-            if (data.token) {
-                sessionStorage.setItem('jwtToken', data.token);
-            }
-        } else {
-            toast.error('Login failed');
-        }
-    } catch (err) {
-        toast.error('Error logging in');
-        console.error('Error:', err);
-    }
-}
+import { redirect, useRouter } from 'next/navigation';
 
 export default function LoginLayout() {
+    const router = useRouter();
+
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const formData = new FormData(form);    
+        const payload = {
+            username: formData.get('email'),
+            password: formData.get('password'),
+        };
+        try {
+
+            const res = await fetch('http://localhost:8080/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+            if (res.ok) {
+                toast.success('Login successful');
+                const data = await res.json();
+                if (data.token) {
+                    sessionStorage.setItem('jwtToken', data.token);
+                    // Redirect ke home setelah login berhasil
+                    window.location.href = '/';
+                }
+            } else {
+                const dataa = await res.json();
+                toast.error(dataa.message || 'Login failed');
+            }
+        } catch (err) {
+            toast.error('Error logging in');
+            console.error('Error:', err);
+        }
+    }
     return (
         <>
             <Toaster position="top-right" />

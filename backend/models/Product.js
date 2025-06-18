@@ -39,7 +39,7 @@ const Product = sequelize.define('Product', {
     defaultValue: 0
   },
   kategori: {
-    type: DataTypes.STRING,
+    type: DataTypes.ENUM('phone', 'computer', 'gaming', 'watch', 'camera', 'audio'),
     allowNull: false
   }
 }, {
