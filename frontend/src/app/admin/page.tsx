@@ -3,77 +3,9 @@
 import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import ProductCard from '../../components/ProductCard'
+import { Product } from '../../types/product'
+import {jwtDecode} from 'jwt-decode'
 
-export interface Product {
-  id: string
-  name: string
-  image: string
-  price: number
-  oldPrice?: number
-  stock: number
-}
-
-const mockProducts: Product[] = [
-  {
-    id: '1',
-    name: 'Gucci duffle bag',
-    image: '/images/gucci-bag.jpg',
-    price: 960,
-    oldPrice: 1160,
-    stock: 15
-  },
-  {
-    id: '2',
-    name: 'RGB liquid CPU Cooler',
-    image: '/images/cooler.jpg',
-    price: 1960,
-    stock: 8
-  },
-  {
-    id: '3',
-    name: 'GP11 Shooter USB Gamepad',
-    image: '/images/gamepad.jpg',
-    price: 550,
-    stock: 12
-  },
-  {
-    id: '4',
-    name: 'Quilted Satin Jacket',
-    image: '/images/jacket.jpg',
-    price: 750,
-    stock: 6
-  },
-  // Duplikat untuk baris kedua
-  {
-    id: '5',
-    name: 'Gucci duffle bag',
-    image: '/images/gucci-bag.jpg',
-    price: 960,
-    oldPrice: 1160,
-    stock: 15
-  },
-  {
-    id: '6',
-    name: 'RGB liquid CPU Cooler',
-    image: '/images/cooler.jpg',
-    price: 1960,
-    stock: 8
-  },
-  {
-    id: '7',
-    name: 'GP11 Shooter USB Gamepad',
-    image: '/images/gamepad.jpg',
-    price: 550,
-    stock: 12
-  },
-  {
-    id: '8',
-    name: 'Quilted Satin Jacket',
-    image: '/images/jacket.jpg',
-    price: 750,
-    stock: 6
-  }
-]
 
 export default function AdminProductsPage() {
   const [search, setSearch] = useState('')
