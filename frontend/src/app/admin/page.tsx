@@ -32,7 +32,13 @@ export default function AdminProductsPage() {
         }
 
         // If the user is admin, fetch the products
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/product`)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/product`,{
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        })
         if (!response.ok) {
           throw new Error('Failed to fetch products')
         }
@@ -60,7 +66,10 @@ export default function AdminProductsPage() {
   const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this product?')) {
       fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/product/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${sessionStorage.getItem('jwtToken')}`,        
+        }
       })
         .then(response => {
           if (!response.ok) {

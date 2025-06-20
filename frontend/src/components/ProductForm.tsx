@@ -10,9 +10,10 @@ import { Product } from '@/types/product'
 interface ProductFormProps {
   product?: Product
   mode: 'create' | 'edit'
+  token?: string
 }
 
-export default function ProductForm({ product, mode }: ProductFormProps) {
+export default function ProductForm({ product, mode, token }: ProductFormProps) {
   const router = useRouter()
   const [formData, setFormData] = useState({
     name: product?.nama_produk || '',
@@ -65,9 +66,11 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
     let response
 
     if (mode === 'create') {
+      console.log(token)
       response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/product`,{
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(productData)
@@ -78,6 +81,7 @@ export default function ProductForm({ product, mode }: ProductFormProps) {
       response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/product/${productData.id_produk}`,{
         method: 'PUT',
         headers: {
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(productData)
