@@ -10,7 +10,6 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/products/${id_produk}`, {
     cache: 'no-store'
   });
-  
   if (!res.ok) {
     return <div>Product not found</div>;
   }

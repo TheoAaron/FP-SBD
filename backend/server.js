@@ -38,6 +38,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/shipments", shipmentRoutes);
+app.use("/api/cart", cartRoutes);
 
 const start = async () => {
   await connectDB();

@@ -15,7 +15,7 @@ module.exports = {
       },
       harga: Sequelize.FLOAT(10, 2),
       description: Sequelize.TEXT,
-      image: Sequelize.STRING,
+      image: Sequelize.TEXT,
       stock: {
         type: Sequelize.INTEGER,
         defaultValue: 0
