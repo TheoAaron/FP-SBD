@@ -61,43 +61,86 @@ export default function Cart() {
           throw new Error(`HTTP error! status: ${response.status} - ${errorText}`)
         }        const data = await response.json()
         console.log('Cart data from backend:', data) // Debug log
+        console.log('Data type:', typeof data) // Debug log
+        console.log('Data structure:', JSON.stringify(data, null, 2)) // Debug log
+        
+        // Check if data has the expected structure
+        if (!data) {
+          console.log('No data received from backend')
+          setCartItems([])
+          return
+        }
+
+        // Handle different possible response structures
+        let products = [];
+        
+        // Check various possible response formats
+        if (data.produk && Array.isArray(data.produk)) {
+          console.log('Using data.produk format')
+          products = data.produk;
+        } else if (data.cart && data.cart.produk && Array.isArray(data.cart.produk)) {
+          console.log('Using data.cart.produk format')
+          products = data.cart.produk;
+        } else if (data.success && data.cart && data.cart.produk) {
+          console.log('Using data.success.cart.produk format')
+          products = data.cart.produk;
+        } else if (Array.isArray(data)) {
+          console.log('Using direct array format')
+          products = data;
+        } else {
+          console.log('Unknown data format, setting empty cart')
+          console.log('Available keys:', Object.keys(data))
+          setCartItems([])
+          return
+        }
+
+        console.log('Products to process:', products)
+        console.log('Products length:', products.length)
         
         // Transform API data to match CartItem interface
-        // Backend now returns enriched data: { id_user, produk: [{ product_id, qty, name, price, image, stock }] }
-        const cartItems: CartItem[] = (data.produk || []).map((item: any) => ({
-          id: item.product_id,
-          name: item.name || `Product ${item.product_id}`,
-          price: parseFloat(item.price || 0),
-          quantity: parseInt(item.qty || 1),
-          image: item.image || 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=300&fit=crop',
-          maxStock: parseInt(item.stock || 999)
-        }))
+        const cartItems: CartItem[] = products.map((item: any, index: number) => {
+          console.log(`Processing item ${index}:`, item)
+          
+          return {
+            id: item.product_id || item.id || `item-${index}`,
+            name: item.name || item.product_name || item.nama_produk || `Product ${item.product_id || index}`,
+            price: parseFloat(item.price || item.harga || 0),
+            quantity: parseInt(item.qty || item.quantity || 1),
+            image: item.image || item.gambar || 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=300&fit=crop',
+            maxStock: parseInt(item.stock || item.stok || 999)
+          }
+        })
 
+        console.log('Transformed cart items:', cartItems)
         setCartItems(cartItems)
-        
-      } catch (error) {
+          } catch (error) {
         console.error('Error loading cart data:', error)
-          // More specific error messages
+        console.error('Error details:', error instanceof Error ? error.message : 'Unknown error')
+        
+        // More specific error messages
         if (error instanceof Error) {
           if (error.message.includes('401')) {
             setError('Please login again - your session may have expired')
+            setCartItems([]) // Only clear cart for auth errors
           } else if (error.message.includes('404')) {
             // 404 is normal for empty cart, don't show error
+            console.log('Cart is empty (404 response)')
             setCartItems([]) // Set empty cart for 404
             setError(null) // Clear any error for empty cart
           } else if (error.message.includes('Failed to fetch')) {
             setError('Unable to connect to server. Please check your internet connection.')
+            // DON'T clear cart for network errors - keep existing data
           } else {
             setError(`Failed to load cart: ${error.message}`)
+            // DON'T clear cart for other errors - keep existing data
           }
         } else {
           setError('Failed to load cart data')
+          // DON'T clear cart for unknown errors
         }
         
-        // Set empty cart on error (except for 404 which is handled above)
-        if (!(error instanceof Error) || !error.message.includes('404')) {
-          setCartItems([])
-        }
+        // Only set empty cart for auth errors (401) and empty cart (404)
+        // For other errors, keep the existing cart data
       } finally {
         setIsLoading(false)
       }
@@ -194,18 +237,35 @@ export default function Cart() {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }      const data = await response.json()
+      console.log('Refresh cart data:', data)
+      
+      // Handle different possible response structures (same as load function)
+      let products = [];
+      
+      if (data.produk && Array.isArray(data.produk)) {
+        products = data.produk;
+      } else if (data.cart && data.cart.produk && Array.isArray(data.cart.produk)) {
+        products = data.cart.produk;
+      } else if (data.success && data.cart && data.cart.produk) {
+        products = data.cart.produk;
+      } else if (Array.isArray(data)) {
+        products = data;
+      } else {
+        console.log('Unknown refresh data format:', Object.keys(data))
+        products = [];
+      }
       
       // Transform API data to match CartItem interface
-      // Backend now returns enriched data: { id_user, produk: [{ product_id, qty, name, price, image, stock }] }
-      const cartItems: CartItem[] = (data.produk || []).map((item: any) => ({
-        id: item.product_id,
-        name: item.name || `Product ${item.product_id}`,
-        price: parseFloat(item.price || 0),
-        quantity: parseInt(item.qty || 1),
-        image: item.image || 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=300&fit=crop',
-        maxStock: parseInt(item.stock || 999)
+      const cartItems: CartItem[] = products.map((item: any) => ({
+        id: item.product_id || item.id,
+        name: item.name || item.product_name || item.nama_produk || `Product ${item.product_id}`,
+        price: parseFloat(item.price || item.harga || 0),
+        quantity: parseInt(item.qty || item.quantity || 1),
+        image: item.image || item.gambar || 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=300&fit=crop',
+        maxStock: parseInt(item.stock || item.stok || 999)
       }))
 
+      console.log('Refreshed cart items:', cartItems)
       setCartItems(cartItems)
       setHasUnsavedChanges(false) // Reset unsaved changes after refresh
       

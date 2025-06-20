@@ -66,10 +66,7 @@ export default async function Home() {
         </Suspense>
       </div>
 
-      {/* Discovery Products */}
-      <div className="py-8 sm:py-12">
-        {/* Bisa isi promo atau produk baru */}
-      </div>
+
 
       {/* ✅ Pass props ke BestSellingProducts */}
       <BestSellingProducts products={bestSelling} />
