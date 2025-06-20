@@ -34,7 +34,7 @@ app.use("/api/auth", authRoutes );
 app.use("/api/products", productRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/admin",authMiddleware,adminMiddleware, adminRoutes);
-app.use("/api/admin", couponRoutes);
+app.use("/api/admin", authMiddleware, adminMiddleware, couponRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/orders", orderRoutes);

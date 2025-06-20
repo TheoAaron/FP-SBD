@@ -1,5 +1,6 @@
 const Coupon = require('../models/Coupon');
 const { v4: uuidv4 } = require('uuid');
+const { Op } = require('sequelize');
 
 // POST - Create new coupon
 const createCoupon = async (req, res) => {
@@ -156,10 +157,91 @@ const getCouponById = async (req, res) => {
       data: coupon
     });
 
-  } catch (error) {
-    console.error('Error fetching coupon:', error);
+  } catch (error) {    console.error('Error fetching coupon:', error);
     res.status(500).json({
       error: 'Terjadi kesalahan saat mengambil data kupon'
+    });
+  }
+};
+
+// PUT - Update existing coupon
+const updateCoupon = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { kode_kupon, expired_at, expire_date, status, diskon } = req.body;
+
+    // Support both expired_at and expire_date field names
+    const expiredAtValue = expired_at || expire_date;
+
+    // Validasi input
+    if (!kode_kupon || !expiredAtValue || !diskon) {
+      return res.status(400).json({
+        error: 'Kode kupon, tanggal kadaluwarsa, dan diskon harus diisi'
+      });
+    }
+
+    // Validasi diskon (0-100)
+    if (diskon < 0 || diskon > 100) {
+      return res.status(400).json({
+        error: 'Diskon harus antara 0-100 persen'
+      });
+    }
+
+    // Cari coupon yang akan diupdate
+    const existingCoupon = await Coupon.findOne({
+      where: { id_kupon: id }
+    });
+
+    if (!existingCoupon) {
+      return res.status(404).json({
+        error: 'Kupon tidak ditemukan'
+      });
+    }
+
+    // Cek apakah kode kupon sudah digunakan oleh coupon lain
+    const duplicateCoupon = await Coupon.findOne({
+      where: { 
+        kode_kupon,
+        id_kupon: { [Op.ne]: id } // Exclude current coupon
+      }
+    });
+
+    if (duplicateCoupon) {
+      return res.status(409).json({
+        error: 'Kode kupon sudah digunakan oleh kupon lain'
+      });
+    }
+
+    // Update coupon
+    const [updatedRows] = await Coupon.update({
+      kode_kupon,
+      expired_at: new Date(expiredAtValue),
+      status: status || 'active',
+      diskon: parseFloat(diskon)
+    }, {
+      where: { id_kupon: id }
+    });
+
+    if (updatedRows === 0) {
+      return res.status(404).json({
+        error: 'Kupon tidak ditemukan atau tidak ada perubahan'
+      });
+    }
+
+    // Ambil data coupon yang sudah diupdate
+    const updatedCoupon = await Coupon.findOne({
+      where: { id_kupon: id }
+    });
+
+    res.status(200).json({
+      message: 'Kupon berhasil diperbarui',
+      coupon: updatedCoupon
+    });
+
+  } catch (error) {
+    console.error('Error updating coupon:', error);
+    res.status(500).json({
+      error: 'Terjadi kesalahan saat memperbarui kupon'
     });
   }
 };
@@ -168,5 +250,6 @@ module.exports = {
   createCoupon,
   deleteCoupon,
   getAllCoupons,
-  getCouponById
+  getCouponById,
+  updateCoupon
 };

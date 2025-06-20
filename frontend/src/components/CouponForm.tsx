@@ -13,18 +13,36 @@ interface CouponFormProps {
 
 export default function CouponForm({ coupon, mode }: CouponFormProps) {
   const router = useRouter()
+  // Helper function to format date for datetime-local input
+  const formatDateForInput = (dateString: string) => {
+    if (!dateString) return ''
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return ''
+    
+    // Format: YYYY-MM-DDTHH:mm
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    
+    const formatted = `${year}-${month}-${day}T${hours}:${minutes}`
+    console.log('Date formatting:', { input: dateString, output: formatted })
+    return formatted
+  }
   const [formData, setFormData] = useState({
     kode_kupon: coupon?.kode_kupon || '',
-    expired_at: coupon?.expired_at || '',
+    expired_at: formatDateForInput(coupon?.expired_at || ''),
     status: coupon?.status || 'active',
     diskon: coupon?.diskon?.toString() || ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
     useEffect(() => {
     if (coupon) {
+      console.log('Coupon data received:', coupon)
       setFormData({
         kode_kupon: coupon.kode_kupon,
-        expired_at: coupon.expired_at,
+        expired_at: formatDateForInput(coupon.expired_at),
         status: coupon.status,
         diskon: coupon.diskon?.toString() || ''
       })
@@ -46,20 +64,21 @@ export default function CouponForm({ coupon, mode }: CouponFormProps) {
       await new Promise(resolve => setTimeout(resolve, 1000))
 
       const couponData: Coupon = {
-        id_kupon: coupon?.id_kupon || '',
-        kode_kupon: formData.kode_kupon,
+        id_kupon: coupon?.id_kupon || '',        kode_kupon: formData.kode_kupon,
         expired_at: formData.expired_at,
         status: formData.status as 'active' | 'expired',
         diskon: formData.diskon ? parseFloat(formData.diskon) : 0
       }
 
       let response
+      const token = sessionStorage.getItem('jwtToken')
 
       if (mode === 'create') {
         response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/coupon`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify(couponData)
         })
@@ -69,17 +88,21 @@ export default function CouponForm({ coupon, mode }: CouponFormProps) {
         response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/coupon/${couponData.id_kupon}`, {
           method: 'PUT',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify(couponData)
         })
-      }
-
-      if (!response?.ok) {
+      }      if (!response?.ok) {
         throw new Error(`Gagal ${mode === 'create' ? 'menambahkan' : 'memperbarui'} kupon`)
       }
 
-      router.push('/admin')
+      // Redirect berdasarkan mode
+      if (mode === 'create') {
+        router.push('/admin') // Ke halaman admin utama setelah create
+      } else {
+        router.push('/admin/coupon/list') // Ke halaman lihat kupon setelah edit
+      }
     } catch (catchError) {
       console.error('Error submitting coupon:', catchError)
       alert(`Terjadi kesalahan saat ${mode === 'create' ? 'menambahkan' : 'memperbarui'} kupon`)
@@ -87,11 +110,11 @@ export default function CouponForm({ coupon, mode }: CouponFormProps) {
       setIsSubmitting(false)
     }
   }
-
   const isCreateMode = mode === 'create'
   const title = isCreateMode ? 'Tambah Kupon Baru' : 'Edit Kupon'
   const submitText = isCreateMode ? 'Simpan Kupon' : 'Perbarui Kupon'
   const submittingText = isCreateMode ? 'Menyimpan...' : 'Memperbarui...'
+  const cancelHref = isCreateMode ? '/admin' : '/admin/coupon/list'
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -170,9 +193,8 @@ export default function CouponForm({ coupon, mode }: CouponFormProps) {
                 className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? submittingText : submitText}
-              </button>
-              <Link
-                href="/admin"
+              </button>              <Link
+                href={cancelHref}
                 className="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600 transition-colors inline-block text-center"
               >
                 Batal
