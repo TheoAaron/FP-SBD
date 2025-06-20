@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const {sequelize} = require('../../config/mysql');
+const {sequelize} = require('../config/mysql');
 
 const Coupon = sequelize.define('Coupon', {
   id_kupon: {
@@ -7,23 +7,22 @@ const Coupon = sequelize.define('Coupon', {
     allowNull: false,
     primaryKey: true,
     defaultValue: DataTypes.UUIDV4
-  },
-  kode_kupon: {
+  },  kode_kupon: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true
   },
-  expire_date: {
+  expired_at: {
     type: DataTypes.DATE,
     allowNull: false
   },
   status: {
-    type: DataTypes.ENUM('active', 'expired', 'used'),
+    type: DataTypes.ENUM('active', 'expired'),
     allowNull: false,
     defaultValue: 'active'
   },
   diskon: {
-    type: DataTypes.FLOAT(3, 2),
+    type: DataTypes.FLOAT(10, 2),
     allowNull: false
   }
 }, {
