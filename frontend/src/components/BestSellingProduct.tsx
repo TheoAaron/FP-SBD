@@ -2,10 +2,20 @@
 import { Heart, Eye, ShoppingCart } from "lucide-react";
 import StarRating from "@/components/StarRating";
 import Link from "next/link";
-import { Product } from '@/types/product';
+// import { Product } from '@/types/product';
+// 
 
 
-
+interface Product {
+  id_produk: number;
+  nama_produk: string;
+  harga: number;
+  image: string;
+  avg_rating?: number;
+  total_review?: number;
+  total_quantity?: number;
+  // Add other fields as necessary
+}
 
 interface BestSellingProductsProps {
   products?: Product[];
@@ -31,7 +41,7 @@ export default function BestSellingProducts({
 
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-3xl font-bold text-gray-900">{title}</h2>
-        <Link href="/product" className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded transition-colors">
+        <Link href="/product/bestseller" className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded transition-colors">
           View All
         </Link>
       </div>
@@ -74,6 +84,7 @@ export default function BestSellingProducts({
               {/* Price */}
               <div className="flex items-center gap-2">
                 <span className="text-red-500 font-medium">${product.harga}</span>
+                <span className="text-gray-400 text-sm">({product.total_quantity ?? 0} terjual)</span>
                 {/* {product.harga && (
                   <span className="text-gray-400 line-through">${product.harga}</span>
                 )} */}
@@ -81,9 +92,9 @@ export default function BestSellingProducts({
 
               {/* Rating */}
               <div className="flex items-center gap-2">
-                <StarRating rating={product.avg_rating} />
-                <span className="text-gray-600 text-sm font-medium">{product.avg_rating.toFixed(1)}</span>
-                <span className="text-gray-400 text-sm">({product.total_review})</span>
+                <StarRating rating={product.avg_rating ?? 0} />
+                <span className="text-gray-600 text-sm font-medium">{(product.avg_rating ?? 0).toFixed(1)}</span>
+                <span className="text-gray-400 text-sm">({product.total_review ?? 0})</span>
               </div>
             </div>
           </div>

@@ -1,29 +1,48 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import CategorySection from "@/components/Category";
 import StarRating from "@/components/StarRating";
 
-const products = [
-  { id: 1, category: 'Phones', name: 'iPhone 15 Pro', price: 1899, image: 'https://images.unsplash.com/photo-1695026139549-8d71131a7071?auto=format&fit=crop&w=300&q=80', rating: 5, reviews: 98 },
-  { id: 2, category: 'Phones', name: 'Samsung Galaxy S24 Ultra', price: 1799, image: 'https://images.unsplash.com/photo-1709420138991-348530869ae2?auto=format&fit=crop&w=300&q=80', rating: 4, reviews: 75 },
-  { id: 3, category: 'Computers', name: 'ASUS FHD Gaming Laptop', image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=300&q=80', price: 960, originalPrice: 1160, rating: 4, reviews: 65 },
-  { id: 4, category: 'Computers', name: 'IPS LCD Gaming Monitor', image: 'https://images.unsplash.com/photo-1587202372775-a729b4e5a06d?auto=format&fit=crop&w=300&q=80', price: 1160, rating: 5, reviews: 65 },
-  { id: 5, category: 'SmartWatch', name: 'Apple Watch Series 9', price: 499, image: 'https://images.unsplash.com/photo-1696290745913-92198fa4a679?auto=format&fit=crop&w=300&q=80', rating: 5, reviews: 120 },
-  { id: 6, category: 'Camera', name: 'Canon EOS R6', price: 2499, image: 'https://images.unsplash.com/photo-1616782098492-0863863a492f?auto=format&fit=crop&w=300&q=80', rating: 5, reviews: 88 },
-  { id: 7, category: 'HeadPhones', name: 'Sony WH-1000XM5', price: 399, image: 'https://images.unsplash.com/photo-1627916538174-85514a696238?auto=format&fit=crop&w=300&q=80', rating: 5, reviews: 210 },
-  { id: 8, category: 'Gaming', name: 'RGB liquid CPU Cooler', image: 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?auto=format&fit=crop&w=300&q=80', price: 1960, rating: 4, reviews: 45 },
-  { id: 9, category: 'Gaming', name: 'AK-900 Wired Keyboard', image: 'https://images.unsplash.com/photo-1555617983-1f174153cc6e?auto=format&fit=crop&w=300&q=80', price: 200, rating: 5, reviews: 65 },
-  { id: 10, category: 'Gaming', name: 'HAVIT HV-G92 Gamepad', image: 'https://images.unsplash.com/photo-1604392002974-02e716b36dc6?auto=format&fit=crop&w=300&q=80', price: 560, rating: 5, reviews: 65 },
-];
-
 function ProductContent() {
   const searchParams = useSearchParams();
   const selectedCategory = searchParams.get('category');
-  const filteredProducts = selectedCategory
-    ? products.filter(p => p.category === selectedCategory)
-    : products;
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    let url = 'http://localhost:8080/api/products';
+    if (selectedCategory) {
+      url += `?category=${encodeURIComponent(selectedCategory)}`;
+    }
+    fetch(url)
+      .then(res => {
+        if (!res.ok) throw new Error('Gagal fetch produk');
+        return res.json();
+      })
+      .then(data => {
+        // Mapping field dari backend ke frontend
+        const mapped = Array.isArray(data) ? data.map((p) => ({
+          id: p.id_produk || p.id,
+          name: p.nama_produk || p.name,
+          price: p.harga || p.price,
+          image: p.image ? `/` + p.image : '/shopit.svg',
+          rating: p.avg_rating || p.rating || 0,
+          reviews: p.total_review || p.reviews || 0,
+        })) : [];
+        setProducts(mapped);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError('Gagal mengambil produk');
+        setLoading(false);
+      });
+  }, [selectedCategory]);
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
       <Suspense fallback={<div>Loading categories...</div>}>
@@ -34,34 +53,38 @@ function ProductContent() {
         <h3 className="text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">
           {selectedCategory ? `Explore Our ${selectedCategory}` : 'All Products'}
         </h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 py-4">
-          {filteredProducts.map(product => (
-            <div key={product.id} className="group border rounded-lg p-3 sm:p-4 hover:shadow-md transition">
-              <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-48 sm:h-64 overflow-hidden">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="object-contain h-full w-full p-3 sm:p-4 group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <div className="mt-3 sm:mt-4">
-                <h4 className="font-medium text-base sm:text-lg text-gray-800 line-clamp-2 mb-2">{product.name}</h4>
-                <div className="flex items-center justify-between mb-2 flex-wrap gap-1">
-                  <p className="text-red-500 font-semibold text-base sm:text-lg">${product.price}</p>
-                  {/* {product.originalPrice && (
-                    <p className="text-gray-400 line-through text-sm">${product.originalPrice}</p>
-                  )} */}
+        {loading ? (
+          <div className="text-center py-8">Loading products...</div>
+        ) : error ? (
+          <div className="text-center text-red-500 py-8">{error}</div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">Tidak ada produk ditemukan.</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 py-4">
+            {products.map(product => (
+              <div key={product.id_produk || product.id} className="group border rounded-lg p-3 sm:p-4 hover:shadow-md transition">
+                <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-48 sm:h-64 overflow-hidden">
+                  <img
+                    src={product.image || '/shopit.svg'}
+                    alt={product.name}
+                    className="object-contain h-full w-full p-3 sm:p-4 group-hover:scale-105 transition-transform duration-300"
+                  />
                 </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <StarRating rating={product.rating} />
-                  <span className="text-gray-600 text-sm font-medium">{product.rating.toFixed(1)}</span>
-                  <span className="text-gray-400 text-sm">({product.reviews} reviews)</span>
+                <div className="mt-3 sm:mt-4">
+                  <h4 className="font-medium text-base sm:text-lg text-gray-800 line-clamp-2 mb-2">{product.name}</h4>
+                  <div className="flex items-center justify-between mb-2 flex-wrap gap-1">
+                    <p className="text-red-500 font-semibold text-base sm:text-lg">${product.price}</p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <StarRating rating={product.rating || 0} />
+                    <span className="text-gray-600 text-sm font-medium">{(product.rating || 0).toFixed(1)}</span>
+                    <span className="text-gray-400 text-sm">({product.reviews || 0} reviews)</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

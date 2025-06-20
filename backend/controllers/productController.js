@@ -43,31 +43,35 @@ const getAllProducts = async (req, res) => {
 const getBestSellingProducts = async (req, res) => {
   try {
     const query = `
-      SELECT p.id, p.name, p.price, SUM(oi.quantity) AS total_quantity
-      FROM products p
-      JOIN order_items oi ON p.id = oi.product_id
-      JOIN orders o ON oi.order_id = o.id
-      WHERE o.status = 'completed'
-      GROUP BY p.id
-      ORDER BY total_quantity DESC
-      LIMIT 10;
+  SELECT 
+  p.id_produk,
+  p.nama_produk,
+  p.harga,
+  p.avg_rating,
+  p.total_review, 
+  SUM(oi.qty) AS total_quantity
+  FROM products p
+  JOIN detail_orders oi ON p.id_produk = oi.id_produk
+  JOIN orders o ON oi.id_order = o.id_order
+  GROUP BY p.id_produk, p.nama_produk, p.harga, p.avg_rating, p.total_review
+  ORDER BY total_quantity DESC
     `;
 
     const [rows] = await pool.query(query);
 
     if (!rows || rows.length === 0) {
-      return res.status(200).json([{ id: null, name: null, price: null, total_quantity: null }]);
+      return res.status(200).json([{ id: null, name: null, price: null, total_quantity: null, avg_rating: null, total_review: null }]);
     }
 
     res.status(200).json(rows);
   } catch (error) {
     if (error.code === 'ER_NO_SUCH_TABLE') {
-      return res.status(200).json([{ id: null, name: null, price: null, total_quantity: null }]);
+      return res.status(200).json([{ id: null, name: null, price: null, total_quantity: null, avg_rating: null, total_review: null }]);
     }
 
     // Tangani semua jenis error lainnya tetap aman
     console.warn('Non-fatal DB error:', error.code);
-    return res.status(200).json([{ id: null, name: null, price: null, total_quantity: null }]);
+    return res.status(200).json([{ id: null, name: null, price: null, total_quantity: null, avg_rating: null, total_review: null }]);
   }
 };
 // GET Product by ID
