@@ -58,8 +58,11 @@ function ProductContent() {
         ) : error ? (
           <div className="text-center text-red-500 py-8">{error}</div>
         ) : products.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">Tidak ada produk ditemukan.</div>
-        ) : (
+        <div className="flex flex-col items-center justify-center py-12">
+          <img src="https://res.cloudinary.com/dlwxkdjek/image/upload/v1750433799/capybara-turu_ledsfn.jpg" alt="Kosong" className="w-48 h-48 object-contain mb-6" />
+          <div className="text-center py-8 text-gray-700 font-medium mb-2">Produk Tidak Ditemukan</div>
+        </div>
+      ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 py-4">
             {products.map(product => (
               <div key={product.id_produk || product.id} className="group border rounded-lg p-3 sm:p-4 hover:shadow-md transition">
