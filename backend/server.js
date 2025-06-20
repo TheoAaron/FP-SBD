@@ -14,6 +14,7 @@ const reviewRoutes = require("./routes/reviewRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
 const couponRoutes = require("./routes/coupunRoutes");
+const shipmentRoutes = require("./routes/shipmentRoutes");
 const adminMiddleware = require("./middlewares/admin");
 const authMiddleware = require("./middlewares/auth");
 
