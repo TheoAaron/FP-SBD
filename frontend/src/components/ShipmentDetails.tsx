@@ -16,7 +16,11 @@ interface ShipmentDetail {
   label?: string; // "Home", "Office", etc.
 }
 
-const ShipmentDetails = () => {  const [savedAddresses, setSavedAddresses] = useState<ShipmentDetail[]>([]);
+interface Props {
+  onAddressSelect?: (address: ShipmentDetail | null) => void;
+}
+
+const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedAddresses, setSavedAddresses] = useState<ShipmentDetail[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -81,10 +85,16 @@ const ShipmentDetails = () => {  const [savedAddresses, setSavedAddresses] = use
       } finally {
         setIsLoading(false);
       }
-    };
-
-    loadSavedAddresses();
+    };    loadSavedAddresses();
   }, []);
+
+  // Notify parent when address is selected
+  useEffect(() => {
+    const selectedAddress = savedAddresses.find(addr => addr.id_shipment === selectedAddressId);
+    if (onAddressSelect) {
+      onAddressSelect(selectedAddress || null);
+    }
+  }, [selectedAddressId, savedAddresses, onAddressSelect]);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm(prev => ({

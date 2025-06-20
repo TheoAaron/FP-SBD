@@ -1,9 +1,9 @@
 const { pool } = require('../config/mysql');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
+const { clearUserCart } = require('./cartController');
 
 
-const JWT_SECRET = process.env.JWT_SECRET || 'APINGANTENG';
 
 function generateTrackingNumber() {
   const prefix = 'TRK';
@@ -87,7 +87,14 @@ async function createOrder(req, res) {
       await pool.query(
         'INSERT INTO detail_orders (id_detail_order, id_order, id_produk, qty) VALUES (?, ?, ?, ?)', 
         [uuidv4(), orderId, product_id, quantity]
-      );
+      );    }
+    
+    // Clear the user's cart after successful order creation
+    const cartClearResult = await clearUserCart(req.user.id);
+    if (!cartClearResult.success) {
+      console.log('Warning: Failed to clear cart after order creation:', cartClearResult.error);
+    } else {
+      console.log('Cart cleared successfully after order creation');
     }
     
     console.log('All order details inserted successfully');
@@ -234,4 +241,109 @@ async function getOrderById(req, res) {
   }
 }
 
-module.exports = { createOrder, getOrderById};
+async function getOrdersByUser(req, res) {
+  try {
+    const userId = req.user?.id;
+    
+    if (!userId) {
+      return res.status(401).json({ message: "Authentication required - user ID not found" });
+    }
+
+    console.log('Getting orders for user ID:', userId);
+
+    // Get all orders for the user
+    const [ordersRows] = await pool.query(`
+      SELECT 
+        o.id_order,
+        o.total,
+        o.status_pembayaran,
+        o.status_pengiriman,
+        o.metode_pembayaran,
+        o.no_resi,
+        o.datetime,
+        s.first_name,
+        s.no_telepon,
+        s.street_address,
+        s.kota,
+        s.kode_pos,
+        s.negara
+      FROM orders o
+      LEFT JOIN shipment_details s ON o.id_shipment = s.id_shipment
+      WHERE o.id_user = ?
+      ORDER BY o.datetime DESC
+    `, [userId]);
+
+    if (ordersRows.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No orders found",
+        orders: []
+      });
+    }
+
+    // Get order details with product info for each order
+    const ordersWithDetails = await Promise.all(
+      ordersRows.map(async (order) => {
+        const [detailsRows] = await pool.query(`
+          SELECT 
+            do.id_detail_order,
+            do.id_produk,
+            do.qty,
+            do.qty * p.harga AS subtotal,
+            p.nama_produk,
+            p.harga,
+            p.image,
+            p.description
+          FROM detail_orders do
+          JOIN products p ON do.id_produk = p.id_produk
+          WHERE do.id_order = ?
+        `, [order.id_order]);        return {
+          id_order: order.id_order,
+          total_harga: order.total,
+          status_pembayaran: order.status_pembayaran,
+          status_pengiriman: order.status_pengiriman,
+          metode_pembayaran: order.metode_pembayaran,
+          nomor_resi: order.no_resi,
+          tanggal_order: order.datetime,
+          shipping_address: order.first_name ? {
+            name: order.first_name,
+            phone: order.no_telepon,
+            street_address: order.street_address,
+            city: order.kota,
+            postal_code: order.kode_pos,
+            country: order.negara
+          } : null,
+          items: detailsRows.map(item => ({
+            id_detail_order: item.id_detail_order,
+            product_id: item.id_produk,
+            product_name: item.nama_produk,
+            price: item.harga,
+            quantity: item.qty,
+            subtotal: item.subtotal,
+            image: item.image,
+            description: item.description
+          })),
+          total_items: detailsRows.length
+        };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Orders retrieved successfully",
+      orders: ordersWithDetails
+    });
+
+  } catch (error) {
+    console.error('=== GET ORDERS BY USER ERROR ===');
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    
+    res.status(500).json({ 
+      error: 'Internal server error', 
+      details: error.message 
+    });
+  }
+}
+
+module.exports = { createOrder, getOrderById, getOrdersByUser};
