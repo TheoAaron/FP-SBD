@@ -80,7 +80,7 @@ async function init() {
             required: ['id_user', 'produk'],
             properties: {
               id_user: { bsonType: 'string' },
-              produk: { bsonType: 'array', items: { bsonType: 'int' } }
+              produk: { bsonType: 'array', items: { bsonType: 'string' } }
             }
           }
         }
@@ -116,7 +116,7 @@ async function init() {
             required: ['id_user', 'produk'],
             properties: {
               id_user: { bsonType: 'string' },
-              produk: { bsonType: 'array', items: { bsonType: 'int' } }
+              produk: { bsonType: 'array', items: { bsonType: 'string' } }
             }
           }
         }

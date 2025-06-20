@@ -13,12 +13,14 @@ const adminRoutes = require("./routes/adminRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
+const shipmentRoutes = require("./routes/shipmentRoutes");
 const adminMiddleware = require("./middlewares/admin");
 const authMiddleware = require("./middlewares/auth");
 const shipmentRoutes = require("./routes/shipmentRoutes");
 
 
 const cartRoutes = require("./routes/cartRoutes");
+const lastViewRoute = require("./routes/lastViewRoute");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -39,6 +41,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/shipments", shipmentRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/lastview", lastViewRoute);
 
 const start = async () => {
   await connectDB();
