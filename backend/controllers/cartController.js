@@ -1,14 +1,43 @@
 const { getDB } = require("../config/mongo.js");
+const { pool } = require("../config/mysql.js");
 const getCart = async (req, res) => {
     const db = getDB();
-    const userId = req.user.id;
-
-    try {
+    const userId = req.user.id;    try {
         const cart = await db.collection("cart").findOne({ id_user: userId });
+        
         if (!cart) {
             return res.status(404).json({ message: "Cart not found" });
         }
-        res.json(cart);
+
+        // Extract product IDs from cart
+        const productIds = cart.produk ? cart.produk.map(item => item.product_id) : [];
+        
+        if (productIds.length === 0) {
+            return res.json(cart); // Return empty cart
+        }
+
+        // Get product details from MySQL
+        const [rows] = await pool.query(
+            `SELECT p.id_produk, p.nama_produk, p.harga, p.image, p.stock FROM products p WHERE p.id_produk IN (?)`, 
+            [productIds]
+        );
+
+        // Merge cart data with product details
+        const enrichedCart = {
+            ...cart,
+            produk: cart.produk.map(cartItem => {
+                const productDetail = rows.find(product => product.id_produk === cartItem.product_id);
+                return {
+                    ...cartItem,
+                    name: productDetail?.nama_produk || `Product ${cartItem.product_id}`,
+                    price: productDetail?.harga || 0,
+                    image: productDetail?.gambar || null,
+                    stock: productDetail?.stok || 0
+                };
+            })
+        };
+
+        res.json(enrichedCart);
     } catch (error) {
         res.status(500).json({ message: "Failed to retrieve cart", error });
     }

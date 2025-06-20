@@ -4,132 +4,148 @@ import React, { useState, useEffect } from 'react';
 import { FiMapPin, FiPhone, FiMail, FiPlus, FiCheck, FiEdit3 } from 'react-icons/fi';
 
 interface ShipmentDetail {
-  id: string;
-  firstName: string;
-  lastName?: string;
-  street: string;
-  apartment?: string;
-  city: string;
-  phone: string;
-  email: string;
-  isDefault: boolean;
+  id_shipment: string;
+  first_name: string;
+  last_name?: string;
+  street_address: string;
+  apartment_floor?: string;
+  kota: string;
+  phone_number: string;
+  email_address: string;
+  kode_pos: string;
   label?: string; // "Home", "Office", etc.
 }
 
-// Mock data - ini nanti diganti dengan API call ke database
-const mockShipmentDetails: ShipmentDetail[] = [
-  {
-    id: '1',
-    firstName: 'John',
-    lastName: 'Doe',
-    street: 'Jl. Sudirman No. 123',
-    apartment: 'Apt 4B',
-    city: 'Jakarta',
-    phone: '+62 812 3456 7890',
-    email: 'john.doe@example.com',
-    isDefault: true,
-    label: 'Home'
-  },
-  {
-    id: '2',
-    firstName: 'John',
-    lastName: 'Doe',
-    street: 'Jl. Thamrin No. 456',
-    city: 'Jakarta',
-    phone: '+62 812 3456 7890',
-    email: 'john.doe@example.com',
-    isDefault: false,
-    label: 'Office'
-  }
-];
-
-const ShipmentDetails = () => {
-  const [savedAddresses, setSavedAddresses] = useState<ShipmentDetail[]>([]);
+const ShipmentDetails = () => {  const [savedAddresses, setSavedAddresses] = useState<ShipmentDetail[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   const [form, setForm] = useState({
-    firstName: '',
-    lastName: '',
-    street: '',
-    apartment: '',
-    city: '',
-    phone: '',
-    email: '',
-    label: '',
-    saveInfo: false
+    first_name: '',
+    last_name: '',
+    street_address: '',
+    apartment_floor: '',
+    kota: '',
+    phone_number: '',
+    email_address: '',
+    kode_pos: '',
+    label: ''
   });
 
-  // Simulate loading saved addresses from database
+  // Get token from localStorage
+  const getAuthToken = () => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('jwtToken');
+    }
+    return null;
+  };
+
+  // Load saved addresses from API
   useEffect(() => {
     const loadSavedAddresses = async () => {
       setIsLoading(true);
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      setError(null);
       
-      // Mock: Load user's saved addresses
-      const userId = 'current-user-id'; // Get from auth context
-      setSavedAddresses(mockShipmentDetails);
-      
-      // Auto-select default address if exists
-      const defaultAddress = mockShipmentDetails.find(addr => addr.isDefault);
-      if (defaultAddress) {
-        setSelectedAddressId(defaultAddress.id);
+      const token = getAuthToken();
+      if (!token) {
+        setError('Please login to view saved addresses');
+        setIsLoading(false);
+        return;
       }
-      
-      setIsLoading(false);
+
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/shipments`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setSavedAddresses(data.data || []);
+        
+        // Auto-select first address if exists
+        if (data.data && data.data.length > 0) {
+          setSelectedAddressId(data.data[0].id_shipment);
+        }
+        
+      } catch (error) {
+        console.error('Error loading shipment details:', error);
+        setError('Failed to load saved addresses');
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     loadSavedAddresses();
   }, []);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setForm(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: value
     }));
   };
 
-  const handleSubmitNewAddress = (e: React.FormEvent) => {
+  const handleSubmitNewAddress = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
-    const newAddress: ShipmentDetail = {
-      id: Date.now().toString(),
-      firstName: form.firstName,
-      lastName: form.lastName,
-      street: form.street,
-      apartment: form.apartment,
-      city: form.city,
-      phone: form.phone,
-      email: form.email,
-      isDefault: savedAddresses.length === 0, // First address becomes default
-      label: form.label || 'New Address'
-    };
-
-    if (form.saveInfo) {
-      setSavedAddresses(prev => [...prev, newAddress]);
+    const token = getAuthToken();
+    if (!token) {
+      setError('Please login to save address');
+      return;
     }
-    
-    setSelectedAddressId(newAddress.id);
-    setShowForm(false);
-    
-    // Reset form
-    setForm({
-      firstName: '',
-      lastName: '',
-      street: '',
-      apartment: '',
-      city: '',
-      phone: '',
-      email: '',
-      label: '',
-      saveInfo: false
-    });
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/shipments`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(form)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to save address');
+      }
+
+      const data = await response.json();
+      const newAddress = data.data;
+
+      // Add to saved addresses
+      setSavedAddresses(prev => [...prev, newAddress]);
+      setSelectedAddressId(newAddress.id_shipment);
+      setShowForm(false);
+      
+      // Reset form
+      setForm({
+        first_name: '',
+        last_name: '',
+        street_address: '',
+        apartment_floor: '',
+        kota: '',
+        phone_number: '',
+        email_address: '',
+        kode_pos: '',
+        label: ''
+      });
+
+    } catch (error) {
+      console.error('Error saving address:', error);
+      setError(error instanceof Error ? error.message : 'Failed to save address');
+    }
   };
 
-  const selectedAddress = savedAddresses.find(addr => addr.id === selectedAddressId);
+  const selectedAddress = savedAddresses.find(addr => addr.id_shipment === selectedAddressId);
 
   if (isLoading) {
     return (
@@ -142,33 +158,38 @@ const ShipmentDetails = () => {
       </div>
     );
   }
-
   return (
     <div className="w-full max-w-md px-4 sm:px-10">
       <h2 className="text-xl sm:text-2xl font-semibold mb-6">Shipment Details</h2>
+      
+      {/* Error Display */}
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-600 text-sm">{error}</p>
+        </div>
+      )}
       
       {/* Saved Addresses Selection */}
       {savedAddresses.length > 0 && !showForm && (
         <div className="space-y-4 mb-6">
           <h3 className="text-sm font-medium text-gray-700">Choose Address:</h3>
-          
-          {savedAddresses.map((address) => (
+            {savedAddresses.map((address) => (
             <div
-              key={address.id}
-              onClick={() => setSelectedAddressId(address.id)}
+              key={address.id_shipment}
+              onClick={() => setSelectedAddressId(address.id_shipment)}
               className={`relative p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                selectedAddressId === address.id
+                selectedAddressId === address.id_shipment
                   ? 'border-blue-500 bg-blue-50'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
               {/* Selection indicator */}
               <div className={`absolute top-3 right-3 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                selectedAddressId === address.id
+                selectedAddressId === address.id_shipment
                   ? 'border-blue-500 bg-blue-500'
                   : 'border-gray-300'
               }`}>
-                {selectedAddressId === address.id && (
+                {selectedAddressId === address.id_shipment && (
                   <FiCheck className="w-3 h-3 text-white" />
                 )}
               </div>
@@ -177,16 +198,11 @@ const ShipmentDetails = () => {
               <div className="pr-8">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="font-medium text-gray-900">
-                    {address.firstName} {address.lastName}
+                    {address.first_name} {address.last_name}
                   </span>
                   {address.label && (
                     <span className="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
                       {address.label}
-                    </span>
-                  )}
-                  {address.isDefault && (
-                    <span className="px-2 py-1 text-xs bg-green-100 text-green-600 rounded">
-                      Default
                     </span>
                   )}
                 </div>
@@ -195,19 +211,19 @@ const ShipmentDetails = () => {
                   <div className="flex items-start gap-2">
                     <FiMapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
                     <span>
-                      {address.street}
-                      {address.apartment && `, ${address.apartment}`}
+                      {address.street_address}
+                      {address.apartment_floor && `, ${address.apartment_floor}`}
                       <br />
-                      {address.city}
+                      {address.kota} {address.kode_pos}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <FiPhone className="w-4 h-4 flex-shrink-0" />
-                    <span>{address.phone}</span>
+                    <span>{address.phone_number}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <FiMail className="w-4 h-4 flex-shrink-0" />
-                    <span>{address.email}</span>
+                    <span>{address.email_address}</span>
                   </div>
                 </div>
               </div>
@@ -226,20 +242,19 @@ const ShipmentDetails = () => {
       )}
 
       {/* New Address Form */}
-      {(showForm || savedAddresses.length === 0) && (
-        <form onSubmit={handleSubmitNewAddress} className="space-y-4">
+      {(showForm || savedAddresses.length === 0) && (        <form onSubmit={handleSubmitNewAddress} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <input
-              name="firstName"
-              value={form.firstName}
+              name="first_name"
+              value={form.first_name}
               onChange={handleChange}
               placeholder="First Name*"
               className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
             <input
-              name="lastName"
-              value={form.lastName}
+              name="last_name"
+              value={form.last_name}
               onChange={handleChange}
               placeholder="Last Name"
               className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -247,8 +262,8 @@ const ShipmentDetails = () => {
           </div>
           
           <input
-            name="street"
-            value={form.street}
+            name="street_address"
+            value={form.street_address}
             onChange={handleChange}
             placeholder="Street Address*"
             className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -256,8 +271,8 @@ const ShipmentDetails = () => {
           />
           
           <input
-            name="apartment"
-            value={form.apartment}
+            name="apartment_floor"
+            value={form.apartment_floor}
             onChange={handleChange}
             placeholder="Apartment, floor, etc. (optional)"
             className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -265,25 +280,26 @@ const ShipmentDetails = () => {
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <input
-              name="city"
-              value={form.city}
+              name="kota"
+              value={form.kota}
               onChange={handleChange}
               placeholder="Town/City*"
               className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
             <input
-              name="label"
-              value={form.label}
+              name="kode_pos"
+              value={form.kode_pos}
               onChange={handleChange}
-              placeholder="Label (Home, Office)"
+              placeholder="Postal Code*"
               className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
             />
           </div>
           
           <input
-            name="phone"
-            value={form.phone}
+            name="phone_number"
+            value={form.phone_number}
             onChange={handleChange}
             placeholder="Phone Number*"
             className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -291,8 +307,8 @@ const ShipmentDetails = () => {
           />
           
           <input
-            name="email"
-            value={form.email}
+            name="email_address"
+            value={form.email_address}
             onChange={handleChange}
             placeholder="Email Address*"
             type="email"
@@ -300,18 +316,13 @@ const ShipmentDetails = () => {
             required
           />
           
-          <label className="flex items-start gap-3">
-            <input
-              type="checkbox"
-              name="saveInfo"
-              checked={form.saveInfo}
-              onChange={handleChange}
-              className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <span className="text-sm text-gray-600">
-              Save this information for faster check-out next time
-            </span>
-          </label>
+          <input
+            name="label"
+            value={form.label}
+            onChange={handleChange}
+            placeholder="Label (Home, Office)"
+            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
           
           <div className="flex gap-3 pt-4">
             {savedAddresses.length > 0 && (
@@ -331,19 +342,16 @@ const ShipmentDetails = () => {
             </button>
           </div>
         </form>
-      )}
-
-      {/* Selected Address Summary */}
+      )}      {/* Selected Address Summary */}
       {selectedAddress && !showForm && (
         <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
           <h4 className="font-medium text-green-800 mb-2">Selected Address:</h4>
           <p className="text-sm text-green-700">
-            {selectedAddress.firstName} {selectedAddress.lastName}<br />
-            {selectedAddress.street}{selectedAddress.apartment && `, ${selectedAddress.apartment}`}<br />
-            {selectedAddress.city}<br />
-            {selectedAddress.phone}
-          </p>
-        </div>
+            {selectedAddress.first_name} {selectedAddress.last_name}<br />
+            {selectedAddress.street_address}{selectedAddress.apartment_floor && `, ${selectedAddress.apartment_floor}`}<br />
+            {selectedAddress.kota} {selectedAddress.kode_pos}<br />
+            {selectedAddress.phone_number}
+          </p>        </div>
       )}
     </div>
   );

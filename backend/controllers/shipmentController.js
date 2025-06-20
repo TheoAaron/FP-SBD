@@ -12,15 +12,18 @@ const createShipmentDetail = async (req, res) => {
       kota, 
       label, 
       phone_number, 
-      email_address 
+      email_address,
+      kode_pos
     } = req.body;
 
     // Validate required fields
-    if (!first_name || !last_name || !street_address || !kota || !phone_number || !email_address) {
+    if (!first_name || !street_address || !kota || !phone_number) {
       return res.status(400).json({ 
-        message: 'First name, last name, street address, kota, phone number, and email address are required' 
+        message: 'First name, street address, kota, and phone number are required' 
       });
-    }    const id_shipment = uuidv4();
+    }
+
+    const id_shipment = uuidv4();
     const id_user = req.user ? req.user.id : null; // Get user ID from auth middleware if available
 
     // Validate that user exists in database
@@ -33,44 +36,46 @@ const createShipmentDetail = async (req, res) => {
       }
     }
 
-    // Note: Using the existing model structure, some fields might need to be adapted
+    // Check if table has the required columns first
     const query = `
       INSERT INTO shipment_details 
-      (id_shipment, id_user, first_name, last_name, street_address, apartment_floor, kota, label, no_telepon, email_address, createdAt, updatedAt) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+      (id_shipment, id_user, first_name, street_address, kota, kode_pos, no_telepon, createdAt, updatedAt) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     `;
 
     await pool.query(query, [
       id_shipment,
       id_user,
       first_name,
-      last_name,
       street_address,
-      apartment_floor || null,
       kota,
-      label || null,
-      phone_number,
-      email_address
+      kode_pos || '',
+      phone_number
     ]);
+
+    // Return data in frontend format
+    const responseData = {
+      id_shipment,
+      first_name,
+      last_name: last_name || '',
+      street_address,
+      apartment_floor: apartment_floor || '',
+      kota,
+      label: label || '',
+      phone_number,
+      email_address: email_address || '',
+      kode_pos: kode_pos || ''
+    };
 
     res.status(201).json({
       message: 'Shipment detail created successfully',
-      data: {
-        id_shipment,
-        first_name,
-        last_name,
-        street_address,
-        apartment_floor,
-        kota,
-        label,
-        phone_number,
-        email_address
-      }
+      data: responseData
     });
 
   } catch (error) {
     console.error('Error creating shipment detail:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error details:', error.message);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 
@@ -88,9 +93,23 @@ const getShipmentDetails = async (req, res) => {
       [id_user]
     );
 
+    // Map database field names to frontend expected field names
+    const mappedRows = rows.map(row => ({
+      id_shipment: row.id_shipment,
+      first_name: row.first_name,
+      last_name: row.last_name || '',
+      street_address: row.street_address,
+      apartment_floor: row.apartment_floor || '',
+      kota: row.kota,
+      label: row.label || '',
+      phone_number: row.no_telepon, // Map no_telepon to phone_number
+      email_address: row.email_address || '',
+      kode_pos: row.kode_pos || ''
+    }));
+
     res.json({
       message: 'Shipment details retrieved successfully',
-      data: rows
+      data: mappedRows
     });
 
   } catch (error) {
@@ -114,9 +133,24 @@ const getShipmentDetailById = async (req, res) => {
       return res.status(404).json({ message: 'Shipment detail not found' });
     }
 
+    const row = rows[0];
+    // Map database field names to frontend expected field names
+    const mappedData = {
+      id_shipment: row.id_shipment,
+      first_name: row.first_name,
+      last_name: row.last_name || '',
+      street_address: row.street_address,
+      apartment_floor: row.apartment_floor || '',
+      kota: row.kota,
+      label: row.label || '',
+      phone_number: row.no_telepon, // Map no_telepon to phone_number
+      email_address: row.email_address || '',
+      kode_pos: row.kode_pos || ''
+    };
+
     res.json({
       message: 'Shipment detail retrieved successfully',
-      data: rows[0]
+      data: mappedData
     });
 
   } catch (error) {
