@@ -8,6 +8,7 @@ import StarRating from "@/components/StarRating";
 function ProductContent() {
   const searchParams = useSearchParams();
   const selectedCategory = searchParams.get('category');
+  const searchQuery = searchParams.get('search');
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,10 +16,16 @@ function ProductContent() {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    let url = 'http://localhost:8080/api/products';
+    let url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/products`;
     if (selectedCategory) {
       url += `?category=${encodeURIComponent(selectedCategory)}`;
     }
+    
+    if (searchQuery) {
+      url += `?search=${encodeURIComponent(searchQuery)}`;
+      
+    }
+    console.log(url)
     fetch(url)
       .then(res => {
         if (!res.ok) throw new Error('Gagal fetch produk');
@@ -27,12 +34,12 @@ function ProductContent() {
       .then(data => {
         // Mapping field dari backend ke frontend
         const mapped = Array.isArray(data) ? data.map((p) => ({
-          id: p.id_produk || p.id,
-          name: p.nama_produk || p.name,
-          price: p.harga || p.price,
-          image: p.image ? `/` + p.image : '/shopit.svg',
-          rating: p.avg_rating || p.rating || 0,
-          reviews: p.total_review || p.reviews || 0,
+          id: p.id_produk,
+          name: p.nama_produk,
+          price: p.harga,
+          image: p.image || "/tokit.svg", 
+          rating: p.avg_rating || 0,
+          reviews: p.total_review || 0,
         })) : [];
         setProducts(mapped);
         setLoading(false);
@@ -41,7 +48,7 @@ function ProductContent() {
         setError('Gagal mengambil produk');
         setLoading(false);
       });
-  }, [selectedCategory]);
+  }, [selectedCategory,searchQuery]);
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">

@@ -75,6 +75,16 @@ const Navbar: React.FC = () => {
     pathname === path
       ? 'block px-4 py-3 text-black font-semibold bg-gray-100 rounded-lg'
       : 'block px-4 py-3 text-gray-700 hover:text-black hover:bg-gray-50 rounded-lg transition-colors';
+  
+  const [query, setQuery] = useState('')
+
+    const handleSearch = (e: React.FormEvent) => {
+      e.preventDefault()
+      if (query.trim()) {
+        router.push(`/product?search=${encodeURIComponent(query)}`)
+      }
+    }
+
 
   return (
     <nav className="w-full border-b shadow-sm bg-white sticky top-0 z-50">
@@ -101,12 +111,16 @@ const Navbar: React.FC = () => {
         {/* Desktop Search Bar - Hidden on mobile */}
         <div className="hidden md:flex items-center flex-1 max-w-md mx-4 lg:mx-8">
           <div className="relative w-full">
-            <input
-              type="text"
-              placeholder="Cari produk..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <FiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <form onSubmit={handleSearch}>
+              <input
+                type="text"
+                placeholder="Cari produk..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <FiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            </form>
           </div>
         </div>
 
