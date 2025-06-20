@@ -5,7 +5,7 @@ import RelatedProductsCarousel from '@/components/RelatedProductsCarousel';
 
 export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
-  const id_produk = parseInt(resolvedParams.id, 10);
+  const id_produk = resolvedParams.id;
   
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/products/${id_produk}`, {
     cache: 'no-store'
@@ -26,14 +26,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     const allProducts = await allProductsRes.json();
     // Filter related products by same category
     related = allProducts.filter((p: any) => p.category === current.category && p.id_produk !== id_produk);
-  }
-
-  return (
-    <main className="max-w-7xl mx-auto p-6">
-      <DetailProduct id_produk={id_produk} />
+  }  return (
+    <main className="max-w-7xl mx-auto p-6">      <DetailProduct id_produk={id_produk} />
       {/* User reviews section */}
       <div className="mt-8">
-        <UserReview />
+        <UserReview id_produk={id_produk} />
       </div>
       {/* Related products */}
       <div className="mt-12">

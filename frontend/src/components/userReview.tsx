@@ -1,51 +1,163 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import StarRating from '@/components/StarRating';
 import { Star } from 'lucide-react';
 
 export interface Review {
   id: number;
-  username: string;
+  username: string;  // ✅ Add username for display
   date: string;
   rating: number;
   comment: string;
 }
 
-const initialReviews: Review[] = [
-  { id: 1, username: 'User1234567', date: '2025-06-01', rating: 4, comment: 'ARULLLLLLLLLLLLLLLLLLLLLLLLL' },
-  { id: 2, username: 'User987654', date: '2025-06-05', rating: 5, comment: 'Great product, highly recommend!' },
-  { id: 3, username: 'User456789', date: '2025-06-10', rating: 3, comment: 'Average quality, could be better.' },
-  { id: 4, username: 'User321654', date: '2025-06-15', rating: 2, comment: 'Not what I expected.' },
-  { id: 5, username: 'User222333', date: '2025-06-18', rating: 5, comment: 'Excellent build quality.' },
-  { id: 6, username: 'User444555', date: '2025-06-20', rating: 4, comment: 'Good value for money.' },
-  { id: 7, username: 'User666777', date: '2025-06-22', rating: 3, comment: 'It works, but has minor issues.' },
-  { id: 8, username: 'User888999', date: '2025-06-25', rating: 5, comment: 'Exceeded my expectations!' },
-  { id: 9, username: 'User000111', date: '2025-06-27', rating: 4, comment: 'Solid performance overall.' },
-  { id: 10, username: 'User222444', date: '2025-06-29', rating: 1, comment: 'Stopped working after a week.' }
-];
+interface UserReviewProps {
+  id_produk: string;
+}
 
-export default function UserReview() {
-  const [reviews, setReviews] = useState<Review[]>(initialReviews);
+export default function UserReview({ id_produk }: UserReviewProps) {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [newRating, setNewRating] = useState(5);
   const [newComment, setNewComment] = useState('');
 
-  const handleAddReview = (e: React.FormEvent) => {
-    e.preventDefault();
-    const next: Review = {
-      id: reviews.length + 1,
-      username: 'Anonymous',
-      date: new Date().toISOString().slice(0, 10),
-      rating: newRating,
-      comment: newComment
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/reviews/${id_produk}`);
+          if (!res.ok) {
+          throw new Error('Failed to fetch reviews');
+        }
+        
+        const responseData = await res.json();
+        console.log('Raw API response:', responseData); // Debug log
+        
+        // Parse the nested structure from your API
+        let parsedReviews: Review[] = [];
+        
+        if (responseData.reviews && Array.isArray(responseData.reviews)) {
+          // Flatten the nested review structure
+          parsedReviews = responseData.reviews.flatMap((reviewGroup: any) => {
+            if (reviewGroup.review && Array.isArray(reviewGroup.review)) {              return reviewGroup.review.map((review: any, index: number) => ({
+                id: index + 1,
+                username: review.username || 'Anonymous', // ✅ Include username from API
+                date: new Date(review.date).toISOString().slice(0, 10), // Format date
+                rating: review.rate || 0,
+                comment: review.comment || ''
+              }));
+            }
+            return [];
+          });
+        }
+        
+        console.log('Parsed reviews:', parsedReviews); // Debug log
+        setReviews(parsedReviews);
+      } catch (err) {
+        console.error('Error fetching reviews:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch reviews');
+        // Fallback to empty array if API fails
+        setReviews([]);
+      } finally {
+        setLoading(false);
+      }
     };
-    setReviews([next, ...reviews]);
+
+    if (id_produk) {
+      fetchReviews();
+    }
+  }, [id_produk]);
+  const handleAddReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/reviews/${id_produk}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${sessionStorage.getItem('jwtToken') || ''}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          rating: newRating,
+          comment: newComment
+        })
+      });      if (response.ok) {
+        // Refresh reviews after adding new one
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/reviews/${id_produk}`);
+        if (res.ok) {
+          const responseData = await res.json();
+          
+          // Parse the nested structure (same logic as in useEffect)
+          let parsedReviews: Review[] = [];
+          
+          if (responseData.reviews && Array.isArray(responseData.reviews)) {
+            parsedReviews = responseData.reviews.flatMap((reviewGroup: any) => {
+              if (reviewGroup.review && Array.isArray(reviewGroup.review)) {                return reviewGroup.review.map((review: any, index: number) => ({
+                  id: index + 1,
+                  username: review.username || 'Anonymous', // ✅ Include username
+                  date: new Date(review.date).toISOString().slice(0, 10),
+                  rating: review.rate || 0,
+                  comment: review.comment || ''
+                }));
+              }
+              return [];
+            });
+          }
+          
+          setReviews(parsedReviews);
+        }
+      } else {        // If API fails, add locally (fallback)
+        const next: Review = {
+          id: reviews.length + 1,
+          username: 'You', // ✅ Fallback username for local addition
+          date: new Date().toISOString().slice(0, 10),
+          rating: newRating,
+          comment: newComment
+        };
+        setReviews([next, ...reviews]);
+      }
+    } catch (error) {
+      console.error('Error adding review:', error);      // Fallback to local addition if API fails
+      const next: Review = {
+        id: reviews.length + 1,
+        username: 'You', // ✅ Fallback username for local addition
+        date: new Date().toISOString().slice(0, 10),
+        rating: newRating,
+        comment: newComment
+      };
+      setReviews([next, ...reviews]);
+    }
+
     setNewRating(5);
     setNewComment('');
     setShowModal(false);
   };
 
-  const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+  const avgRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded shadow p-4 animate-pulse">
+          <div className="h-6 bg-gray-200 rounded w-1/3 mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+        </div>
+        <div className="bg-white rounded shadow p-4 h-60">
+          <div className="space-y-4">
+            {[1,2,3].map(i => (
+              <div key={i} className="animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/6 mb-2"></div>
+                <div className="h-8 bg-gray-200 rounded"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -64,13 +176,10 @@ export default function UserReview() {
             className="w-16 h-16 object-cover rounded"
           />
         </button>
-      </div>
-
-      {/* Reviews List */}
+      </div>      {/* Reviews List */}
       <div className="bg-white rounded shadow p-4 space-y-6 h-60 overflow-y-auto">
         {reviews.map(review => (
-          <div key={review.id} className="space-y-2">
-            <div className="flex items-center justify-between text-sm text-gray-500">
+          <div key={review.id} className="space-y-2">            <div className="flex items-center justify-between text-sm text-gray-500">
               <span>{review.username}</span>
               <span>{review.date}</span>
             </div>

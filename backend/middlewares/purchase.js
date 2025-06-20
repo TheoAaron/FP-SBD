@@ -77,5 +77,5 @@ const checkPurchaseHistory = async (req, res, next) => {
 
 module.exports = {
   checkPurchaseHistory,
-  requirePurchase,
+  requirePurchase
 };

@@ -1,15 +1,80 @@
 'use client';
-import React, { useState } from 'react';
-import { dummyProducts } from '@/lib/dummyProducts';
+import React, { useState, useEffect } from 'react';
 import StarRating from '@/components/StarRating';
 import { Heart } from 'lucide-react';
 
-export type ProductDetailProps = { id_produk: number };
+export type ProductDetailProps = { id_produk: string };
+
+interface Product {
+  id_produk: number;
+  nama_produk: string;
+  image: string;
+  harga: number;
+  description: string;
+  avg_rating: number;
+  total_review: number;
+  stock: number;
+  category: string;
+}
 
 export default function DetailProduct({ id_produk }: ProductDetailProps) {
   const [quantity, setQuantity] = useState(1);
-  const product = dummyProducts.find(p => p.id_produk === id_produk);
-  if (!product) return <div>Product not found</div>;
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/products/${id_produk}`);
+        
+        if (!res.ok) {
+          throw new Error('Product not found');
+        }
+        
+        const productData = await res.json();
+        setProduct(productData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch product');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id_produk) {
+      fetchProduct();
+    }
+  }, [id_produk]);
+
+  if (loading) {
+    return (
+      <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+        <div className="animate-pulse">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
+            <div className="bg-gray-200 rounded-lg aspect-square"></div>
+            <div className="space-y-4">
+              <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              <div className="h-6 bg-gray-200 rounded w-1/4"></div>
+              <div className="h-20 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">Product Not Found</h2>
+          <p className="text-gray-600">{error || 'The product you are looking for does not exist.'}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">

@@ -3,6 +3,15 @@ const mysql = require('mysql2/promise');
 const mongoose = require('mongoose');
 const path = require('path');
 
+// Load environment variables
+require('dotenv').config();
+
+console.log('🔍 Environment variables check:');
+console.log('DB_HOST:', process.env.DB_HOST);
+console.log('DB_PORT:', process.env.DB_PORT);
+console.log('DB_USER:', process.env.DB_USER);
+console.log('DB_NAME:', process.env.DB_NAME);
+
 // Ambil config Sequelize
 const dbConfig = require('../config/config').development;
 const mongoUri = process.env.MONGODB_URI + process.env.DB_NAME;
@@ -10,11 +19,18 @@ const isDrop = process.env.npm_lifecycle_event === 'drop';
 
 async function init() {
   console.log('🚀 Starting initialization...');
-  
-  // MYSQL
+    // MYSQL
   console.log('📊 Initializing MySQL...');
+  console.log('🔍 Using DB config:', {
+    host: dbConfig.host,
+    port: dbConfig.port,
+    user: dbConfig.username,
+    database: dbConfig.database
+  });
+  
   const connection = await mysql.createConnection({
     host: dbConfig.host,
+    port: dbConfig.port,  // ✅ ADD MISSING PORT
     user: dbConfig.username,
     password: dbConfig.password
   });
@@ -117,9 +133,9 @@ async function init() {
                 bsonType: 'array',
                 items: {
                   bsonType: 'object',
-                  required: ['user_id', 'rate', 'comment', 'date'],
+                  required: ['username', 'rate', 'comment', 'date'],
                   properties: {
-                    user_id: { bsonType: 'string' },
+                    username: { bsonType: 'string' },
                     rate: { bsonType: 'int' },
                     comment: { bsonType: 'string' },
                     date: { bsonType: 'date' }

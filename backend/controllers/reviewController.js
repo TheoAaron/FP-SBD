@@ -1,4 +1,5 @@
 const { getDB } = require("../config/mongo");
+const {pool} = require("../config/mysql");
 
 // import { getDB } from "../config/mongo.js"; // ESM style
  // pastikan koneksi dibuat sebelum akses DB
@@ -6,7 +7,7 @@ const { getDB } = require("../config/mongo");
 // Ambil semua review untuk produk tertentu
 const getReviewsByProduct = async (req, res) => {
     const db = getDB(); 
-    const id_produk = parseInt(req.params.id_produk);
+    const id_produk = req.params.id_produk;
     try {
         const reviews = await db.collection("product_review").find({ id_produk }).toArray();
         res.json({ reviews });
@@ -20,30 +21,36 @@ const addReview = async (req, res) => {
     const db = getDB();
     const id_produk = req.params.id_produk;
     const id_user = req.user.id;
-    const { rating, review } = req.body;
+    const { rating, comment,  } = req.body;
     
-
-    if (!rating || !review) {
-        return res.status(400).json({ message: "Silahkan Rating dan Reviewnya diisi!" });
-    }
-
+    // Get username from MySQL database
     try {
+        const [userRows] = await pool.query('SELECT username FROM users WHERE id_user = ?', [id_user]);
+        const username = userRows.length > 0 ?  userRows[0].username: 'aron';
+        
+        console.log('User ID:', id_user);
+        console.log('Username found:', username);
+
+        if (!rating || !comment) {
+            return res.status(400).json({ message: "Silahkan Rating dan Reviewnya diisi!" });
+        }
+
         const result = await db.collection("product_review").updateOne(
             { id_produk },
             {
                 $push: {
                     review: {
-                        user_id: id_user,
+                        username: username, // Only store username, not user_id
                         rate: rating,
-                        comment: review,
+                        comment: comment,
                         date: new Date()
                     }
                 }
             },
-            { upsert: true }
-        );
+            { upsert: true }        );
         res.status(201).json({ message: "Review berhasil ditambahkan" });
     } catch (err) {
+        console.error('Error adding review:', err);
         res.status(500).json({ message: "Gagal menambah review", error: err });
     }
 };
