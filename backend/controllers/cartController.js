@@ -2,21 +2,33 @@ const { getDB } = require("../config/mongo.js");
 const { pool } = require("../config/mysql.js");
 const getCart = async (req, res) => {
     const db = getDB();
-    const userId = req.user.id;    try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+        return res.status(401).json({ 
+            success: false,
+            message: "Unauthorized: User ID not found" 
+        });
+    }
+
+    try {
         const cart = await db.collection("cart").findOne({ id_user: userId });
-        
-        if (!cart) {
-            return res.status(404).json({ message: "Cart not found" });
+          if (!cart) {
+            return res.status(404).json({ 
+                success: false,
+                message: "Cart not found" 
+            });
         }
 
         // Extract product IDs from cart
         const productIds = cart.produk ? cart.produk.map(item => item.product_id) : [];
         
         if (productIds.length === 0) {
-            return res.json(cart); // Return empty cart
-        }
-
-        // Get product details from MySQL
+            return res.json({
+                success: true,
+                cart: cart
+            }); // Return empty cart
+        }// Get product details from MySQL
         const [rows] = await pool.query(
             `SELECT p.id_produk, p.nama_produk, p.harga, p.image, p.stock FROM products p WHERE p.id_produk IN (?)`, 
             [productIds]
@@ -29,17 +41,24 @@ const getCart = async (req, res) => {
                 const productDetail = rows.find(product => product.id_produk === cartItem.product_id);
                 return {
                     ...cartItem,
-                    name: productDetail?.nama_produk || `Product ${cartItem.product_id}`,
+                    product_name: productDetail?.nama_produk || `Product ${cartItem.product_id}`,
                     price: productDetail?.harga || 0,
-                    image: productDetail?.gambar || null,
-                    stock: productDetail?.stok || 0
+                    image: productDetail?.image || null,
+                    stock: productDetail?.stock || 0
                 };
             })
         };
 
-        res.json(enrichedCart);
-    } catch (error) {
-        res.status(500).json({ message: "Failed to retrieve cart", error });
+        res.json({
+            success: true,
+            cart: enrichedCart
+        });    } catch (error) {
+        console.error('Get cart error:', error);
+        res.status(500).json({ 
+            success: false,
+            message: "Failed to retrieve cart", 
+            error: error.message 
+        });
     }
 }
 const addToCart = async (req, res) => {
@@ -94,4 +113,38 @@ const updateCart = async (req, res) => {
     }
 };
 
-module.exports = { getCart, addToCart, updateCart };
+const deleteCart = async (req, res) => {
+    const db = getDB();
+    const userId = req.user?.id;
+
+    if (!userId) {
+        return res.status(401).json({ message: "Unauthorized: User ID not found" });
+    }
+
+    try {
+        const result = await db.collection("cart").deleteOne({ id_user: userId });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ message: "Cart not found" });
+        }
+
+        return res.status(200).json({ message: "Cart deleted successfully" });
+    } catch (error) {
+        return res.status(500).json({ message: "Failed to delete cart", error: error.message });
+    }
+};
+
+// Utility function for internal use by other controllers
+const clearUserCart = async (userId) => {
+    const db = getDB();
+    
+    try {
+        const result = await db.collection("cart").deleteOne({ id_user: userId });
+        return { success: true, deletedCount: result.deletedCount };
+    } catch (error) {
+        console.error('Error clearing user cart:', error);
+        return { success: false, error: error.message };
+    }
+};
+
+module.exports = { getCart, addToCart, updateCart, deleteCart, clearUserCart };
