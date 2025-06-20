@@ -1,5 +1,5 @@
 const { getDB } = require("../config/mongo");
-const {pool} = require("../config/mysql");
+const { pool } = require("../config/mysql");
 
 // import { getDB } from "../config/mongo.js"; // ESM style
  // pastikan koneksi dibuat sebelum akses DB
@@ -9,8 +9,31 @@ const getReviewsByProduct = async (req, res) => {
     const db = getDB(); 
     const id_produk = req.params.id_produk;
     try {
-        const reviews = await db.collection("product_review").find({ id_produk }).toArray();
-        res.json({ reviews });
+        // Ambil review dari MongoDB
+        const productReview = await db.collection("product_review").findOne({ id_produk });
+        if (!productReview || !productReview.review) {
+            return res.json({ reviews: [] });
+        }
+        // Ambil semua user_id unik dari review
+        const userIds = productReview.review.map(r => r.user_id);
+        let users = [];
+        if (userIds.length > 0) {
+            // Query ke MySQL untuk ambil username
+            const [rows] = await pool.query(
+                `SELECT id_user, username FROM users WHERE id_user IN (${userIds.map(() => '?').join(',')})`,
+                userIds
+            );
+            users = rows;
+        }
+        // Gabungkan username ke review
+        const reviewsWithUsername = productReview.review.map(r => {
+            const user = users.find(u => u.id_user === r.user_id);
+            return {
+                ...r,
+                username: user ? user.username : null
+            };
+        });
+        res.json({ reviews: reviewsWithUsername });
     } catch (error) {
         res.status(500).json({ message: "Gagal mengambil review", error });
     }
