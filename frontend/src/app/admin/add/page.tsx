@@ -6,12 +6,7 @@ import ProductCard from '../../../components/ProductCard'
 import { Product } from '../../../types/product'
 import {jwtDecode} from 'jwt-decode'
 
-export default function AddProductPage() {
-  // cek autentikasi
-  // jika tidak ada token, redirect ke halaman login
-  // jika ada token, cek role
-  // jika role bukan admin, redirect ke halaman login
-  // jika role admin, tampilkan halaman tambah produk
+export default function AddProductPage() {  
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -39,5 +34,5 @@ export default function AddProductPage() {
     checkAuth()
   }, [token, router])
 
-  return <ProductForm mode="create" />
+  return <ProductForm mode="create" token={token || ''} />  
 }

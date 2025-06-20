@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import ProductCard from '../../components/ProductCard'
 import { Product } from '../../types/product'
@@ -32,7 +32,13 @@ export default function AdminProductsPage() {
         }
 
         // If the user is admin, fetch the products
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/product`)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/product`,{
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        })
         if (!response.ok) {
           throw new Error('Failed to fetch products')
         }
@@ -60,7 +66,10 @@ export default function AdminProductsPage() {
   const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this product?')) {
       fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/product/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${sessionStorage.getItem('jwtToken')}`,        
+        }
       })
         .then(response => {
           if (!response.ok) {
@@ -73,9 +82,15 @@ export default function AdminProductsPage() {
         })
     }
   }
-
   const handleAddProduct = () => {
     router.push('/admin/add/')
+  }
+  const handleAddCoupon = () => {
+    router.push('/admin/coupon/')
+  }
+
+  const handleViewCoupons = () => {
+    router.push('/admin/coupon/list/')
   }
 
   
@@ -87,16 +102,28 @@ export default function AdminProductsPage() {
   }else{
   return (
     <div className="min-h-screen bg-gray-50">
-      <main className="max-w-7xl mx-auto px-8 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+      <main className="max-w-7xl mx-auto px-8 py-8">        {/* Header */}        <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-semibold text-gray-900">All Produk</h1>
-          <button
-            onClick={handleAddProduct}
-            className="border border-gray-300 px-6 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition-colors font-medium"
-          >
-            Add New Product
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handleViewCoupons}
+              className="border border-green-300 px-6 py-2 rounded-md text-green-700 hover:bg-green-50 transition-colors font-medium"
+            >
+              Lihat Kupon
+            </button>
+            <button
+              onClick={handleAddCoupon}
+              className="border border-blue-300 px-6 py-2 rounded-md text-blue-700 hover:bg-blue-50 transition-colors font-medium"
+            >
+              Add New Coupon
+            </button>
+            <button
+              onClick={handleAddProduct}
+              className="border border-gray-300 px-6 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition-colors font-medium"
+            >
+              Add New Product
+            </button>
+          </div>
         </div>
 
         {/* Search Bar */}

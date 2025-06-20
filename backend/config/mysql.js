@@ -1,4 +1,5 @@
 const mysql = require('mysql2/promise');
+const { Sequelize } = require('sequelize');
 
 console.log('🔍 Environment variables:');
 console.log('DB_HOST:', process.env.DB_HOST);
@@ -21,6 +22,23 @@ const config = {
 };
 
 console.log('🔧 MySQL config:', config);
+
+// Sequelize instance
+const sequelize = new Sequelize(
+  config.database,
+  config.user,
+  config.password,
+  {
+    host: config.host,
+    port: config.port,
+    dialect: 'mysql',
+    logging: false,
+    define: {
+      timestamps: true,
+      underscored: false
+    }
+  }
+);
 
 // Jika ada MYSQL_URL dari Railway, gunakan itu
 let pool;
@@ -48,4 +66,4 @@ const connectMySQL = async () => {
   }
 }
 
-module.exports = {  pool, connectMySQL };
+module.exports = { pool, connectMySQL, sequelize };
