@@ -6,20 +6,39 @@ const JWT_SECRET = process.env.JWT_SECRET || 'APINGANTENG';
 
 const getAllProducts = async (req, res) => {
   try {
-    const { category } = req.query;
+    const { search, category } = req.query;
     let query = 'SELECT * FROM products';
-    let params = [];
+    const params = [];
+    const conditions = [];
+
+    if (search) {
+      const words = search.split(' ').filter(Boolean); 
+
+      const likeConditions = words.map(() => `(nama_produk LIKE ? OR description LIKE ?)`).join(' AND ');
+      conditions.push(`(${likeConditions})`);
+      words.forEach(word => {
+        const term = `%${word}%`;
+        params.push(term, term);
+      });
+    }
+
     if (category) {
-      query += ' WHERE kategori = ?';
+      conditions.push('kategori = ?');
       params.push(category);
     }
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+
     const [rows] = await pool.query(query, params);
     res.status(200).json(rows);
   } catch (error) {
     console.error('Error fetching products:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
-}
+};
+
 
 const getBestSellingProducts = async (req, res) => {
   try {
@@ -74,8 +93,17 @@ const getProductById = async (req, res) => {
   }
 };
 
+
+
+  
+  
+
+  
+
+
+
 module.exports = {
   getAllProducts,
   getBestSellingProducts,
-  getProductById
+  getProductById,
 };
