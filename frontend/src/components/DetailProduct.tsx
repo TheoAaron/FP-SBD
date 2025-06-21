@@ -15,6 +15,8 @@ interface Product {
   total_review: number;
   stock: number;
   category: string;
+  real_rating?: number;
+  real_review_count?: number;
 }
 
 export default function DetailProduct({ id_produk }: ProductDetailProps) {
@@ -22,7 +24,6 @@ export default function DetailProduct({ id_produk }: ProductDetailProps) {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -34,7 +35,39 @@ export default function DetailProduct({ id_produk }: ProductDetailProps) {
         }
         
         const productData = await res.json();
-        setProduct(productData);
+        
+        // Fetch real-time reviews from MongoDB
+        let real_rating = 0;
+        let real_review_count = 0;
+        
+        try {
+          const reviewRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/reviews/${id_produk}`);
+          if (reviewRes.ok) {
+            const reviewData = await reviewRes.json();
+            console.log(`DetailProduct reviews for ${id_produk}:`, reviewData);
+            
+            // Extract reviews from the correct path
+            let reviews = [];
+            if (reviewData.reviews && reviewData.reviews.length > 0 && reviewData.reviews[0].review) {
+              reviews = reviewData.reviews[0].review;
+            }
+            
+            real_review_count = reviews.length;
+            if (reviews.length > 0) {
+              const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
+              real_rating = totalRating / reviews.length;
+            }
+          }
+        } catch (reviewError) {
+          console.error(`Error fetching reviews for product ${id_produk}:`, reviewError);
+        }
+        
+        // Add real-time review data to product
+        setProduct({
+          ...productData,
+          real_rating,
+          real_review_count
+        });
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch product');
       } finally {
@@ -78,14 +111,16 @@ export default function DetailProduct({ id_produk }: ProductDetailProps) {
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
-        {/* Product Image */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">        {/* Product Image */}
         <div className="w-full">
-          <div className="bg-neutral-100 rounded-lg overflow-hidden aspect-square flex items-center justify-center p-4 sm:p-8">
+          <div className="bg-neutral-100 rounded-lg overflow-hidden aspect-square flex items-center justify-center">
             <img 
-              className="w-full h-full object-contain max-w-sm max-h-sm" 
+              className="w-full h-full object-cover" 
               src={product.image}
               alt={product.nama_produk}
+              onError={(e) => {
+                e.currentTarget.src = 'https://via.placeholder.com/400x400?text=No+Image';
+              }}
             />
           </div>
         </div>
@@ -95,12 +130,10 @@ export default function DetailProduct({ id_produk }: ProductDetailProps) {
           {/* Title */}
           <h1 className="text-xl sm:text-2xl font-semibold text-black leading-tight">
             {product.nama_produk}
-          </h1>
-
-          {/* Rating and Reviews */}
+          </h1>          {/* Rating and Reviews */}
           <div className="flex items-center gap-3 text-sm">
-            <StarRating rating={product.avg_rating} />
-            <span className="opacity-70">({product.total_review} Reviews)</span>
+            <StarRating rating={product.real_rating ?? 0} />
+            <span className="opacity-70">({product.real_review_count ?? 0} Reviews)</span>
             <span className="mx-1 opacity-50">|</span>
             <span className="text-green-500 font-medium">In Stock</span>
           </div>

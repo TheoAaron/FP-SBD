@@ -1,5 +1,5 @@
 'use client';
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import StarRating from '@/components/StarRating';
 import { Product } from '@/lib/dummyProducts';
 
@@ -7,14 +7,86 @@ interface CarouselProps {
   products: Product[];
 }
 
+interface ProductWithReviews extends Product {
+  real_rating?: number;
+  real_review_count?: number;
+}
+
 export default function RelatedProductsCarousel({ products }: CarouselProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const [productsWithReviews, setProductsWithReviews] = useState<ProductWithReviews[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const scroll = (dir: number) => {
     if (ref.current) {
       ref.current.scrollBy({ left: dir * 240, behavior: 'smooth' });
     }
   };
 
+  // Fetch reviews from MongoDB for each product
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (!products || products.length === 0) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const productsWithReviewData = await Promise.all(
+          products.map(async (product) => {
+            try {
+              const response = await fetch(`http://localhost:8080/api/reviews/${product.id_produk}`);
+              if (response.ok) {
+                const data = await response.json();
+                console.log(`RelatedProducts reviews for ${product.id_produk}:`, data);
+                
+                // Extract reviews from the correct path
+                let reviews = [];
+                if (data.reviews && data.reviews.length > 0 && data.reviews[0].review) {
+                  reviews = data.reviews[0].review;
+                }
+                
+                let real_rating = 0;
+                let real_review_count = reviews.length;
+                if (reviews.length > 0) {
+                  const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
+                  real_rating = totalRating / reviews.length;
+                }
+                
+                return {
+                  ...product,
+                  real_rating,
+                  real_review_count
+                };
+              } else {
+                return {
+                  ...product,
+                  real_rating: 0,
+                  real_review_count: 0
+                };
+              }
+            } catch (error) {
+              console.error(`Error fetching reviews for related product ${product.id_produk}:`, error);
+              return {
+                ...product,
+                real_rating: 0,
+                real_review_count: 0
+              };
+            }
+          })
+        );
+        
+        setProductsWithReviews(productsWithReviewData);
+      } catch (error) {
+        console.error('Error fetching reviews for related products:', error);
+        setProductsWithReviews(products.map(p => ({ ...p, real_rating: 0, real_review_count: 0 })));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [products]);
   return (
     <div className="relative">
       <button
@@ -28,26 +100,41 @@ export default function RelatedProductsCarousel({ products }: CarouselProps) {
         ref={ref}
         className="flex gap-6 overflow-x-auto scroll-smooth py-2 no-scrollbar"
       >
-        {products.map(prod => (
-          <div
-            key={prod.id_produk}
-            className="min-w-[200px] flex-shrink-0 group border rounded-lg p-4 hover:shadow-md transition"
-          >
-            <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-40 overflow-hidden">
-              <img
-                src={prod.image}
-                alt={prod.nama_produk}
-                className="object-contain h-full w-full p-4 group-hover:scale-105 transition-transform duration-300"
-              />
+        {loading ? (
+          // Loading skeleton
+          Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="min-w-[200px] flex-shrink-0 animate-pulse">
+              <div className="bg-gray-200 rounded-lg h-40 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded mb-1"></div>
+              <div className="h-4 bg-gray-200 rounded w-2/3 mb-1"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
             </div>
-            <h4 className="mt-2 font-medium text-lg text-gray-800">{prod.nama_produk}</h4>
-            <p className="text-red-500 font-semibold mt-1">${prod.harga.toFixed(2)}</p>
-            <div className="flex items-center gap-1 mt-1">
-              <StarRating rating={prod.avg_rating} />
-              <span className="text-gray-600 text-sm">({prod.total_review})</span>
+          ))
+        ) : (
+          productsWithReviews.map(prod => (
+            <div
+              key={prod.id_produk}
+              className="min-w-[200px] flex-shrink-0 group border rounded-lg p-4 hover:shadow-md transition"
+            >
+              <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-40 overflow-hidden">
+                <img
+                  src={prod.image}
+                  alt={prod.nama_produk}
+                  className="object-cover h-full w-full group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://via.placeholder.com/200x200?text=No+Image';
+                  }}
+                />
+              </div>
+              <h4 className="mt-2 font-medium text-lg text-gray-800">{prod.nama_produk}</h4>
+              <p className="text-red-500 font-semibold mt-1">${prod.harga.toFixed(2)}</p>
+              <div className="flex items-center gap-1 mt-1">
+                <StarRating rating={prod.real_rating ?? 0} />
+                <span className="text-gray-600 text-sm">({prod.real_review_count ?? 0})</span>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
       <button
         type="button"
