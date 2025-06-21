@@ -4,6 +4,8 @@ import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import CategorySection from "@/components/Category";
 import StarRating from "@/components/StarRating";
+import { formatImageUrl } from "@/utils/imageUtils";
+import Link from "next/link";
 
 function ProductContent() {
   const searchParams = useSearchParams();
@@ -81,11 +83,9 @@ function ProductContent() {
           <img src="https://res.cloudinary.com/dlwxkdjek/image/upload/v1750433799/capybara-turu_ledsfn.jpg" alt="Kosong" className="w-48 h-48 object-contain mb-6" />
           <div className="text-center py-8 text-gray-700 font-medium mb-2">Produk Tidak Ditemukan</div>
         </div>
-      ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 py-4">
-            {products.map(product => (
-              <div key={product.id} className="group border rounded-lg p-3 sm:p-4 hover:shadow-md transition">
-                <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-48 sm:h-64 overflow-hidden">
+      ) : (          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 py-4">
+            {products.map(product => (              <Link key={product.id_produk || product.id} href={`/product/${product.id_produk || product.id}`} className="group border rounded-lg p-3 sm:p-4 hover:shadow-md transition">
+                <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-52 sm:h-64 overflow-hidden mb-3">
                   <img
                     src={product.image || '/shopit.svg'}
                     alt={product.name}
@@ -104,7 +104,7 @@ function ProductContent() {
                     <span className="text-gray-400 text-sm">({product.reviews || 0} reviews)</span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

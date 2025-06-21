@@ -79,9 +79,9 @@ export default function BestSellingProducts({
               </div>
             </Link>
 
-              {/* Product Info */}
-              <div className="space-y-2">
-                <h3 className="font-medium text-gray-900">{product.nama_produk}</h3>
+            {/* Product Info */}
+            <div className="space-y-2">
+              <h3 className="font-medium text-gray-900">{product.nama_produk}</h3>
 
               {/* Price */}
               <div className="flex items-center gap-2">

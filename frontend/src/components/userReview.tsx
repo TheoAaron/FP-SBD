@@ -31,26 +31,26 @@ export default function UserReview({ id_produk }: UserReviewProps) {
           if (!res.ok) {
           throw new Error('Failed to fetch reviews');
         }
-        
-        const responseData = await res.json();
+          const responseData = await res.json();
         console.log('Raw API response:', responseData); // Debug log
         
-        // Parse the nested structure from your API
+        // Parse the correct structure from MongoDB
         let parsedReviews: Review[] = [];
         
-        if (responseData.reviews && Array.isArray(responseData.reviews)) {
-          // Flatten the nested review structure
-          parsedReviews = responseData.reviews.flatMap((reviewGroup: any) => {
-            if (reviewGroup.review && Array.isArray(reviewGroup.review)) {              return reviewGroup.review.map((review: any, index: number) => ({
-                id: index + 1,
-                username: review.username || 'Anonymous', // ✅ Include username from API
-                date: new Date(review.date).toISOString().slice(0, 10), // Format date
-                rating: review.rate || 0,
-                comment: review.comment || ''
-              }));
-            }
-            return [];
-          });
+        if (responseData.reviews && Array.isArray(responseData.reviews) && responseData.reviews.length > 0) {
+          // Get the first document from reviews array
+          const reviewDocument = responseData.reviews[0];
+          
+          // Extract reviews from the review array inside the document
+          if (reviewDocument.review && Array.isArray(reviewDocument.review)) {
+            parsedReviews = reviewDocument.review.map((review: any, index: number) => ({
+              id: index + 1,
+              username: review.username || 'Anonymous',
+              date: new Date(review.date).toISOString().slice(0, 10),
+              rate: review.rate || 0,
+              comment: review.comment || ''
+            }));
+          }
         }
         
         console.log('Parsed reviews:', parsedReviews); // Debug log
@@ -89,25 +89,25 @@ export default function UserReview({ id_produk }: UserReviewProps) {
         if (res.ok) {
           const responseData = await res.json();
           
-          // Parse the nested structure (same logic as in useEffect)
+          // Parse the correct structure (same logic as in useEffect)
           let parsedReviews: Review[] = [];
           
-          if (responseData.reviews && Array.isArray(responseData.reviews)) {
-            parsedReviews = responseData.reviews.flatMap((reviewGroup: any) => {
-              if (reviewGroup.review && Array.isArray(reviewGroup.review)) {                return reviewGroup.review.map((review: any, index: number) => ({
-                  id: index + 1,
-                  username: review.username || 'Anonymous', // ✅ Include username
-                  date: new Date(review.date).toISOString().slice(0, 10),
-                  rating: review.rate || 0,
-                  comment: review.comment || ''
-                }));
-              }
-              return [];
-            });
+          if (responseData.reviews && Array.isArray(responseData.reviews) && responseData.reviews.length > 0) {
+            const reviewDocument = responseData.reviews[0];
+            
+            if (reviewDocument.review && Array.isArray(reviewDocument.review)) {
+              parsedReviews = reviewDocument.review.map((review: any, index: number) => ({
+                id: index + 1,
+                username: review.username || 'Anonymous',
+                date: new Date(review.date).toISOString().slice(0, 10),
+                rate: review.rate || 0,
+                comment: review.comment || ''
+              }));
+            }
           }
           
           setReviews(parsedReviews);
-        }      } else {        // If API fails, add locally (fallback)
+        }} else {        // If API fails, add locally (fallback)
         const next: Review = {
           id: reviews.length + 1,
           username: 'You', // ✅ Fallback username for local addition
