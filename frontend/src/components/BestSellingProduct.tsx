@@ -136,34 +136,36 @@ export default function BestSellingProducts({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {productsWithReviews?.map((product) => (
           <div key={product.id_produk} className="group">            {/* Product Image Container */}
-            <div className="relative bg-gray-100 rounded-lg mb-4 h-64 flex items-center justify-center overflow-hidden">
-              <img
-                src={product.image}
-                alt={product.nama_produk}
-                className="w-full h-full object-cover"
+            <Link href={`/product/${product.id_produk}`}>
+              <div className="relative bg-gray-100 rounded-lg mb-4 h-64 flex items-center justify-center overflow-hidden cursor-pointer">
+                <img
+                  src={product.image}
+                  alt={product.nama_produk}
+                  className="w-full h-full object-cover"
                 onError={(e) => {
                   e.currentTarget.src = 'https://via.placeholder.com/300x300?text=No+Image';
                 }}
-              />
+                />
 
-              {/* Action Buttons */}
-              <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50">
-                  <Heart className="w-4 h-4 text-gray-600" />
-                </button>
-                <button className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50">
-                  <Eye className="w-4 h-4 text-gray-600" />
-                </button>
-              </div>
+                {/* Action Buttons */}
+                <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50">
+                    <Heart className="w-4 h-4 text-gray-600" />
+                  </button>
+                  <button className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50">
+                    <Eye className="w-4 h-4 text-gray-600" />
+                  </button>
+                </div>
 
-              {/* Add to Cart Button */}
-              <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4">
-                <button className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
-                  <ShoppingCart className="w-4 h-4" />
-                  Add To Cart
-                </button>
+                {/* Add to Cart Button */}
+                <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4">
+                  <button className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                    <ShoppingCart className="w-4 h-4" />
+                    Add To Cart
+                  </button>
+                </div>
               </div>
-            </div>
+            </Link>
 
             {/* Product Info */}
             <div className="space-y-2">
@@ -176,7 +178,9 @@ export default function BestSellingProducts({
                 {/* {product.harga && (
                   <span className="text-gray-400 line-through">${product.harga}</span>
                 )} */}
-              </div>              {/* Rating */}
+              </div>
+
+              {/* Rating */}
               <div className="flex items-center gap-2">
                 <StarRating rating={product.real_rating ?? 0} />
                 <span className="text-gray-600 text-sm font-medium">{(product.real_rating ?? 0).toFixed(1)}</span>
@@ -185,12 +189,7 @@ export default function BestSellingProducts({
             </div>
           </div>
         ))}
-        </div>
-      ) : (
-        <div className="text-center text-gray-500">
-          <p>No best selling products available at the moment.</p>
-        </div>
-      )}   
+        </div>            
     </div>
   );
 }

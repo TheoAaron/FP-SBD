@@ -31,6 +31,10 @@ const CategorySection: React.FC = () => {
     }
   };  return (
     <div className="w-full bg-white">
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto px-6 pt-6 bg-white">
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
         <div className="w-1 h-8 bg-red-500 rounded"></div>

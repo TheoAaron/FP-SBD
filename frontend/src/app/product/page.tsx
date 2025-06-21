@@ -1,90 +1,66 @@
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import CategorySection from "@/components/Category";
 import StarRating from "@/components/StarRating";
 import { formatImageUrl } from "@/utils/imageUtils";
 
 function ProductContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const selectedCategory = searchParams.get('category');
   const searchQuery = searchParams.get('search');
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Function to handle product click
+  const handleProductClick = (productId: number | string) => {
+    router.push(`/product/${productId}`);
+  };
+
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      setError(null);
-      let url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/products`;
-      if (selectedCategory) {
-        url += `?category=${encodeURIComponent(selectedCategory)}`;
-      }
-      
-      if (searchQuery) {
-        url += `?search=${encodeURIComponent(searchQuery)}`;
-      }
-      console.log(url);
-      
-      try {
-        const res = await fetch(url);
+    setLoading(true);
+    setError(null);
+    let url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/products`;
+    
+    // Handle both category and search parameters
+    const params = new URLSearchParams();
+    if (selectedCategory) {
+      params.append('category', selectedCategory);
+    }
+    if (searchQuery) {
+      params.append('search', searchQuery);
+    }
+    
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+    
+    console.log(url)
+    fetch(url)
+      .then(res => {
         if (!res.ok) throw new Error('Gagal fetch produk');
-        const data = await res.json();
-        
+        return res.json();
+      })
+      .then(data => {
         // Mapping field dari backend ke frontend
-        const mapped = Array.isArray(data) ? await Promise.all(
-          data.map(async (p: any) => {
-            try {
-              // Fetch reviews from MongoDB for each product
-              const reviewRes = await fetch(`http://localhost:8080/api/reviews/${p.id_produk}`);
-              let real_rating = 0;
-              let real_review_count = 0;
-                if (reviewRes.ok) {
-                const reviewData = await reviewRes.json();
-                // Extract reviews from the correct path
-                let reviews = [];
-                if (reviewData.reviews && reviewData.reviews.length > 0 && reviewData.reviews[0].review) {
-                  reviews = reviewData.reviews[0].review;
-                }
-                real_review_count = reviews.length;
-                
-                if (reviews.length > 0) {
-                  const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
-                  real_rating = totalRating / reviews.length;
-                }
-              }
-              
-              return {
-                id: p.id_produk,
-                name: p.nama_produk,
-                price: p.harga,
-                image: formatImageUrl(p.image, '/tokit.svg'), 
-                rating: real_rating,
-                reviews: real_review_count,
-              };
-            } catch (error) {
-              console.error(`Error processing product ${p.id_produk}:`, error);
-              return {
-                id: p.id_produk,
-                name: p.nama_produk,
-                price: p.harga,
-                image: formatImageUrl(p.image, '/tokit.svg'), 
-                rating: 0,
-                reviews: 0,
-              };
-            }
-          })
-        ) : [];
+        const mapped = Array.isArray(data) ? data.map((p) => ({
+          id: p.id_produk || p.id,
+          name: p.nama_produk || p.name,
+          price: p.harga || p.price,
+          image: p.image || "/tokit.svg", 
+          rating: p.avg_rating || p.rating || 0,
+          reviews: p.total_review || p.reviews || 0,
+        })) : [];
         setProducts(mapped);
         setLoading(false);
-      } catch (error) {
+      })
+      .catch(() => {
         setError('Gagal mengambil produk');
         setLoading(false);
-      }
-    };
-    
-    fetchProducts();
+      });
   }, [selectedCategory, searchQuery]);
 
   return (
@@ -108,15 +84,14 @@ function ProductContent() {
         </div>
       ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 py-4">
-            {products.map(product => (              <div key={product.id_produk || product.id} className="group border rounded-lg p-3 sm:p-4 hover:shadow-md transition">
-                <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-52 sm:h-64 overflow-hidden mb-3">
+            {products.map(product => (
+              <div key={product.id} className="group border rounded-lg p-3 sm:p-4 hover:shadow-md transition">
+                <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-48 sm:h-64 overflow-hidden">
                   <img
                     src={product.image || '/shopit.svg'}
                     alt={product.name}
-                    className="object-cover h-full w-full group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      e.currentTarget.src = '/shopit.svg';
-                    }}
+                    className="object-contain h-full w-full p-3 sm:p-4 group-hover:scale-105 transition-transform duration-300 cursor-pointer"
+                    onClick={() => handleProductClick(product.id)}
                   />
                 </div>
                 <div className="mt-3 sm:mt-4">
