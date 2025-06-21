@@ -35,13 +35,15 @@ export default function ProductCard({ product, onEdit, onDelete }: ProductCardPr
       </div>
 
       {/* Product Image */}
-      <div className="flex justify-center items-center h-28 sm:h-32 mb-3 sm:mb-4 mt-6 sm:mt-4">
+      <div className="flex justify-center items-center h-32 sm:h-40 mb-3 sm:mb-4 mt-6 sm:mt-4 bg-white rounded-md overflow-hidden">
         <img
           src={product.image}
           alt={product.nama_produk}
-          width={120}
-          height={120}
-          className="object-contain max-h-full w-auto"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = 'https://via.placeholder.com/300x300?text=No+Image';
+          }}
         />
       </div>
 

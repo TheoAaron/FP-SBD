@@ -1,10 +1,70 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import toast, { Toaster } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 export default function LoginLayout() {
+    const router = useRouter();
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Check if user is already logged in
+    useEffect(() => {
+        const checkAuth = () => {
+            try {
+                const token = sessionStorage.getItem('jwtToken');
+                if (token) {
+                    setIsAuthenticated(true);
+                    // Redirect to home if already logged in
+                    toast.success('You are already logged in!');
+                    router.push('/');
+                } else {
+                    setIsAuthenticated(false);
+                }
+            } catch (error) {
+                console.error('Error checking authentication:', error);
+                setIsAuthenticated(false);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        checkAuth();
+    }, [router]);
+
+    // Show loading state
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // If already authenticated, show message
+    if (isAuthenticated) {
+
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Already Logged In</h2>
+                    <p className="text-gray-600 mb-6">You are already logged in. Redirecting to home...</p>
+
+                    <Link 
+                        href="/" 
+                        className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg transition-colors"
+                    >
+                        Go to Home
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -26,7 +86,13 @@ export default function LoginLayout() {
                 const data = await res.json();
                 if (data.token) {
                     sessionStorage.setItem('jwtToken', data.token);
-                    window.location.href = '/';
+
+                    const userRole = data.role || data.user?.role;
+                    if (userRole === 'admin') {
+                        window.location.href = '/admin';
+                    } else {
+                        window.location.href = '/';
+                    }
                 }
             } else {
                 const dataa = await res.json();

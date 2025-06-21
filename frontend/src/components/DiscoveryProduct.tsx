@@ -18,16 +18,14 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
     product.nama_produk && 
     typeof product.harga === 'number'
   ) || [];
-
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-6 bg-white">
+    <div className="w-full bg-white">
       {/* Header */}
       <div className="mb-6 sm:mb-8">
         <div className="flex items-center gap-4 mb-2">
           <div className="w-1 h-6 sm:h-8 bg-red-500 rounded"></div>
           <span className="text-red-500 font-medium text-sm sm:text-base">Our Products</span>
-        </div>
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Explore Our Products</h2>
+        </div>        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Explore Our Products</h2>
       </div>
 
       {/* Grid */}
@@ -37,13 +35,12 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
             <div
               key={product.id_produk}
               className="group relative border rounded-lg p-4 hover:shadow-lg transition flex flex-col"
-            >
-              {/* Image */}
-              <div className="relative bg-gray-100 rounded-lg h-44 sm:h-52 mb-3 sm:mb-4 flex items-center justify-center overflow-hidden">
+            >              {/* Image */}
+              <div className="relative bg-gray-100 rounded-lg h-48 sm:h-56 mb-3 sm:mb-4 flex items-center justify-center overflow-hidden">
                 <img
                   src={product.image || 'https://via.placeholder.com/300x300?text=No+Image'}
                   alt={product.nama_produk}
-                  className="object-contain w-full h-full"
+                  className="object-cover w-full h-full"
                   onError={(e) => {
                     e.currentTarget.src = 'https://via.placeholder.com/300x300?text=No+Image';
                   }}

@@ -71,13 +71,15 @@ function ProductContent() {
         </div>
       ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 py-4">
-            {products.map(product => (
-              <div key={product.id_produk || product.id} className="group border rounded-lg p-3 sm:p-4 hover:shadow-md transition">
-                <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-48 sm:h-64 overflow-hidden">
+            {products.map(product => (              <div key={product.id_produk || product.id} className="group border rounded-lg p-3 sm:p-4 hover:shadow-md transition">
+                <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-52 sm:h-64 overflow-hidden mb-3">
                   <img
                     src={product.image || '/shopit.svg'}
                     alt={product.name}
-                    className="object-contain h-full w-full p-3 sm:p-4 group-hover:scale-105 transition-transform duration-300"
+                    className="object-cover h-full w-full group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      e.currentTarget.src = '/shopit.svg';
+                    }}
                   />
                 </div>
                 <div className="mt-3 sm:mt-4">

@@ -4,6 +4,7 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
+import RequireAuth from "@/components/RequireAuth"
 
 interface OrderItem {
   id_order: string
@@ -119,18 +120,18 @@ export default function OrdersPage() {
         </div>
       </div>
     )
-  }
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Breadcrumb */}
-        <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-8">
-          <Link href="/" className="hover:text-gray-900 transition-colors">
-            Home
-          </Link>
-          <span>/</span>
-          <span className="font-medium text-gray-900">Order</span>
-        </nav>
+  }  return (
+    <RequireAuth>
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Breadcrumb */}
+          <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-8">
+            <Link href="/" className="hover:text-gray-900 transition-colors">
+              Home
+            </Link>
+            <span>/</span>
+            <span className="font-medium text-gray-900">Order</span>
+          </nav>
 
         {/* Error Display */}
         {error && (
@@ -255,9 +256,7 @@ export default function OrdersPage() {
               </Link>
             </div>
           )
-        )}
-
-        {/* Return to Shop Button */}
+        )}        {/* Return to Shop Button */}
         <div className="mt-8">
           <Link href="/product">
             <button className="px-8 py-3 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
@@ -267,5 +266,6 @@ export default function OrdersPage() {
         </div>
       </div>
     </div>
+    </RequireAuth>
   )
 }

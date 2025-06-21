@@ -39,16 +39,22 @@ const removeProductFromLastView = async (userId, produkId) => {
 
 const addLastView = async (req, res) => {
   try {
+    console.log('=== ADD LAST VIEW START ===');
     const db = getDB();
     const { produk } = req.body;
-    const id_user = req.user.id;
+    const id_user = req.user?.id;
+
+    console.log('User ID:', id_user);
+    console.log('Product ID:', produk);
 
     if (!id_user || !produk) {
+      console.log('Missing required fields:', { id_user, produk });
       return res.status(400).json({ message: "id_user dan id_produk wajib diisi" });
     }
 
     // Pastikan produk dalam bentuk array untuk konsistensi
     const produkArray = Array.isArray(produk) ? produk : [produk];
+    console.log('Product array:', produkArray);
 
     // Hapus produk dari lastView dulu kalau sudah ada (supaya bisa dipindah ke urutan pertama)
     for (const p of produkArray) {
@@ -57,6 +63,7 @@ const addLastView = async (req, res) => {
 
     // Cek apakah user sudah memiliki lastView
     const existingLastView = await db.collection("last_view").findOne({ id_user });
+    console.log('Existing last view:', existingLastView);
 
     if (existingLastView) {
       // Tambahkan ke urutan pertama menggunakan $push dengan $position: 0

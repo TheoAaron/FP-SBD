@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
+import RequireAuth from '@/components/RequireAuth'
 
 interface OrderItem {
   id_detail_order: string
@@ -189,14 +190,14 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
   const discount = order.coupon?.diskon || 0
   const shipping = 0 // Free shipping based on your business logic
   const total = order.total || 0
-
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <nav className="mb-4">
-            <Link href="/order" className="text-red-500 hover:text-red-600 font-medium">
+    <RequireAuth>
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="mb-8">
+            <nav className="mb-4">
+              <Link href="/order" className="text-red-500 hover:text-red-600 font-medium">
               ← Back to Orders
             </Link>
           </nav>
@@ -394,8 +395,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
                     Cancel Order
                   </button>
                 )}
-                
-                <button className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors font-medium">
+                  <button className="w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors font-medium">
                   Contact Support
                 </button>
               </div>
@@ -404,5 +404,6 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
         </div>
       </div>
     </div>
+    </RequireAuth>
   )
 }

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import ShipmentDetails from '../../components/ShipmentDetails';
 import CheckoutDetails from '../../components/CheckoutDetails';
+import RequireAuth from '../../components/RequireAuth';
 
 interface CartItem {
   product_id: string;
@@ -235,31 +236,32 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
       </div>
     );
   }
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Checkout</h1>
-          <p className="text-gray-600">Review your order and complete your purchase</p>
-        </div>
-
-        {/* Error Display */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600 text-sm">{error}</p>
+    <RequireAuth>
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-gray-900">Checkout</h1>
+            <p className="text-gray-600">Review your order and complete your purchase</p>
           </div>
-        )}        {/* Checkout Content */}
-        <div className="flex flex-col lg:flex-row gap-8">
-          <ShipmentDetails onAddressSelect={setSelectedAddress} />
-          <CheckoutDetails 
-            items={cartItems} 
-            onPlaceOrder={handlePlaceOrder}
-            isLoading={isPlacingOrder}
-          />
+
+          {/* Error Display */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm">{error}</p>
+            </div>
+          )}        {/* Checkout Content */}
+          <div className="flex flex-col lg:flex-row gap-8">
+            <ShipmentDetails onAddressSelect={setSelectedAddress} />
+            <CheckoutDetails 
+              items={cartItems} 
+              onPlaceOrder={handlePlaceOrder}
+              isLoading={isPlacingOrder}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </RequireAuth>
   );
 }
