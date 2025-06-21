@@ -1,8 +1,8 @@
 'use client';
 import React, { useRef, useEffect, useState } from 'react';
-import Link from 'next/link';
 import StarRating from '@/components/StarRating';
 import { Product } from '@/lib/dummyProducts';
+import Link from 'next/link';
 
 interface CarouselProps {
   products: Product[];
@@ -18,12 +18,6 @@ export default function RelatedProductsCarousel({ products }: CarouselProps) {
   const [productsWithReviews, setProductsWithReviews] = useState<ProductWithReviews[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const scroll = (dir: number) => {
-    if (ref.current) {
-      ref.current.scrollBy({ left: dir * 240, behavior: 'smooth' });
-    }
-  };
-
   // Fetch reviews from MongoDB for each product
   useEffect(() => {
     const fetchReviews = async () => {
@@ -36,15 +30,18 @@ export default function RelatedProductsCarousel({ products }: CarouselProps) {
         const productsWithReviewData = await Promise.all(
           products.map(async (product) => {
             try {
-              const response = await fetch(`http://localhost:8080/api/reviews/${product.id_produk}`);              if (response.ok) {
+              const response = await fetch(`http://localhost:8080/api/reviews/${product.id_produk}`);
+              if (response.ok) {
                 const data = await response.json();
-                console.log(`RelatedProducts reviews for ${product.id_produk}:`, data);
                 
-                // Use the new structure
-                const reviews = data.reviews || [];
-                const real_review_count = data.total_review || 0;
+                // Extract reviews from the correct path
+                let reviews = [];
+                if (data.reviews && data.reviews.length > 0 && data.reviews[0].review) {
+                  reviews = data.reviews[0].review;
+                }
                 
                 let real_rating = 0;
+                let real_review_count = reviews.length;
                 if (reviews.length > 0) {
                   const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
                   real_rating = totalRating / reviews.length;
@@ -63,7 +60,7 @@ export default function RelatedProductsCarousel({ products }: CarouselProps) {
                 };
               }
             } catch (error) {
-              console.error(`Error fetching reviews for related product ${product.id_produk}:`, error);
+              console.error(`Error fetching reviews for product ${product.id_produk}:`, error);
               return {
                 ...product,
                 real_rating: 0,
@@ -75,7 +72,7 @@ export default function RelatedProductsCarousel({ products }: CarouselProps) {
         
         setProductsWithReviews(productsWithReviewData);
       } catch (error) {
-        console.error('Error fetching reviews for related products:', error);
+        console.error('Error fetching reviews:', error);
         setProductsWithReviews(products.map(p => ({ ...p, real_rating: 0, real_review_count: 0 })));
       } finally {
         setLoading(false);
@@ -84,6 +81,29 @@ export default function RelatedProductsCarousel({ products }: CarouselProps) {
 
     fetchReviews();
   }, [products]);
+
+  const scroll = (dir: number) => {
+    if (ref.current) {
+      ref.current.scrollBy({ left: dir * 240, behavior: 'smooth' });
+    }
+  };
+  if (loading) {
+    return (
+      <div className="relative">
+        <div className="flex gap-4 sm:gap-6 overflow-x-auto scroll-smooth py-2 no-scrollbar">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="min-w-[250px] max-w-[250px] flex-shrink-0 border rounded-lg p-4 animate-pulse">
+              <div className="bg-gray-200 rounded-lg h-48 sm:h-56 mb-3 sm:mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-2/3 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative">
       <button
@@ -92,52 +112,42 @@ export default function RelatedProductsCarousel({ products }: CarouselProps) {
         className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 p-2 bg-white rounded-full shadow-md"
       >
         ‹
-      </button>
-      <div
+      </button>      <div
         ref={ref}
-        className="flex gap-6 overflow-x-auto scroll-smooth py-2 no-scrollbar"
+        className="flex gap-4 sm:gap-6 overflow-x-auto scroll-smooth py-2 no-scrollbar"
       >
-        {loading ? (
-          // Loading skeleton
-          Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="min-w-[200px] flex-shrink-0 animate-pulse">
-              <div className="bg-gray-200 rounded-lg h-40 mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded mb-1"></div>
-              <div className="h-4 bg-gray-200 rounded w-2/3 mb-1"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+        {productsWithReviews.map(prod => (
+          <Link
+            key={prod.id_produk}
+            href={`/product/${prod.id_produk}`}
+            className="min-w-[250px] max-w-[250px] flex-shrink-0 group border rounded-lg p-4 hover:shadow-lg transition flex flex-col"
+          >
+            {/* Image */}
+            <div className="relative bg-gray-100 rounded-lg h-48 sm:h-56 mb-3 sm:mb-4 flex items-center justify-center overflow-hidden">
+              <img
+                src={prod.image || 'https://via.placeholder.com/300x300?text=No+Image'}
+                alt={prod.nama_produk}
+                className="object-cover w-full h-full"
+                onError={(e) => {
+                  e.currentTarget.src = 'https://via.placeholder.com/300x300?text=No+Image';
+                }}
+              />
             </div>
-          ))
-        ) : (          productsWithReviews.map(prod => (
-            <Link href={`/product/${prod.id_produk}`} key={prod.id_produk}>
-              <div
-                className="min-w-[200px] flex-shrink-0 group border rounded-lg p-4 hover:shadow-md transition cursor-pointer"
-              >              <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-40 overflow-hidden">
-                <img
-                  src={prod.image}
-                  alt={prod.nama_produk}
-                  className="object-cover h-full w-full group-hover:scale-105 transition-transform duration-300"
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    target.style.display = 'none';
-                    const parent = target.parentElement;
-                    if (parent && !parent.querySelector('.fallback-text')) {
-                      const fallback = document.createElement('div');
-                      fallback.className = 'fallback-text w-full h-full bg-gray-200 flex items-center justify-center text-gray-500';
-                      fallback.textContent = 'No Image';
-                      parent.appendChild(fallback);
-                    }
-                  }}
-                />
+
+            {/* Info */}
+            <div className="flex-grow">
+              <h3 className="font-medium text-gray-900 text-sm">{prod.nama_produk}</h3>
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-red-500 font-semibold">${prod.harga}</span>
               </div>
-              <h4 className="mt-2 font-medium text-lg text-gray-800">{prod.nama_produk}</h4>
-              <p className="text-red-500 font-semibold mt-1">${prod.harga.toFixed(2)}</p>
-              <div className="flex items-center gap-1 mt-1">
+              <div className="flex items-center gap-2 text-sm">
                 <StarRating rating={prod.real_rating ?? 0} />
-                <span className="text-gray-600 text-sm">({prod.real_review_count ?? 0})</span>              </div>
+                <span className="text-gray-600 text-sm font-medium">{(prod.real_rating ?? 0).toFixed(1)}</span>
+                <span className="text-gray-400 text-sm">({prod.real_review_count ?? 0})</span>
+              </div>
             </div>
-            </Link>
-          ))
-        )}
+          </Link>
+        ))}
       </div>
       <button
         type="button"

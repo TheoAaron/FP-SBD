@@ -2,9 +2,9 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import StarRating from '@/components/StarRating';
 import { formatImageUrl } from "@/utils/imageUtils";
+import Link from "next/link";
 
 interface Product {
   id: number;
@@ -32,15 +32,19 @@ function ProductContent() {
         );
         const data = await res.json();        const mapped = await Promise.all(
           data.map(async (p: any) => {
-            try {              // Fetch reviews from MongoDB for each product
+            try {
+              // Fetch reviews from MongoDB for each product
               const reviewRes = await fetch(`http://localhost:8080/api/reviews/${p.id_produk}`);
               let real_rating = 0;
               let real_review_count = 0;
                 if (reviewRes.ok) {
                 const reviewData = await reviewRes.json();
-                // Use the new structure
-                const reviews = reviewData.reviews || [];
-                real_review_count = reviewData.total_review || 0;
+                // Extract reviews from the correct path
+                let reviews = [];
+                if (reviewData.reviews && reviewData.reviews.length > 0 && reviewData.reviews[0].review) {
+                  reviews = reviewData.reviews[0].review;
+                }
+                real_review_count = reviews.length;
                 
                 if (reviews.length > 0) {
                   const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
@@ -100,36 +104,27 @@ function ProductContent() {
           {selectedCategory ? `Explore Our ${selectedCategory}` : 'Best Selling Products'}
         </h3>        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 py-4">
           {filteredProducts.map(product => (
-            <Link href={`/product/${product.id}`} key={product.id}>
-              <div className="group border rounded-lg p-3 sm:p-4 hover:shadow-md transition cursor-pointer">                <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-48 sm:h-64 overflow-hidden">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      target.style.display = 'none';
-                      const parent = target.parentElement;
-                      if (parent && !parent.querySelector('.fallback-text')) {
-                        const fallback = document.createElement('div');
-                        fallback.className = 'fallback-text w-full h-full bg-gray-200 flex items-center justify-center text-gray-500';
-                        fallback.textContent = 'No Image';
-                        parent.appendChild(fallback);
-                      }
-                    }}
-                  />
+            <Link key={product.id} href={`/product/${product.id}`} className="group border rounded-lg p-3 sm:p-4 hover:shadow-md transition">
+              <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-48 sm:h-64 overflow-hidden">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="object-cover h-full w-full group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://via.placeholder.com/300x300?text=No+Image';
+                  }}
+                />
+              </div>
+              <div className="mt-3 sm:mt-4">
+                <h4 className="font-medium text-base sm:text-lg text-gray-800 line-clamp-2 mb-2">{product.name}</h4>
+                <div className="flex items-center justify-between mb-2 flex-wrap gap-1">
+                  <p className="text-red-500 font-semibold text-base sm:text-lg">${product.price}</p>
+                  <span className="text-gray-400 text-sm">({product.quantity} terjual)</span>
                 </div>
-                <div className="mt-3 sm:mt-4">
-                  <h4 className="font-medium text-base sm:text-lg text-gray-800 line-clamp-2 mb-2">{product.name}</h4>
-                  <div className="flex items-center justify-between mb-2 flex-wrap gap-1">
-                    <p className="text-red-500 font-semibold text-base sm:text-lg">${product.price}</p>
-                    <span className="text-gray-400 text-sm">({product.quantity} terjual)</span>
-                  </div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <StarRating rating={product.rating} />
-                    <span className="text-gray-600 text-sm font-medium">{product.rating.toFixed(1)}</span>
-                    <span className="text-gray-400 text-sm">({product.reviews} reviews)</span>
-                  </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <StarRating rating={product.rating} />
+                  <span className="text-gray-600 text-sm font-medium">{product.rating.toFixed(1)}</span>
+                  <span className="text-gray-400 text-sm">({product.reviews} reviews)</span>
                 </div>
               </div>
             </Link>

@@ -23,7 +23,7 @@ const CheckoutDetails: React.FC<Props> = ({ items, onPlaceOrder, isLoading = fal
   const [couponDiscount, setCouponDiscount] = useState(0);
 
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = 0; // Free shipping
+  const shipping: number = 0; // Free shipping
   const discount = couponDiscount;
   const total = subtotal + shipping - discount;
 

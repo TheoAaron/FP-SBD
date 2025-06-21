@@ -1,7 +1,7 @@
 'use client';
 
 import { ShoppingCart, Trash2, Eye } from "lucide-react";
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import StarRating from "@/components/StarRating";
 import RequireAuth from "@/components/RequireAuth";
 import React, { useEffect, useState } from "react";
@@ -19,18 +19,12 @@ interface Product {
 }
 
 export default function WishlistPage() {
-  const router = useRouter();
   const [wishlist, setWishlist] = useState<Product[]>([]);
   const [loadingWishlist, setLoadingWishlist] = useState(true);
   const [errorWishlist, setErrorWishlist] = useState<string | null>(null);
   const [lastView, setLastView] = useState<Product[]>([]);
   const [loadingLastView, setLoadingLastView] = useState(true);
   const [errorLastView, setErrorLastView] = useState<string | null>(null);
-
-  // Function to handle product image click
-  const handleProductClick = (productId: number) => {
-    router.push(`/product/${productId}`);
-  };
 
   useEffect(() => {
     // ambil user id

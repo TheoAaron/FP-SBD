@@ -41,15 +41,20 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
           validProducts.map(async (product) => {
             try {              const response = await fetch(`http://localhost:8080/api/reviews/${product.id_produk}`);
               if (response.ok) {
-                const data = await response.json();                console.log(`Raw API response for product ${product.id_produk}:`, data);
+                const data = await response.json();
+                console.log(`Raw API response for product ${product.id_produk}:`, data);
                 
-                // Use the new structure
-                const reviews = data.reviews || [];
-                const real_review_count = data.total_review || 0;
+                // Extract reviews from the correct path
+                // data.reviews is array of documents, each document has a 'review' array
+                let reviews = [];
+                if (data.reviews && data.reviews.length > 0 && data.reviews[0].review) {
+                  reviews = data.reviews[0].review;
+                }
                 console.log(`Extracted reviews for product ${product.id_produk}:`, reviews);
                 
                 let real_rating = 0;
-                if (reviews.length > 0) {
+                let real_review_count = reviews.length;
+                  if (reviews.length > 0) {
                   const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
                   real_rating = totalRating / reviews.length;
                   console.log(`Product ${product.id_produk}: Calculated rating=${real_rating}, count=${real_review_count}`);
@@ -109,27 +114,20 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
             </div>
           ))}
         </div>
-      ) : productsWithReviews.length > 0 ? (        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {productsWithReviews.map((product) => (
-            <Link href={`/product/${product.id_produk}`} key={product.id_produk}>
-              <div
-                className="group relative border rounded-lg p-4 hover:shadow-lg transition flex flex-col cursor-pointer"
-              >              {/* Image */}
+      ) : productsWithReviews.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">          {productsWithReviews.map((product) => (
+            <Link
+              key={product.id_produk}
+              href={`/product/${product.id_produk}`}
+              className="group relative border rounded-lg p-4 hover:shadow-lg transition flex flex-col"
+            >{/* Image */}
               <div className="relative bg-gray-100 rounded-lg h-48 sm:h-56 mb-3 sm:mb-4 flex items-center justify-center overflow-hidden">
                 <img
-                  src={product.image}
+                  src={product.image || 'https://via.placeholder.com/300x300?text=No+Image'}
                   alt={product.nama_produk}
                   className="object-cover w-full h-full"
                   onError={(e) => {
-                    const target = e.currentTarget;
-                    target.style.display = 'none';
-                    const parent = target.parentElement;
-                    if (parent && !parent.querySelector('.fallback-text')) {
-                      const fallback = document.createElement('div');
-                      fallback.className = 'fallback-text w-full h-full bg-gray-200 flex items-center justify-center text-gray-500';
-                      fallback.textContent = 'No Image';
-                      parent.appendChild(fallback);
-                    }
+                    e.currentTarget.src = 'https://via.placeholder.com/300x300?text=No+Image';
                   }}
                 />
                   {/* Desktop: Hover buttons */}
@@ -197,9 +195,9 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
                   }}
                 >
                   <ShoppingCart className="w-4 h-4" />
-                  <span className="text-sm font-medium">Add To Cart</span>                </button>
+                  <span className="text-sm font-medium">Add To Cart</span>
+                </button>
               </div>
-            </div>
             </Link>
           ))}
         </div>

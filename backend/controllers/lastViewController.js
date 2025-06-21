@@ -30,12 +30,16 @@ const getLastViewByUser = async (req, res) => {
         p.stock
       FROM products p 
       WHERE p.id_produk IN (${placeholders})
-    `;
-    const [rows] = await pool.query(query, lastView.produk);
+    `;    const [rows] = await pool.query(query, lastView.produk);
+    
+    // Sort rows based on the order in lastView.produk array to preserve chronological order
+    const sortedRows = lastView.produk.map(produkId => 
+      rows.find(row => row.id_produk === produkId)
+    ).filter(Boolean); // Remove any undefined entries
     
     // Ambil rating dari MongoDB untuk setiap produk
     const productsWithRating = await Promise.all(
-      rows.map(async (product) => {
+      sortedRows.map(async (product) => {
         try {
           // Aggregate reviews untuk produk ini dari MongoDB
           const reviews = await db.collection("product_review").find({ 
@@ -73,23 +77,6 @@ const getLastViewByUser = async (req, res) => {
   }
 };
 
-// Buat helper function untuk operasi delete
-// Helper function untuk operasi delete
-const removeProductFromLastView = async (userId, produkId) => {
-  try {
-    const db = getDB();
-    const result = await db.collection("last_view").updateOne(
-      { id_user: userId },
-      { $pull: { produk: produkId } }
-    );
-
-    
-    return result.modifiedCount > 0;
-  } catch (error) {
-    throw error;
-  }
-}
-
 const addLastView = async (req, res) => {
   try {
     console.log('=== ADD LAST VIEW START ===');
@@ -105,43 +92,53 @@ const addLastView = async (req, res) => {
       return res.status(400).json({ message: "id_user dan id_produk wajib diisi" });
     }
 
-    // Pastikan produk dalam bentuk array untuk konsistensi
-    const produkArray = Array.isArray(produk) ? produk : [produk];
-    console.log('Product array:', produkArray);
-
-    // Hapus produk dari lastView dulu kalau sudah ada (supaya bisa dipindah ke urutan pertama)
-    for (const p of produkArray) {
-      await removeProductFromLastView(id_user, p);
-    }
+    // Pastikan produk dalam bentuk string untuk konsistensi (MongoDB menyimpan sebagai string)
+    const produkId = Array.isArray(produk) ? produk[0] : produk;
+    const produkString = produkId.toString();
+    console.log('Product ID (string):', produkString);
 
     // Cek apakah user sudah memiliki lastView
     const existingLastView = await db.collection("last_view").findOne({ id_user });
     console.log('Existing last view:', existingLastView);
 
     if (existingLastView) {
-      // Tambahkan ke urutan pertama menggunakan $push dengan $position: 0
+      // Hapus produk dari array jika sudah ada (untuk menghindari duplikasi)
+      let currentProduk = existingLastView.produk || [];
+      console.log('Current produk before filter:', currentProduk);
+      
+      // Filter out produk yang sama (baik string maupun number)
+      currentProduk = currentProduk.filter(p => p.toString() !== produkString);
+      console.log('Current produk after filter:', currentProduk);
+      
+      // Tambahkan produk baru di posisi pertama
+      const newProdukArray = [produkString, ...currentProduk];
+      console.log('New produk array:', newProdukArray);
+      
+      // Batasi maksimal 10 item terakhir untuk performa
+      const limitedArray = newProdukArray.slice(0, 10);
+      console.log('Limited array (max 10):', limitedArray);
+      
+      // Update dengan array yang sudah dibersihkan dan ditambah item baru
       await db.collection("last_view").updateOne(
         { id_user },
-        { 
-          $push: { 
-            produk: { 
-              $each: produkArray,
-              $position: 0  
-            } 
-          } 
-        }
+        { $set: { produk: limitedArray } }
       );
     } else {
       // Buat lastView baru jika belum ada
       await db.collection("last_view").insertOne({
         id_user,
-        produk: produkArray
+        produk: [produkString]
       });
     }
 
+    // Verifikasi hasil akhir
+    const finalLastView = await db.collection("last_view").findOne({ id_user });
+    console.log('Final last view after update:', finalLastView);
+
     res.json({ message: "LastView berhasil ditambahkan/diupdate" });
   } catch (error) {
-    res.status(500).json({ message: "Gagal menambahkan/mengupdate lastView", error });
+    console.error('Error in addLastView:', error);
+    res.status(500).json({ message: "Gagal menambahkan/mengupdate lastView", error: error.message });
   }
 }
 module.exports = { getLastViewByUser, addLastView };
