@@ -24,13 +24,11 @@ const CategorySection: React.FC = () => {
   const activeCategory = searchParams.get("category");
 
   const handleCategoryClick = (categoryLabel: string) => {
-    if (activeCategory === categoryLabel) {
+    if (activeCategory === categoryLabel) { 
       router.push("/product"); // Reset ke semua produk
     } else {
       router.push(`/product?category=${categoryLabel}`);
     }
-  };  return (
-    <div className="w-full bg-white">
   };
 
   return (

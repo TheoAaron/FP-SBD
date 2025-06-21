@@ -4,7 +4,6 @@ import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import CategorySection from "@/components/Category";
 import StarRating from "@/components/StarRating";
-import { formatImageUrl } from "@/utils/imageUtils";
 
 function ProductContent() {
   const searchParams = useSearchParams();
