@@ -1,4 +1,5 @@
 const { getDB } = require("../config/mongo");
+const { pool } = require("../config/mysql");
 const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'APINGANTENG';
@@ -11,12 +12,62 @@ const getLastViewByUser = async (req, res) => {
     const userId = req.user.id;
     if (!userId) {
       return res.status(400).json({ message: "id_user wajib diisi" });
-    }
-    const lastView = await db.collection("last_view").findOne({ id_user: userId });
+    }    const lastView = await db.collection("last_view").findOne({ id_user: userId });
     if (!lastView) {
-      return res.status(404).json({ message: "Data lastView tidak ditemukan" });
+      return res.json({ rows: [] });
     }
-    res.json({ lastView });
+    
+    // Pastikan produk adalah array dan tidak kosong
+    if (!lastView.produk || !Array.isArray(lastView.produk) || lastView.produk.length === 0) {
+      return res.json({ rows: [] });
+    }      // Buat placeholder untuk setiap produk
+    const placeholders = lastView.produk.map(() => '?').join(',');    const query = `
+      SELECT 
+        p.id_produk, 
+        p.nama_produk, 
+        p.harga, 
+        p.image, 
+        p.stock
+      FROM products p 
+      WHERE p.id_produk IN (${placeholders})
+    `;
+    const [rows] = await pool.query(query, lastView.produk);
+    
+    // Ambil rating dari MongoDB untuk setiap produk
+    const productsWithRating = await Promise.all(
+      rows.map(async (product) => {
+        try {
+          // Aggregate reviews untuk produk ini dari MongoDB
+          const reviews = await db.collection("product_review").find({ 
+            id_produk: product.id_produk.toString() 
+          }).toArray();
+          
+          let avg_rating = 0;
+          let total_review = reviews.length;
+          
+          if (reviews.length > 0) {
+            const totalRating = reviews.reduce((sum, review) => sum + (review.rate || 0), 0);
+            avg_rating = totalRating / reviews.length;
+          }
+          
+          return {
+            ...product,
+            avg_rating: avg_rating,
+            total_review: total_review
+          };
+        } catch (error) {
+          console.error(`Error fetching reviews for product ${product.id_produk}:`, error);
+          return {
+            ...product,
+            avg_rating: 0,
+            total_review: 0
+          };
+        }
+      })
+    );
+    
+    console.log('Query result with ratings from MongoDB:', productsWithRating);
+    res.json({ rows: productsWithRating });
   } catch (error) {
     res.status(500).json({ message: "Gagal mengambil lastView", error });
   }
@@ -31,6 +82,8 @@ const removeProductFromLastView = async (userId, produkId) => {
       { id_user: userId },
       { $pull: { produk: produkId } }
     );
+
+    
     return result.modifiedCount > 0;
   } catch (error) {
     throw error;
@@ -73,7 +126,7 @@ const addLastView = async (req, res) => {
           $push: { 
             produk: { 
               $each: produkArray,
-              $position: 0  // Tambahkan di posisi pertama (index 0)
+              $position: 0  
             } 
           } 
         }
@@ -89,32 +142,6 @@ const addLastView = async (req, res) => {
     res.json({ message: "LastView berhasil ditambahkan/diupdate" });
   } catch (error) {
     res.status(500).json({ message: "Gagal menambahkan/mengupdate lastView", error });
-  }
-}
-
-// Fungsi deleteLastView untuk endpoint
-const deleteLastView = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { produk_id } = req.params;
-    
-    if (!userId) {
-      return res.status(400).json({ message: "id_user wajib diisi" });
-    }
-
-    if (!produk_id) {
-      return res.status(400).json({ message: "produk_id wajib diisi" });
-    }
-
-    const success = await removeProductFromLastView(userId, produk_id);
-
-    if (!success) {
-      return res.status(404).json({ message: "Data produk tidak ditemukan atau sudah tidak ada di lastView" });
-    }
-
-    res.json({ message: "Produk berhasil dihapus dari lastView" });
-  } catch (error) {
-    res.status(500).json({ message: "Gagal menghapus produk dari lastView", error });
   }
 }
 module.exports = { getLastViewByUser, addLastView };

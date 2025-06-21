@@ -16,7 +16,7 @@ const wishlistRoutes = require("./routes/wishlistRoutes");
 const adminMiddleware = require("./middlewares/admin");
 const authMiddleware = require("./middlewares/auth");
 const shipmentRoutes = require("./routes/shipmentRoutes");
-
+const lastViewRoutes = require("./routes/lastViewRoute");
 
 const cartRoutes = require("./routes/cartRoutes");
 
@@ -39,6 +39,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/shipments", shipmentRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/lastview", lastViewRoutes);
 
 const start = async () => {
   await connectDB();

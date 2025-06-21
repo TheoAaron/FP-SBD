@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import CategorySection from "@/components/Category";
 import StarRating from "@/components/StarRating";
+import { formatImageUrl } from "@/utils/imageUtils";
 
 function ProductContent() {
   const searchParams = useSearchParams();
@@ -12,43 +13,79 @@ function ProductContent() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
-    setLoading(true);
-    setError(null);
-    let url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/products`;
-    if (selectedCategory) {
-      url += `?category=${encodeURIComponent(selectedCategory)}`;
-    }
-    
-    if (searchQuery) {
-      url += `?search=${encodeURIComponent(searchQuery)}`;
+    const fetchProducts = async () => {
+      setLoading(true);
+      setError(null);
+      let url = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/products`;
+      if (selectedCategory) {
+        url += `?category=${encodeURIComponent(selectedCategory)}`;
+      }
       
-    }
-    console.log(url)
-    fetch(url)
-      .then(res => {
+      if (searchQuery) {
+        url += `?search=${encodeURIComponent(searchQuery)}`;
+      }
+      console.log(url);
+      
+      try {
+        const res = await fetch(url);
         if (!res.ok) throw new Error('Gagal fetch produk');
-        return res.json();
-      })
-      .then(data => {
+        const data = await res.json();
+        
         // Mapping field dari backend ke frontend
-        const mapped = Array.isArray(data) ? data.map((p) => ({
-          id: p.id_produk,
-          name: p.nama_produk,
-          price: p.harga,
-          image: p.image || "/tokit.svg", 
-          rating: p.avg_rating || 0,
-          reviews: p.total_review || 0,
-        })) : [];
+        const mapped = Array.isArray(data) ? await Promise.all(
+          data.map(async (p: any) => {
+            try {
+              // Fetch reviews from MongoDB for each product
+              const reviewRes = await fetch(`http://localhost:8080/api/reviews/${p.id_produk}`);
+              let real_rating = 0;
+              let real_review_count = 0;
+                if (reviewRes.ok) {
+                const reviewData = await reviewRes.json();
+                // Extract reviews from the correct path
+                let reviews = [];
+                if (reviewData.reviews && reviewData.reviews.length > 0 && reviewData.reviews[0].review) {
+                  reviews = reviewData.reviews[0].review;
+                }
+                real_review_count = reviews.length;
+                
+                if (reviews.length > 0) {
+                  const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
+                  real_rating = totalRating / reviews.length;
+                }
+              }
+              
+              return {
+                id: p.id_produk,
+                name: p.nama_produk,
+                price: p.harga,
+                image: formatImageUrl(p.image, '/tokit.svg'), 
+                rating: real_rating,
+                reviews: real_review_count,
+              };
+            } catch (error) {
+              console.error(`Error processing product ${p.id_produk}:`, error);
+              return {
+                id: p.id_produk,
+                name: p.nama_produk,
+                price: p.harga,
+                image: formatImageUrl(p.image, '/tokit.svg'), 
+                rating: 0,
+                reviews: 0,
+              };
+            }
+          })
+        ) : [];
         setProducts(mapped);
         setLoading(false);
-      })
-      .catch(() => {
+      } catch (error) {
         setError('Gagal mengambil produk');
         setLoading(false);
-      });
-  }, [selectedCategory,searchQuery]);
+      }
+    };
+    
+    fetchProducts();
+  }, [selectedCategory, searchQuery]);
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">

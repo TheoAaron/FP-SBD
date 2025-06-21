@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import StarRating from "@/components/StarRating";
 import RequireAuth from "@/components/RequireAuth";
 import React, { useEffect, useState } from "react";
+import { formatImageUrl } from "@/utils/imageUtils";
 
 interface Product {
   id: number;
@@ -55,19 +56,17 @@ export default function WishlistPage() {
                 try {
                   const res = await fetch(`http://localhost:8080/api/products/${id}`);
                   if (!res.ok) throw new Error('Gagal fetch produk');
-                  const p = await res.json();
-                  return {
+                  const p = await res.json();                  return {
                     id: p.id_produk || p.id,
                     name: p.nama_produk || p.name,
                     price: p.harga || p.price,
-                    image: p.image ? `/${p.image}` : '/shopit.svg',
-                    rating: p.avg_rating || p.rating || 0,
+                    image: formatImageUrl(p.image),
+                    rating: p.avg_rating ? parseFloat(p.avg_rating) : (p.rating ? parseFloat(p.rating) : 0),
                     reviews: p.total_review || p.reviews || 0,
                   };
                 } catch {
                   return { id, name: `Product ${id}`, price: 0, image: '/shopit.svg', rating: 0, reviews: 0 };
-                }
-              })
+                }              })
             );
             setWishlist(products);
           } else if (Array.isArray(data.wishlist?.produk)) {
@@ -76,8 +75,8 @@ export default function WishlistPage() {
               id: p.id_produk || p.id,
               name: p.nama_produk || p.name,
               price: p.harga || p.price,
-              image: p.image ? `/${p.image}` : '/shopit.svg',
-              rating: p.avg_rating || p.rating || 0,
+              image: formatImageUrl(p.image),
+              rating: p.avg_rating ? parseFloat(p.avg_rating) : (p.rating ? parseFloat(p.rating) : 0),
               reviews: p.total_review || p.reviews || 0,
             }));
             setWishlist(mapped);
@@ -90,59 +89,73 @@ export default function WishlistPage() {
           setErrorWishlist('Gagal mengambil wishlist');
           setLoadingWishlist(false);
         });
-    }
-
-    // Fetch lastView
+    }    // Fetch lastView
     if (!token) {
-      setErrorWishlist('Token tidak ditemukan.');
-      setLoadingWishlist(false);
+      setErrorLastView('Token tidak ditemukan.');
+      setLoadingLastView(false);
     } else {
       fetch(`http://localhost:8080/api/lastview`, {
         headers: { 'Authorization': `Bearer ${token}` },
         method: 'GET'
       })
-        .then(res => res.json())
-        .then(async data => {
-          // Jika lastView berupa array id, fetch detail produk per id
-          if (Array.isArray(data.lastView?.produk) && typeof data.lastView.produk[0] === 'string') {
-            const products = await Promise.all(
-              data.lastView.produk.map(async (id: string) => {
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          return res.json();
+        })
+        .then(async (data) => {
+          console.log('Last view response:', data);          
+          // Backend mengembalikan { rows } dengan detail produk
+          if (data.rows && Array.isArray(data.rows)) {
+            // Fetch reviews from MongoDB for each product
+            const productsWithReviews = await Promise.all(
+              data.rows.map(async (p: any) => {
+                let real_rating = 0;
+                let real_review_count = 0;
+                
                 try {
-                  const res = await fetch(`http://localhost:8080/api/products/${id}`);
-                  if (!res.ok) throw new Error('Gagal fetch produk');
-                  const p = await res.json();
-                  return {
-                    id: p.id_produk || p.id,
-                    name: p.nama_produk || p.name,
-                    price: p.harga || p.price,
-                    image: p.image ? `/${p.image}` : '/shopit.svg',
-                    rating: p.avg_rating || p.rating || 0,
-                    reviews: p.total_review || p.reviews || 0,
-                  };
-                } catch {
-                  return { id, name: `Product ${id}`, price: 0, image: '/shopit.svg', rating: 0, reviews: 0 };
+                  const reviewRes = await fetch(`http://localhost:8080/api/reviews/${p.id_produk || p.id}`);
+                  if (reviewRes.ok) {
+                    const reviewData = await reviewRes.json();
+                    console.log(`Last view reviews for ${p.id_produk}:`, reviewData);
+                    
+                    // Extract reviews from the correct path
+                    let reviews = [];
+                    if (reviewData.reviews && reviewData.reviews.length > 0 && reviewData.reviews[0].review) {
+                      reviews = reviewData.reviews[0].review;
+                    }
+                    
+                    real_review_count = reviews.length;
+                    if (reviews.length > 0) {
+                      const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
+                      real_rating = totalRating / reviews.length;
+                    }
+                  }
+                } catch (error) {
+                  console.error(`Error fetching reviews for lastview product ${p.id_produk}:`, error);
                 }
+                
+                return {
+                  id: p.id_produk || p.id,
+                  name: p.nama_produk || p.name,
+                  price: p.harga || p.price,
+                  image: formatImageUrl(p.image),
+                  rating: real_rating,
+                  reviews: real_review_count,
+                };
               })
             );
-            setLastView(products);
-          } else if (Array.isArray(data.lastView?.produk)) {
-            // Jika sudah objek produk
-            const mapped = data.lastView.produk.map((p: any) => ({
-              id: p.id_produk || p.id,
-              name: p.nama_produk || p.name,
-              price: p.harga || p.price,
-              image: p.image ? `/${p.image}` : '/shopit.svg',
-              rating: p.avg_rating || p.rating || 0,
-              reviews: p.total_review || p.reviews || 0,
-            }));
-            setLastView(mapped);
+            
+            setLastView(productsWithReviews);
           } else {
             setLastView([]);
           }
           setLoadingLastView(false);
         })
-        .catch(() => {
-          setErrorLastView("Gagal mengambil lastView");
+        .catch((error) => {
+          console.error('Error fetching last view:', error);
+          setErrorLastView("Gagal mengambil last view");
           setLoadingLastView(false);
         });
     }
@@ -167,23 +180,34 @@ export default function WishlistPage() {
             <img src="https://res.cloudinary.com/dlwxkdjek/image/upload/v1750433799/capybara-turu_ledsfn.jpg" alt="Kosong" className="w-48 h-48 object-contain mb-6" />
             <div className="text-lg text-gray-700 font-medium mb-2">Wishlist mu masih kosong</div>
             <div className="text-gray-500">Ayo Jelajahi dan penuhi wishlist mu</div>
-          </div>
-        ) : (
+          </div>        ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-10">
             {wishlist.map(product => (
-              <div key={product.id} className="border rounded-lg p-3 sm:p-4 group">
-                <div className="relative h-40 sm:h-48 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden mb-3 sm:mb-4">
-                  <button className="absolute top-3 right-3 bg-white rounded-full w-8 h-8 flex items-center justify-center text-black hover:bg-gray-200 transition-all duration-300 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 z-10 hidden sm:flex">
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                  <button className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center text-black active:bg-gray-200 transition-colors z-10 sm:hidden touch-manipulation">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+              <div key={product.id} className="group">
+                {/* Product Image Container */}
+                <div className="relative bg-gray-100 rounded-lg mb-4 h-48 sm:h-64 flex items-center justify-center overflow-hidden">
                   <img
                     src={product.image || '/shopit.svg'}
                     alt={product.name}
-                    className="object-contain w-full h-full p-3 sm:p-4"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = '/shopit.svg';
+                    }}
                   />
+
+                  {/* Action Buttons */}
+                  <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex">
+                    <button className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50">
+                      <Trash2 className="w-4 h-4 text-gray-600" />
+                    </button>
+                  </div>
+
+                  {/* Mobile: Always visible Trash Icon */}
+                  <button className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center text-black active:bg-gray-200 transition-colors z-10 sm:hidden touch-manipulation">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+
+                  {/* Add to Cart Button */}
                   <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4 hidden sm:block">
                     <button className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
                       <ShoppingCart className="w-4 h-4" />
@@ -191,23 +215,40 @@ export default function WishlistPage() {
                     </button>
                   </div>
                 </div>
-                <h3 className="text-sm font-medium text-gray-800 mb-2 line-clamp-2">{product.name}</h3>
-                <div className="flex items-center gap-2 text-sm mb-2">
-                  <span className="text-red-500 font-semibold">${product.price}</span>
-                  {product.originalPrice && (
-                    <span className="text-gray-400 line-through">${product.originalPrice}</span>
+
+                {/* Product Info */}
+                <div className="space-y-2">
+                  <h3 className="font-medium text-gray-900 line-clamp-2">{product.name}</h3>
+
+                  {/* Price */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-red-500 font-medium">${product.price}</span>
+                    {product.originalPrice && (
+                      <span className="text-gray-400 line-through">${product.originalPrice}</span>
+                    )}
+                  </div>
+
+                  {/* Rating */}
+                  {product.rating !== undefined && product.rating > 0 && (
+                    <div className="flex items-center gap-2">
+                      <StarRating rating={product.rating} />
+                      <span className="text-gray-600 text-sm font-medium">{product.rating.toFixed(1)}</span>
+                      <span className="text-gray-400 text-sm">({product.reviews || 0})</span>
+                    </div>
                   )}
+
+                  {/* Mobile: Always visible Add to Cart */}
+                  <div className="block sm:hidden">
+                    <button className="w-full bg-black text-white py-2.5 rounded hover:bg-gray-800 active:bg-gray-800 transition-colors flex items-center justify-center gap-2 touch-manipulation">
+                      <ShoppingCart className="w-4 h-4" />
+                      <span className="text-sm">Add To Cart</span>
+                    </button>
+                  </div>
                 </div>
-              <div className="block sm:hidden">
-                <button className="w-full bg-black text-white py-2.5 rounded hover:bg-gray-800 active:bg-gray-800 transition-colors flex items-center justify-center gap-2 touch-manipulation">
-                  <ShoppingCart className="w-4 h-4" />
-                  <span className="text-sm">Add To Cart</span>
-                </button>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
       {/* Last View Section */}
       <div className="flex items-center gap-4 mb-4 sm:mb-6">
         <div className="w-1 h-5 sm:h-6 bg-red-500 rounded"></div>
@@ -218,32 +259,39 @@ export default function WishlistPage() {
         <div className="text-center py-8">Loading last view...</div>
       ) : errorLastView || lastView.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12">
-          <img src="https://res.cloudinary.com/dlwxkdjek/image/upload/v1750433799/capybara-turu_ledsfn.jpg" alt="Kosong" className="w-48 h-48 object-contain mb-6" />
-          <div className="text-lg text-gray-700 font-medium mb-2">Last View mu masih kosong</div>
+          <img src="https://res.cloudinary.com/dlwxkdjek/image/upload/v1750433799/capybara-turu_ledsfn.jpg" alt="Kosong" className="w-48 h-48 object-contain mb-6" />          <div className="text-lg text-gray-700 font-medium mb-2">Last View mu masih kosong</div>
           <div className="text-gray-500">Ayo cek produk dan temukan favoritmu!</div>
           {errorLastView && (
             <div className="text-red-500 mt-4">{errorLastView}</div>
           )}
-        </div>
-      ) : (
+        </div>      ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {lastView.map(product => (
-            <div key={product.id} className="border rounded-lg p-3 sm:p-4 group">
-              <div className="relative h-40 sm:h-48 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden mb-3 sm:mb-4">
-                {/* Desktop: Hover Eye Icon */}
-                <button className="absolute top-3 right-3 bg-white rounded-full w-8 h-8 items-center justify-center text-black hover:bg-gray-200 transition-all duration-300 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 z-10 hidden sm:flex">
-                  <Eye className="w-5 h-5" />
-                </button>
-                {/* Mobile: Always visible Eye Icon */}
-                <button className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 items-center justify-center text-black active:bg-gray-200 transition-colors z-10 sm:hidden touch-manipulation">
-                  <Eye className="w-4 h-4" />
-                </button>
+            <div key={product.id} className="group">
+              {/* Product Image Container */}
+              <div className="relative bg-gray-100 rounded-lg mb-4 h-48 sm:h-64 flex items-center justify-center overflow-hidden">
                 <img
                   src={product.image || '/shopit.svg'}
                   alt={product.name}
-                  className="object-contain w-full h-full p-3 sm:p-4"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = '/shopit.svg';
+                  }}
                 />
-                {/* Desktop: Hover Add to Cart */}
+
+                {/* Action Buttons */}
+                <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex">
+                  <button className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50">
+                    <Eye className="w-4 h-4 text-gray-600" />
+                  </button>
+                </div>
+
+                {/* Mobile: Always visible Eye Icon */}
+                <button className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center text-black active:bg-gray-200 transition-colors z-10 sm:hidden touch-manipulation">
+                  <Eye className="w-4 h-4" />
+                </button>
+
+                {/* Add to Cart Button */}
                 <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4 hidden sm:block">
                   <button className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
                     <ShoppingCart className="w-4 h-4" />
@@ -251,25 +299,33 @@ export default function WishlistPage() {
                   </button>
                 </div>
               </div>
-              <h3 className="text-sm font-medium text-gray-800 mb-2 line-clamp-2">{product.name}</h3>
-              <div className="flex items-center gap-2 text-sm mb-2">
-                <span className="text-red-500 font-semibold">${product.price}</span>
-                {product.originalPrice && (
-                  <span className="text-gray-400 line-through">${product.originalPrice}</span>
-                )}
-              </div>
-              {product.rating && (
-                <div className="flex items-center gap-2 text-sm mb-2">
-                  <StarRating rating={product.rating} />
-                  <span className="text-gray-600 text-sm font-medium">{product.rating.toFixed(1)}</span>
-                  <span className="text-gray-400">({product.reviews})</span>
+
+              {/* Product Info */}
+              <div className="space-y-2">
+                <h3 className="font-medium text-gray-900 line-clamp-2">{product.name}</h3>
+
+                {/* Price */}
+                <div className="flex items-center gap-2">
+                  <span className="text-red-500 font-medium">${product.price}</span>
+                  {product.originalPrice && (
+                    <span className="text-gray-400 line-through">${product.originalPrice}</span>
+                  )}
                 </div>
-              )}
-              {/* Mobile: Always visible Add to Cart */}
-              <div className="block sm:hidden">                <button className="w-full bg-black text-white py-2.5 rounded hover:bg-gray-800 active:bg-gray-800 transition-colors flex items-center justify-center gap-2 touch-manipulation">
-                  <ShoppingCart className="w-4 h-4" />
-                  <span className="text-sm">Add To Cart</span>
-                </button>
+
+                {/* Rating */}
+                <div className="flex items-center gap-2">
+                  <StarRating rating={product.rating || 0} />
+                  <span className="text-gray-600 text-sm font-medium">{(product.rating || 0).toFixed(1)}</span>
+                  <span className="text-gray-400 text-sm">({product.reviews || 0})</span>
+                </div>
+
+                {/* Mobile: Always visible Add to Cart */}
+                <div className="block sm:hidden">
+                  <button className="w-full bg-black text-white py-2.5 rounded hover:bg-gray-800 active:bg-gray-800 transition-colors flex items-center justify-center gap-2 touch-manipulation">
+                    <ShoppingCart className="w-4 h-4" />
+                    <span className="text-sm">Add To Cart</span>
+                  </button>
+                </div>
               </div>
             </div>
           ))}

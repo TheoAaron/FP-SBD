@@ -7,7 +7,7 @@ export interface Review {
   id: number;
   username: string;  // ✅ Add username for display
   date: string;
-  rating: number;
+  rate: number;
   comment: string;
 }
 
@@ -107,24 +107,22 @@ export default function UserReview({ id_produk }: UserReviewProps) {
           }
           
           setReviews(parsedReviews);
-        }
-      } else {        // If API fails, add locally (fallback)
+        }      } else {        // If API fails, add locally (fallback)
         const next: Review = {
           id: reviews.length + 1,
           username: 'You', // ✅ Fallback username for local addition
           date: new Date().toISOString().slice(0, 10),
-          rating: newRating,
+          rate: newRating,
           comment: newComment
         };
         setReviews([next, ...reviews]);
-      }
-    } catch (error) {
+      }    } catch (error) {
       console.error('Error adding review:', error);      // Fallback to local addition if API fails
       const next: Review = {
         id: reviews.length + 1,
         username: 'You', // ✅ Fallback username for local addition
         date: new Date().toISOString().slice(0, 10),
-        rating: newRating,
+        rate: newRating,
         comment: newComment
       };
       setReviews([next, ...reviews]);
@@ -135,7 +133,7 @@ export default function UserReview({ id_produk }: UserReviewProps) {
     setShowModal(false);
   };
 
-  const avgRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
+  const avgRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rate, 0) / reviews.length : 0;
 
   if (loading) {
     return (
@@ -183,7 +181,7 @@ export default function UserReview({ id_produk }: UserReviewProps) {
               <span>{review.username}</span>
               <span>{review.date}</span>
             </div>
-            <StarRating rating={review.rating} />
+            <StarRating rating={review.rate} />
             <p className="text-gray-700 text-sm">{review.comment}</p>
           </div>
         ))}

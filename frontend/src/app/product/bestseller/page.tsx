@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import StarRating from '@/components/StarRating';
+import { formatImageUrl } from "@/utils/imageUtils";
 
 interface Product {
   id: number;
@@ -28,18 +29,53 @@ function ProductContent() {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/products/bs`
         );
-        const data = await res.json();
-
-        const mapped = data.map((p: any) => ({
-          id: p.id_produk,
-          name: p.nama_produk,
-          price: p.harga,
-          category: p.kategori || 'Uncategorized',
-          image: p.image || '/placeholder.png',
-          rating: p.avg_rating ?? 0,
-          reviews: p.total_review ?? 0,
-          quantity: p.total_quantity ?? 0,
-        }));
+        const data = await res.json();        const mapped = await Promise.all(
+          data.map(async (p: any) => {
+            try {
+              // Fetch reviews from MongoDB for each product
+              const reviewRes = await fetch(`http://localhost:8080/api/reviews/${p.id_produk}`);
+              let real_rating = 0;
+              let real_review_count = 0;
+                if (reviewRes.ok) {
+                const reviewData = await reviewRes.json();
+                // Extract reviews from the correct path
+                let reviews = [];
+                if (reviewData.reviews && reviewData.reviews.length > 0 && reviewData.reviews[0].review) {
+                  reviews = reviewData.reviews[0].review;
+                }
+                real_review_count = reviews.length;
+                
+                if (reviews.length > 0) {
+                  const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
+                  real_rating = totalRating / reviews.length;
+                }
+              }
+              
+              return {
+                id: p.id_produk,
+                name: p.nama_produk,
+                price: p.harga,
+                category: p.kategori || 'Uncategorized',
+                image: formatImageUrl(p.image, '/placeholder.png'),
+                rating: real_rating,
+                reviews: real_review_count,
+                quantity: p.total_quantity ?? 0,
+              };
+            } catch (error) {
+              console.error(`Error processing product ${p.id_produk}:`, error);
+              return {
+                id: p.id_produk,
+                name: p.nama_produk,
+                price: p.harga,
+                category: p.kategori || 'Uncategorized',
+                image: formatImageUrl(p.image, '/placeholder.png'),
+                rating: 0,
+                reviews: 0,
+                quantity: p.total_quantity ?? 0,
+              };
+            }
+          })
+        );
 
         setProducts(mapped);
       } catch (err) {

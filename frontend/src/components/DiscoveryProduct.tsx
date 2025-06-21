@@ -1,16 +1,25 @@
 'use client';
-import { Heart, Eye, ShoppingCart } from "lucide-react";
+import { Heart,  ShoppingCart } from "lucide-react";
 import StarRating from "@/components/StarRating";
 import Link from "next/link";
 import { UUID } from "crypto";
 import { Product } from '@/types/product';
+import { useEffect, useState } from 'react';
 
 interface ExploreProductsProps {
   products: Product[];
 }
 
+interface ProductWithReviews extends Product {
+  real_rating?: number;
+  real_review_count?: number;
+}
+
 
 export default function ExploreProducts({ products }: ExploreProductsProps) {
+  const [productsWithReviews, setProductsWithReviews] = useState<ProductWithReviews[]>([]);
+  const [loading, setLoading] = useState(true);
+
   // Filter out invalid products
   const validProducts = products?.filter(product => 
     product && 
@@ -18,6 +27,73 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
     product.nama_produk && 
     typeof product.harga === 'number'
   ) || [];
+
+  // Fetch reviews from MongoDB for each product
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (validProducts.length === 0) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const productsWithReviewData = await Promise.all(
+          validProducts.map(async (product) => {
+            try {              const response = await fetch(`http://localhost:8080/api/reviews/${product.id_produk}`);
+              if (response.ok) {
+                const data = await response.json();
+                console.log(`Raw API response for product ${product.id_produk}:`, data);
+                
+                // Extract reviews from the correct path
+                // data.reviews is array of documents, each document has a 'review' array
+                let reviews = [];
+                if (data.reviews && data.reviews.length > 0 && data.reviews[0].review) {
+                  reviews = data.reviews[0].review;
+                }
+                console.log(`Extracted reviews for product ${product.id_produk}:`, reviews);
+                
+                let real_rating = 0;
+                let real_review_count = reviews.length;
+                  if (reviews.length > 0) {
+                  const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
+                  real_rating = totalRating / reviews.length;
+                  console.log(`Product ${product.id_produk}: Calculated rating=${real_rating}, count=${real_review_count}`);
+                }
+                
+                return {
+                  ...product,
+                  real_rating,
+                  real_review_count
+                };
+              } else {
+                return {
+                  ...product,
+                  real_rating: 0,
+                  real_review_count: 0
+                };
+              }
+            } catch (error) {
+              console.error(`Error fetching reviews for product ${product.id_produk}:`, error);
+              return {
+                ...product,
+                real_rating: 0,
+                real_review_count: 0
+              };
+            }
+          })
+        );
+        
+        setProductsWithReviews(productsWithReviewData);
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+        setProductsWithReviews(validProducts.map(p => ({ ...p, real_rating: 0, real_review_count: 0 })));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [products]);
   return (
     <div className="w-full bg-white">
       {/* Header */}
@@ -26,12 +102,21 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
           <div className="w-1 h-6 sm:h-8 bg-red-500 rounded"></div>
           <span className="text-red-500 font-medium text-sm sm:text-base">Our Products</span>
         </div>        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Explore Our Products</h2>
-      </div>
-
-      {/* Grid */}
-      {validProducts.length > 0 ? (
+      </div>      {/* Grid */}
+      {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {validProducts.map((product) => (
+          {Array.from({ length: 8 }).map((_, index) => (
+            <div key={index} className="border rounded-lg p-4 animate-pulse">
+              <div className="bg-gray-200 rounded-lg h-48 sm:h-56 mb-3 sm:mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-2/3 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          ))}
+        </div>
+      ) : productsWithReviews.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {productsWithReviews.map((product) => (
             <div
               key={product.id_produk}
               className="group relative border rounded-lg p-4 hover:shadow-lg transition flex flex-col"
@@ -51,18 +136,12 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
                   <button className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50">
                     <Heart className="w-4 h-4 text-gray-600" />
                   </button>
-                  <button className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50">
-                    <Eye className="w-4 h-4 text-gray-600" />
-                  </button>
                 </div>
                 
                 {/* Mobile: Always visible buttons */}
                 <div className="absolute top-2 right-2 flex sm:hidden flex-col gap-1">
                   <button className="w-7 h-7 bg-white/90 rounded-full flex items-center justify-center shadow-md active:bg-gray-100 touch-manipulation">
                     <Heart className="w-3.5 h-3.5 text-gray-600" />
-                  </button>
-                  <button className="w-7 h-7 bg-white/90 rounded-full flex items-center justify-center shadow-md active:bg-gray-100 touch-manipulation">
-                    <Eye className="w-3.5 h-3.5 text-gray-600" />
                   </button>
                 </div>
                 
@@ -80,11 +159,10 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
                 <h3 className="font-medium text-gray-900 text-sm">{product.nama_produk}</h3>
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-red-500 font-semibold">${product.harga}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <StarRating rating={product.avg_rating ?? 0} />
-                  <span className="text-gray-600 text-sm font-medium">{(product.avg_rating ?? 0).toFixed(1)}</span>
-                  <span className="text-gray-400 text-sm">({product.total_review ?? 0})</span>
+                </div>                <div className="flex items-center gap-2 text-sm">
+                  <StarRating rating={product.real_rating ?? 0} />
+                  <span className="text-gray-600 text-sm font-medium">{(product.real_rating ?? 0).toFixed(1)}</span>
+                  <span className="text-gray-400 text-sm">({product.real_review_count ?? 0})</span>
                 </div>
               </div>
 

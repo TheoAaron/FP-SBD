@@ -44,19 +44,20 @@ const getAllProducts = async (req, res) => {
 
 const getBestSellingProducts = async (req, res) => {
   try {
+    const { getDB } = require("../config/mongo");
+    const db = getDB();
+    
     const query = `
   SELECT 
   p.id_produk,
   p.nama_produk,
   p.harga,
   p.image,
-  p.avg_rating,
-  p.total_review, 
   SUM(oi.qty) AS total_quantity
   FROM products p
   JOIN detail_orders oi ON p.id_produk = oi.id_produk
   JOIN orders o ON oi.id_order = o.id_order
-  GROUP BY p.id_produk, p.nama_produk, p.harga, p.image, p.avg_rating, p.total_review
+  GROUP BY p.id_produk, p.nama_produk, p.harga, p.image
   ORDER BY total_quantity DESC
     `;
 
@@ -66,7 +67,40 @@ const getBestSellingProducts = async (req, res) => {
       return res.status(200).json([]);
     }
 
-    res.status(200).json(rows);
+    // Ambil rating dari MongoDB untuk setiap produk
+    const productsWithRating = await Promise.all(
+      rows.map(async (product) => {
+        try {
+          // Aggregate reviews untuk produk ini dari MongoDB
+          const reviews = await db.collection("product_review").find({ 
+            id_produk: product.id_produk.toString() 
+          }).toArray();
+          
+          let avg_rating = 0;
+          let total_review = reviews.length;
+          
+          if (reviews.length > 0) {
+            const totalRating = reviews.reduce((sum, review) => sum + (review.rate || 0), 0);
+            avg_rating = totalRating / reviews.length;
+          }
+          
+          return {
+            ...product,
+            avg_rating: avg_rating,
+            total_review: total_review
+          };
+        } catch (error) {
+          console.error(`Error fetching reviews for product ${product.id_produk}:`, error);
+          return {
+            ...product,
+            avg_rating: 0,
+            total_review: 0
+          };
+        }
+      })
+    );
+
+    res.status(200).json(productsWithRating);
   } catch (error) {
     if (error.code === 'ER_NO_SUCH_TABLE') {
       return res.status(200).json([]);
@@ -92,32 +126,7 @@ const getProductById = async (req, res) => {
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Product not found' });
     }
-
-    // Track last view if user is authenticated
-    const token = req.headers.authorization?.split(' ')[1];
-    if (token) {
-      try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        if (decoded.id_user) {
-          console.log('User ID from token:', decoded.id_user);
-          
-          // Set up req.user and req.body for addLastView function
-          req.user = { id: decoded.id_user };
-          req.body = { produk: productId };
-          
-          // Create a dummy response object for addLastView
-          const dummyRes = {
-            status: () => ({ json: () => {} }),
-            json: () => {}
-          };
-          
-          await addLastView(req, dummyRes);
-        }
-      } catch (error) {
-        console.log('Invalid token for last view tracking:', error.message);
-      }
-    }
-
+   
     res.status(200).json(rows[0]);
   } catch (error) {
     console.error('Error fetching product:', error);
