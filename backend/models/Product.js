@@ -27,13 +27,7 @@ const Product = sequelize.define('Product', {
   image: {
     type: DataTypes.STRING,
     allowNull: true
-  },
-  stock: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    defaultValue: 0
-  },
-  total_review: {
+  },  stock: {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 0

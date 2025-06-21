@@ -24,19 +24,18 @@ export default function DetailProduct({ id_produk }: ProductDetailProps) {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  useEffect(() => {
+  const [imageError, setImageError] = useState(false);  useEffect(() => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
+        setImageError(false); // Reset image error state
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/products/${id_produk}`);
         
         if (!res.ok) {
           throw new Error('Product not found');
         }
         
-        const productData = await res.json();
-        
-        // Fetch real-time reviews from MongoDB
+        const productData = await res.json();        // Fetch real-time reviews from MongoDB
         let real_rating = 0;
         let real_review_count = 0;
         
@@ -46,17 +45,17 @@ export default function DetailProduct({ id_produk }: ProductDetailProps) {
             const reviewData = await reviewRes.json();
             console.log(`DetailProduct reviews for ${id_produk}:`, reviewData);
             
-            // Extract reviews from the correct path
-            let reviews = [];
-            if (reviewData.reviews && reviewData.reviews.length > 0 && reviewData.reviews[0].review) {
-              reviews = reviewData.reviews[0].review;
-            }
+            // Use the new structure
+            real_review_count = reviewData.total_review || 0;
+            const reviews = reviewData.reviews || [];
             
-            real_review_count = reviews.length;
             if (reviews.length > 0) {
               const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
               real_rating = totalRating / reviews.length;
             }
+            
+            console.log(`Processed ratings - count: ${real_review_count}, rating: ${real_rating}`);
+            console.log(`Individual reviews:`, reviews);
           }
         } catch (reviewError) {
           console.error(`Error fetching reviews for product ${id_produk}:`, reviewError);
@@ -79,6 +78,12 @@ export default function DetailProduct({ id_produk }: ProductDetailProps) {
       fetchProduct();
     }
   }, [id_produk]);
+
+  const handleImageError = () => {
+    if (!imageError) {
+      setImageError(true);
+    }
+  };
 
   if (loading) {
     return (
@@ -114,14 +119,18 @@ export default function DetailProduct({ id_produk }: ProductDetailProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">        {/* Product Image */}
         <div className="w-full">
           <div className="bg-neutral-100 rounded-lg overflow-hidden aspect-square flex items-center justify-center">
-            <img 
-              className="w-full h-full object-cover" 
-              src={product.image}
-              alt={product.nama_produk}
-              onError={(e) => {
-                e.currentTarget.src = 'https://via.placeholder.com/400x400?text=No+Image';
-              }}
-            />
+            {imageError ? (
+              <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">
+                <span className="text-lg">No Image Available</span>
+              </div>
+            ) : (
+              <img 
+                className="w-full h-full object-cover" 
+                src={product.image}
+                alt={product.nama_produk}
+                onError={handleImageError}
+              />
+            )}
           </div>
         </div>
 

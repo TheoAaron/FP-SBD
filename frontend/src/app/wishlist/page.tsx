@@ -2,6 +2,7 @@
 
 import { ShoppingCart, Trash2, Eye } from "lucide-react";
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import StarRating from "@/components/StarRating";
 import RequireAuth from "@/components/RequireAuth";
 import React, { useEffect, useState } from "react";
@@ -47,8 +48,7 @@ export default function WishlistPage() {
       fetch('http://localhost:8080/api/wishlist', {
         headers: { 'Authorization': `Bearer ${token}` }
       })
-        .then(res => res.json())
-        .then(async data => {
+        .then(res => res.json())        .then(async data => {
           // Jika wishlist berupa array id, fetch detail produk per id
           if (Array.isArray(data.wishlist?.produk) && typeof data.wishlist.produk[0] === 'string') {
             const products = await Promise.all(
@@ -56,29 +56,83 @@ export default function WishlistPage() {
                 try {
                   const res = await fetch(`http://localhost:8080/api/products/${id}`);
                   if (!res.ok) throw new Error('Gagal fetch produk');
-                  const p = await res.json();                  return {
+                  const p = await res.json();
+
+                  // Fetch reviews from MongoDB for each product
+                  let real_rating = 0;
+                  let real_review_count = 0;
+                  
+                  try {
+                    const reviewRes = await fetch(`http://localhost:8080/api/reviews/${p.id_produk || p.id}`);
+                    if (reviewRes.ok) {
+                      const reviewData = await reviewRes.json();
+                      // Extract reviews from the correct path
+                      let reviews = [];
+                      if (reviewData.reviews && reviewData.reviews.length > 0 && reviewData.reviews[0].review) {
+                        reviews = reviewData.reviews[0].review;
+                      }
+                      real_review_count = reviews.length;
+                      
+                      if (reviews.length > 0) {
+                        const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
+                        real_rating = totalRating / reviews.length;
+                      }
+                    }
+                  } catch (reviewError) {
+                    console.error(`Error fetching reviews for product ${p.id_produk || p.id}:`, reviewError);
+                  }
+
+                  return {
                     id: p.id_produk || p.id,
                     name: p.nama_produk || p.name,
                     price: p.harga || p.price,
                     image: formatImageUrl(p.image),
-                    rating: p.avg_rating ? parseFloat(p.avg_rating) : (p.rating ? parseFloat(p.rating) : 0),
-                    reviews: p.total_review || p.reviews || 0,
+                    rating: real_rating,
+                    reviews: real_review_count,
                   };
                 } catch {
                   return { id, name: `Product ${id}`, price: 0, image: '/shopit.svg', rating: 0, reviews: 0 };
-                }              })
+                }
+              })
             );
             setWishlist(products);
           } else if (Array.isArray(data.wishlist?.produk)) {
-            // Jika sudah objek produk
-            const mapped = data.wishlist.produk.map((p: any) => ({
-              id: p.id_produk || p.id,
-              name: p.nama_produk || p.name,
-              price: p.harga || p.price,
-              image: formatImageUrl(p.image),
-              rating: p.avg_rating ? parseFloat(p.avg_rating) : (p.rating ? parseFloat(p.rating) : 0),
-              reviews: p.total_review || p.reviews || 0,
-            }));
+            // Jika sudah objek produk, still fetch real reviews
+            const mapped = await Promise.all(
+              data.wishlist.produk.map(async (p: any) => {
+                let real_rating = 0;
+                let real_review_count = 0;
+                
+                try {
+                  const reviewRes = await fetch(`http://localhost:8080/api/reviews/${p.id_produk || p.id}`);
+                  if (reviewRes.ok) {
+                    const reviewData = await reviewRes.json();
+                    // Extract reviews from the correct path
+                    let reviews = [];
+                    if (reviewData.reviews && reviewData.reviews.length > 0 && reviewData.reviews[0].review) {
+                      reviews = reviewData.reviews[0].review;
+                    }
+                    real_review_count = reviews.length;
+                    
+                    if (reviews.length > 0) {
+                      const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
+                      real_rating = totalRating / reviews.length;
+                    }
+                  }
+                } catch (reviewError) {
+                  console.error(`Error fetching reviews for product ${p.id_produk || p.id}:`, reviewError);
+                }
+
+                return {
+                  id: p.id_produk || p.id,
+                  name: p.nama_produk || p.name,
+                  price: p.harga || p.price,
+                  image: formatImageUrl(p.image),
+                  rating: real_rating,
+                  reviews: real_review_count,
+                };
+              })
+            );
             setWishlist(mapped);
           } else {
             setWishlist([]);
@@ -180,41 +234,63 @@ export default function WishlistPage() {
             <img src="https://res.cloudinary.com/dlwxkdjek/image/upload/v1750433799/capybara-turu_ledsfn.jpg" alt="Kosong" className="w-48 h-48 object-contain mb-6" />
             <div className="text-lg text-gray-700 font-medium mb-2">Wishlist mu masih kosong</div>
             <div className="text-gray-500">Ayo Jelajahi dan penuhi wishlist mu</div>
-          </div>        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-10">
+          </div>        ) : (          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-10">
             {wishlist.map(product => (
               <div key={product.id} className="group">
-                {/* Product Image Container */}
-                <div className="relative bg-gray-100 rounded-lg mb-4 h-48 sm:h-64 flex items-center justify-center overflow-hidden">
-                  <img
-                    src={product.image || '/shopit.svg'}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = '/shopit.svg';
-                    }}
-                  />
+                <Link href={`/product/${product.id}`}>
+                  {/* Product Image Container */}
+                  <div className="relative bg-gray-100 rounded-lg mb-4 h-48 sm:h-64 flex items-center justify-center overflow-hidden cursor-pointer">
+                    <img
+                      src={product.image || '/shopit.svg'}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        e.currentTarget.src = '/shopit.svg';
+                      }}
+                    />
 
-                  {/* Action Buttons */}
-                  <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex">
-                    <button className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50">
-                      <Trash2 className="w-4 h-4 text-gray-600" />
+                    {/* Action Buttons */}
+                    <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex">
+                      <button 
+                        className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          // Handle remove from wishlist
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4 text-gray-600" />
+                      </button>
+                    </div>
+
+                    {/* Mobile: Always visible Trash Icon */}
+                    <button 
+                      className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center text-black active:bg-gray-200 transition-colors z-10 sm:hidden touch-manipulation"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Handle remove from wishlist
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
                     </button>
-                  </div>
 
-                  {/* Mobile: Always visible Trash Icon */}
-                  <button className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center text-black active:bg-gray-200 transition-colors z-10 sm:hidden touch-manipulation">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-
-                  {/* Add to Cart Button */}
-                  <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4 hidden sm:block">
-                    <button className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
-                      <ShoppingCart className="w-4 h-4" />
-                      Add To Cart
-                    </button>
+                    {/* Add to Cart Button */}
+                    <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4 hidden sm:block">
+                      <button 
+                        className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          // Handle add to cart
+                        }}
+                      >
+                        <ShoppingCart className="w-4 h-4" />
+                        Add To Cart
+                      </button>
+                    </div>
                   </div>
-                </div>
+                </Link>
 
                 {/* Product Info */}
                 <div className="space-y-2">
@@ -239,7 +315,14 @@ export default function WishlistPage() {
 
                   {/* Mobile: Always visible Add to Cart */}
                   <div className="block sm:hidden">
-                    <button className="w-full bg-black text-white py-2.5 rounded hover:bg-gray-800 active:bg-gray-800 transition-colors flex items-center justify-center gap-2 touch-manipulation">
+                    <button 
+                      className="w-full bg-black text-white py-2.5 rounded hover:bg-gray-800 active:bg-gray-800 transition-colors flex items-center justify-center gap-2 touch-manipulation"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Handle add to cart
+                      }}
+                    >
                       <ShoppingCart className="w-4 h-4" />
                       <span className="text-sm">Add To Cart</span>
                     </button>
@@ -264,41 +347,63 @@ export default function WishlistPage() {
           {errorLastView && (
             <div className="text-red-500 mt-4">{errorLastView}</div>
           )}
-        </div>      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        </div>      ) : (        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {lastView.map(product => (
             <div key={product.id} className="group">
-              {/* Product Image Container */}
-              <div className="relative bg-gray-100 rounded-lg mb-4 h-48 sm:h-64 flex items-center justify-center overflow-hidden">
-                <img
-                  src={product.image || '/shopit.svg'}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.src = '/shopit.svg';
-                  }}
-                />
+              <Link href={`/product/${product.id}`}>
+                {/* Product Image Container */}
+                <div className="relative bg-gray-100 rounded-lg mb-4 h-48 sm:h-64 flex items-center justify-center overflow-hidden cursor-pointer">
+                  <img
+                    src={product.image || '/shopit.svg'}
+                    alt={product.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      e.currentTarget.src = '/shopit.svg';
+                    }}
+                  />
 
-                {/* Action Buttons */}
-                <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex">
-                  <button className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50">
-                    <Eye className="w-4 h-4 text-gray-600" />
+                  {/* Action Buttons */}
+                  <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex">
+                    <button 
+                      className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Handle view action
+                      }}
+                    >
+                      <Eye className="w-4 h-4 text-gray-600" />
+                    </button>
+                  </div>
+
+                  {/* Mobile: Always visible Eye Icon */}
+                  <button 
+                    className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center text-black active:bg-gray-200 transition-colors z-10 sm:hidden touch-manipulation"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      // Handle view action
+                    }}
+                  >
+                    <Eye className="w-4 h-4" />
                   </button>
-                </div>
 
-                {/* Mobile: Always visible Eye Icon */}
-                <button className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center text-black active:bg-gray-200 transition-colors z-10 sm:hidden touch-manipulation">
-                  <Eye className="w-4 h-4" />
-                </button>
-
-                {/* Add to Cart Button */}
-                <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4 hidden sm:block">
-                  <button className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
-                    <ShoppingCart className="w-4 h-4" />
-                    Add To Cart
-                  </button>
+                  {/* Add to Cart Button */}
+                  <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4 hidden sm:block">
+                    <button 
+                      className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Handle add to cart
+                      }}
+                    >
+                      <ShoppingCart className="w-4 h-4" />
+                      Add To Cart
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </Link>
 
               {/* Product Info */}
               <div className="space-y-2">
@@ -317,11 +422,16 @@ export default function WishlistPage() {
                   <StarRating rating={product.rating || 0} />
                   <span className="text-gray-600 text-sm font-medium">{(product.rating || 0).toFixed(1)}</span>
                   <span className="text-gray-400 text-sm">({product.reviews || 0})</span>
-                </div>
-
-                {/* Mobile: Always visible Add to Cart */}
+                </div>                {/* Mobile: Always visible Add to Cart */}
                 <div className="block sm:hidden">
-                  <button className="w-full bg-black text-white py-2.5 rounded hover:bg-gray-800 active:bg-gray-800 transition-colors flex items-center justify-center gap-2 touch-manipulation">
+                  <button 
+                    className="w-full bg-black text-white py-2.5 rounded hover:bg-gray-800 active:bg-gray-800 transition-colors flex items-center justify-center gap-2 touch-manipulation"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      // Handle add to cart
+                    }}
+                  >
                     <ShoppingCart className="w-4 h-4" />
                     <span className="text-sm">Add To Cart</span>
                   </button>

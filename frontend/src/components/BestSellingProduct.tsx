@@ -49,28 +49,23 @@ export default function BestSellingProducts({
       try {
         const productsWithReviewData = await Promise.all(
           products.map(async (product) => {
-            try {
-              const response = await fetch(`http://localhost:8080/api/reviews/${product.id_produk}`);              if (response.ok) {
+            try {              const response = await fetch(`http://localhost:8080/api/reviews/${product.id_produk}`);
+              if (response.ok) {
                 const data = await response.json();
                 console.log(`Raw API response for product ${product.id_produk}:`, data);
                 
-                // Extract reviews from the correct path
-                // data.reviews is array of documents, each document has a 'review' array
-                let reviews = [];
-                if (data.reviews && data.reviews.length > 0 && data.reviews[0].review) {
-                  reviews = data.reviews[0].review;
-                }
+                // Use the new structure
+                const reviews = data.reviews || [];
+                const real_review_count = data.total_review || 0;
                 console.log(`Extracted reviews for product ${product.id_produk}:`, reviews);
                 
                 let real_rating = 0;
-                let real_review_count = reviews.length;
-                  if (reviews.length > 0) {
+                if (reviews.length > 0) {
                   const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
                   real_rating = totalRating / reviews.length;
                   console.log(`Product ${product.id_produk}: Calculated rating=${real_rating}, count=${real_review_count}`);
                 }
-                
-                return {
+                  return {
                   ...product,
                   real_rating,
                   real_review_count
@@ -132,33 +127,58 @@ export default function BestSellingProducts({
             </div>
           ))}
         </div>
-      ) : productsWithReviews && productsWithReviews.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      ) : productsWithReviews && productsWithReviews.length > 0 ? (        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {productsWithReviews?.map((product) => (
-          <div key={product.id_produk} className="group">            {/* Product Image Container */}
+          <Link href={`/product/${product.id_produk}`} key={product.id_produk}>
+            <div className="group cursor-pointer">            {/* Product Image Container */}
             <div className="relative bg-gray-100 rounded-lg mb-4 h-64 flex items-center justify-center overflow-hidden">
               <img
                 src={product.image}
                 alt={product.nama_produk}
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  e.currentTarget.src = 'https://via.placeholder.com/300x300?text=No+Image';
+                  const target = e.currentTarget;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent && !parent.querySelector('.fallback-text')) {
+                    const fallback = document.createElement('div');
+                    fallback.className = 'fallback-text w-full h-full bg-gray-200 flex items-center justify-center text-gray-500';
+                    fallback.textContent = 'No Image';
+                    parent.appendChild(fallback);
+                  }
                 }}
-              />
-
-              {/* Action Buttons */}
+              />{/* Action Buttons */}
               <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50">
+                <button 
+                  className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Add to wishlist logic here
+                  }}
+                >
                   <Heart className="w-4 h-4 text-gray-600" />
                 </button>
-                <button className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50">
+                <button 
+                  className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // View product logic here
+                  }}
+                >
                   <Eye className="w-4 h-4 text-gray-600" />
                 </button>
-              </div>
-
-              {/* Add to Cart Button */}
+              </div>              {/* Add to Cart Button */}
               <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4">
-                <button className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                <button 
+                  className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Add to cart logic here
+                  }}
+                >
                   <ShoppingCart className="w-4 h-4" />
                   Add To Cart
                 </button>
@@ -180,10 +200,10 @@ export default function BestSellingProducts({
               <div className="flex items-center gap-2">
                 <StarRating rating={product.real_rating ?? 0} />
                 <span className="text-gray-600 text-sm font-medium">{(product.real_rating ?? 0).toFixed(1)}</span>
-                <span className="text-gray-400 text-sm">({product.real_review_count ?? 0})</span>
-              </div>
+                <span className="text-gray-400 text-sm">({product.real_review_count ?? 0})</span>              </div>
             </div>
           </div>
+          </Link>
         ))}
         </div>
       ) : (

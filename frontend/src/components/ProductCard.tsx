@@ -32,17 +32,22 @@ export default function ProductCard({ product, onEdit, onDelete }: ProductCardPr
         >
           <FiTrash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
         </button>
-      </div>
-
-      {/* Product Image */}
+      </div>      {/* Product Image */}
       <div className="flex justify-center items-center h-32 sm:h-40 mb-3 sm:mb-4 mt-6 sm:mt-4 bg-white rounded-md overflow-hidden">
         <img
           src={product.image}
           alt={product.nama_produk}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.src = 'https://via.placeholder.com/300x300?text=No+Image';
+            const target = e.currentTarget;
+            target.style.display = 'none';
+            const parent = target.parentElement;
+            if (parent && !parent.querySelector('.fallback-text')) {
+              const fallback = document.createElement('div');
+              fallback.className = 'fallback-text w-full h-full bg-gray-200 flex items-center justify-center text-gray-500';
+              fallback.textContent = 'No Image';
+              parent.appendChild(fallback);
+            }
           }}
         />
       </div>

@@ -1,5 +1,6 @@
 'use client';
 import React, { useRef, useEffect, useState } from 'react';
+import Link from 'next/link';
 import StarRating from '@/components/StarRating';
 import { Product } from '@/lib/dummyProducts';
 
@@ -35,19 +36,15 @@ export default function RelatedProductsCarousel({ products }: CarouselProps) {
         const productsWithReviewData = await Promise.all(
           products.map(async (product) => {
             try {
-              const response = await fetch(`http://localhost:8080/api/reviews/${product.id_produk}`);
-              if (response.ok) {
+              const response = await fetch(`http://localhost:8080/api/reviews/${product.id_produk}`);              if (response.ok) {
                 const data = await response.json();
                 console.log(`RelatedProducts reviews for ${product.id_produk}:`, data);
                 
-                // Extract reviews from the correct path
-                let reviews = [];
-                if (data.reviews && data.reviews.length > 0 && data.reviews[0].review) {
-                  reviews = data.reviews[0].review;
-                }
+                // Use the new structure
+                const reviews = data.reviews || [];
+                const real_review_count = data.total_review || 0;
                 
                 let real_rating = 0;
-                let real_review_count = reviews.length;
                 if (reviews.length > 0) {
                   const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
                   real_rating = totalRating / reviews.length;
@@ -110,19 +107,25 @@ export default function RelatedProductsCarousel({ products }: CarouselProps) {
               <div className="h-4 bg-gray-200 rounded w-1/2"></div>
             </div>
           ))
-        ) : (
-          productsWithReviews.map(prod => (
-            <div
-              key={prod.id_produk}
-              className="min-w-[200px] flex-shrink-0 group border rounded-lg p-4 hover:shadow-md transition"
-            >
-              <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-40 overflow-hidden">
+        ) : (          productsWithReviews.map(prod => (
+            <Link href={`/product/${prod.id_produk}`} key={prod.id_produk}>
+              <div
+                className="min-w-[200px] flex-shrink-0 group border rounded-lg p-4 hover:shadow-md transition cursor-pointer"
+              >              <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-40 overflow-hidden">
                 <img
                   src={prod.image}
                   alt={prod.nama_produk}
                   className="object-cover h-full w-full group-hover:scale-105 transition-transform duration-300"
                   onError={(e) => {
-                    e.currentTarget.src = 'https://via.placeholder.com/200x200?text=No+Image';
+                    const target = e.currentTarget;
+                    target.style.display = 'none';
+                    const parent = target.parentElement;
+                    if (parent && !parent.querySelector('.fallback-text')) {
+                      const fallback = document.createElement('div');
+                      fallback.className = 'fallback-text w-full h-full bg-gray-200 flex items-center justify-center text-gray-500';
+                      fallback.textContent = 'No Image';
+                      parent.appendChild(fallback);
+                    }
                   }}
                 />
               </div>
@@ -130,9 +133,9 @@ export default function RelatedProductsCarousel({ products }: CarouselProps) {
               <p className="text-red-500 font-semibold mt-1">${prod.harga.toFixed(2)}</p>
               <div className="flex items-center gap-1 mt-1">
                 <StarRating rating={prod.real_rating ?? 0} />
-                <span className="text-gray-600 text-sm">({prod.real_review_count ?? 0})</span>
-              </div>
+                <span className="text-gray-600 text-sm">({prod.real_review_count ?? 0})</span>              </div>
             </div>
+            </Link>
           ))
         )}
       </div>

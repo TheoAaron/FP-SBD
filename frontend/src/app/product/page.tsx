@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import CategorySection from "@/components/Category";
 import StarRating from "@/components/StarRating";
 import { formatImageUrl } from "@/utils/imageUtils";
@@ -35,19 +36,15 @@ function ProductContent() {
         // Mapping field dari backend ke frontend
         const mapped = Array.isArray(data) ? await Promise.all(
           data.map(async (p: any) => {
-            try {
-              // Fetch reviews from MongoDB for each product
+            try {              // Fetch reviews from MongoDB for each product
               const reviewRes = await fetch(`http://localhost:8080/api/reviews/${p.id_produk}`);
               let real_rating = 0;
               let real_review_count = 0;
                 if (reviewRes.ok) {
                 const reviewData = await reviewRes.json();
-                // Extract reviews from the correct path
-                let reviews = [];
-                if (reviewData.reviews && reviewData.reviews.length > 0 && reviewData.reviews[0].review) {
-                  reviews = reviewData.reviews[0].review;
-                }
-                real_review_count = reviews.length;
+                // Use the new structure
+                const reviews = reviewData.reviews || [];
+                real_review_count = reviewData.total_review || 0;
                 
                 if (reviews.length > 0) {
                   const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
@@ -106,31 +103,33 @@ function ProductContent() {
           <img src="https://res.cloudinary.com/dlwxkdjek/image/upload/v1750433799/capybara-turu_ledsfn.jpg" alt="Kosong" className="w-48 h-48 object-contain mb-6" />
           <div className="text-center py-8 text-gray-700 font-medium mb-2">Produk Tidak Ditemukan</div>
         </div>
-      ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 py-4">
-            {products.map(product => (              <div key={product.id_produk || product.id} className="group border rounded-lg p-3 sm:p-4 hover:shadow-md transition">
-                <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-52 sm:h-64 overflow-hidden mb-3">
-                  <img
-                    src={product.image || '/shopit.svg'}
-                    alt={product.name}
-                    className="object-cover h-full w-full group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      e.currentTarget.src = '/shopit.svg';
-                    }}
-                  />
-                </div>
-                <div className="mt-3 sm:mt-4">
-                  <h4 className="font-medium text-base sm:text-lg text-gray-800 line-clamp-2 mb-2">{product.name}</h4>
-                  <div className="flex items-center justify-between mb-2 flex-wrap gap-1">
-                    <p className="text-red-500 font-semibold text-base sm:text-lg">${product.price}</p>
+      ) : (          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 py-4">
+            {products.map(product => (
+              <Link href={`/product/${product.id_produk || product.id}`} key={product.id_produk || product.id}>
+                <div className="group border rounded-lg p-3 sm:p-4 hover:shadow-md transition cursor-pointer">
+                  <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-52 sm:h-64 overflow-hidden mb-3">
+                    <img
+                      src={product.image || '/shopit.svg'}
+                      alt={product.name}
+                      className="object-cover h-full w-full group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        e.currentTarget.src = '/shopit.svg';
+                      }}
+                    />
                   </div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <StarRating rating={product.rating || 0} />
-                    <span className="text-gray-600 text-sm font-medium">{(product.rating || 0).toFixed(1)}</span>
-                    <span className="text-gray-400 text-sm">({product.reviews || 0} reviews)</span>
+                  <div className="mt-3 sm:mt-4">
+                    <h4 className="font-medium text-base sm:text-lg text-gray-800 line-clamp-2 mb-2">{product.name}</h4>
+                    <div className="flex items-center justify-between mb-2 flex-wrap gap-1">
+                      <p className="text-red-500 font-semibold text-base sm:text-lg">${product.price}</p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <StarRating rating={product.rating || 0} />
+                      <span className="text-gray-600 text-sm font-medium">{(product.rating || 0).toFixed(1)}</span>
+                      <span className="text-gray-400 text-sm">({product.reviews || 0} reviews)</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

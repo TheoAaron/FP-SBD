@@ -6,8 +6,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     const now = new Date();
 
-    await queryInterface.bulkInsert('products', [
-      {
+    await queryInterface.bulkInsert('products', [      {
         id_produk: uuidv4(),
         nama_produk: 'iPhone 15 Pro',
         avg_rating: 4.7,
@@ -15,7 +14,6 @@ module.exports = {
         description: 'Smartphone flagship dengan chip A17 Pro dan kamera canggih.',
         image: 'https://www.apple.com/newsroom/images/2023/09/apple-unveils-iphone-15-pro-and-iphone-15-pro-max/article/Apple-iPhone-15-Pro-lineup-hero-230912_Full-Bleed-Image.jpg.xlarge.jpg',
         stock: 25,
-        total_review: 120,
         kategori: 'phone',
         createdAt: now,
         updatedAt: now
@@ -23,12 +21,10 @@ module.exports = {
       {
         id_produk: uuidv4(),
         nama_produk: 'PlayStation 5',
-        avg_rating: 4.9,
-        harga: 8490000,
+        avg_rating: 4.9,        harga: 8490000,
         description: 'Konsol generasi terbaru dari Sony dengan performa tinggi.',
         image: 'https://akcdn.detik.net.id/visual/2024/09/11/playstation-5-pro_169.jpeg?w=900&q=80',
         stock: 40,
-        total_review: 250,
         kategori: 'gaming',
         createdAt: now,
         updatedAt: now
@@ -41,7 +37,6 @@ module.exports = {
         description: 'Laptop profesional dengan chip Apple M3 dan layar Retina.',
         image: 'macbookpro.jpg',
         stock: 10,
-        total_review: 85,
         kategori: 'computer',
         createdAt: now,
         updatedAt: now
@@ -51,10 +46,8 @@ module.exports = {
         nama_produk: 'Sony WH-1000XM5',
         avg_rating: 4.6,
         harga: 4990000,
-        description: 'Headphone noise cancelling terbaik dari Sony.',
-        image: 'sonywh1000xm5.jpg',
+        description: 'Headphone noise cancelling terbaik dari Sony.',        image: 'sonywh1000xm5.jpg',
         stock: 30,
-        total_review: 180,
         kategori: 'audio',
         createdAt: now,
         updatedAt: now
