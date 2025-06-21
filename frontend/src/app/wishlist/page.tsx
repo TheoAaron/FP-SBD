@@ -1,8 +1,7 @@
 'use client';
 
 import { ShoppingCart, Trash2, Eye } from "lucide-react";
-import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
+import { useSearchParams, useRouter } from 'next/navigation';
 import StarRating from "@/components/StarRating";
 import RequireAuth from "@/components/RequireAuth";
 import React, { useEffect, useState } from "react";
@@ -19,12 +18,18 @@ interface Product {
 }
 
 export default function WishlistPage() {
+  const router = useRouter();
   const [wishlist, setWishlist] = useState<Product[]>([]);
   const [loadingWishlist, setLoadingWishlist] = useState(true);
   const [errorWishlist, setErrorWishlist] = useState<string | null>(null);
   const [lastView, setLastView] = useState<Product[]>([]);
   const [loadingLastView, setLoadingLastView] = useState(true);
   const [errorLastView, setErrorLastView] = useState<string | null>(null);
+
+  // Function to handle product image click
+  const handleProductClick = (productId: number) => {
+    router.push(`/product/${productId}`);
+  };
 
   useEffect(() => {
     // ambil user id
@@ -349,61 +354,29 @@ export default function WishlistPage() {
           )}
         </div>      ) : (        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {lastView.map(product => (
-            <div key={product.id} className="group">
-              <Link href={`/product/${product.id}`}>
-                {/* Product Image Container */}
-                <div className="relative bg-gray-100 rounded-lg mb-4 h-48 sm:h-64 flex items-center justify-center overflow-hidden cursor-pointer">
-                  <img
-                    src={product.image || '/shopit.svg'}
-                    alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      e.currentTarget.src = '/shopit.svg';
-                    }}
-                  />
-
-                  {/* Action Buttons */}
-                  <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex">
-                    <button 
-                      className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        // Handle view action
-                      }}
-                    >
-                      <Eye className="w-4 h-4 text-gray-600" />
-                    </button>
-                  </div>
-
-                  {/* Mobile: Always visible Eye Icon */}
-                  <button 
-                    className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center text-black active:bg-gray-200 transition-colors z-10 sm:hidden touch-manipulation"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      // Handle view action
-                    }}
-                  >
-                    <Eye className="w-4 h-4" />
+            <div key={product.id} className="border rounded-lg p-3 sm:p-4 group">
+              <div className="relative h-40 sm:h-48 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden mb-3 sm:mb-4">
+                {/* Desktop: Hover Eye Icon */}
+                <button className="absolute top-3 right-3 bg-white rounded-full w-8 h-8 items-center justify-center text-black hover:bg-gray-200 transition-all duration-300 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 z-10 hidden sm:flex">
+                  <Eye className="w-5 h-5" />
+                </button>
+                {/* Mobile: Always visible Eye Icon */}
+                <button className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 items-center justify-center text-black active:bg-gray-200 transition-colors z-10 sm:hidden touch-manipulation">
+                  <Eye className="w-4 h-4" />
+                </button>
+                <img
+                  src={product.image || '/shopit.svg'}
+                  alt={product.name}
+                  className="object-contain w-full h-full p-3 sm:p-4"
+                />
+                {/* Desktop: Hover Add to Cart */}
+                <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4 hidden sm:block">
+                  <button className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
+                    <ShoppingCart className="w-4 h-4" />
+                    Add To Cart
                   </button>
-
-                  {/* Add to Cart Button */}
-                  <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4 hidden sm:block">
-                    <button 
-                      className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        // Handle add to cart
-                      }}
-                    >
-                      <ShoppingCart className="w-4 h-4" />
-                      Add To Cart
-                    </button>
-                  </div>
                 </div>
-              </Link>
+              </div>
 
               {/* Product Info */}
               <div className="space-y-2">
