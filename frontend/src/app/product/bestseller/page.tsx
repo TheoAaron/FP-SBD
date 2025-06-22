@@ -118,7 +118,7 @@ function ProductContent() {
               <div className="mt-3 sm:mt-4">
                 <h4 className="font-medium text-base sm:text-lg text-gray-800 line-clamp-2 mb-2">{product.name}</h4>
                 <div className="flex items-center justify-between mb-2 flex-wrap gap-1">
-                  <p className="text-red-500 font-semibold text-base sm:text-lg">${product.price}</p>
+                  <p className="text-red-500 font-semibold text-base sm:text-lg">Rp. {product.price?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                   <span className="text-gray-400 text-sm">({product.quantity} terjual)</span>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">

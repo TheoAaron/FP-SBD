@@ -9,8 +9,7 @@ module.exports = {
     port: parseInt(process.env.DB_PORT) || 3306,  // ✅ Parse to integer
     dialect: 'mysql',
     logging: false
-  },
-  production: {
+  },  production: {
     // Variabel-variabel ini disediakan OTOMATIS oleh Railway
     username: process.env.MYSQLUSER,
     password: process.env.MYSQLPASSWORD,
@@ -18,6 +17,6 @@ module.exports = {
     host: process.env.MYSQLHOST,
     port: process.env.MYSQLPORT,
     dialect: 'mysql',
-   
-}
+    logging: false
+  }
 }

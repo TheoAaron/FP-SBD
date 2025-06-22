@@ -8,6 +8,7 @@ import { useCart } from '../../components/useCart'
 import { CartItem } from '../../components/cart-types'
 import { FiTrash2 } from 'react-icons/fi'
 import RequireAuth from '../../components/RequireAuth'
+import { toast } from 'react-hot-toast'
 
 export default function Cart() {
   const {
@@ -163,7 +164,7 @@ export default function Cart() {
       }
 
       setHasUnsavedChanges(false)
-      alert('Cart updated successfully!')
+      toast.success('Cart updated successfully!')
       
     } catch (error) {
       console.error('Error saving cart:', error)
@@ -302,7 +303,7 @@ export default function Cart() {
                           />
                           <div className="flex-1 min-w-0">
                             <h3 className="font-medium text-gray-900 truncate">{item.name}</h3>
-                            <p className="text-red-600 font-semibold">${item.price}</p>
+                            <p className="text-red-600 font-semibold">Rp. {item.price?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                             
                             <div className="flex items-center justify-between mt-3">                            <div className="flex items-center border rounded">
                                 <button
@@ -320,7 +321,7 @@ export default function Cart() {
                               </div>
                               
                               <div className="flex items-center gap-2">
-                                <span className="font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
+                                <span className="font-semibold">Rp. {(item.price * item.quantity).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                 <button
                                   onClick={() => handleRemoveItem(item.id)}
                                   className="p-1 text-red-500 hover:text-red-700"
@@ -347,7 +348,7 @@ export default function Cart() {
                         </div>
                         
                         <div className="text-center">
-                          <span className="text-red-600 font-semibold">${item.price}</span>
+                          <span className="text-red-600 font-semibold">Rp. {item.price?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         </div>
                         
                         <div className="text-center">                        <div className="flex items-center justify-center border rounded max-w-32 mx-auto">
@@ -367,7 +368,7 @@ export default function Cart() {
                           </div>
                         </div>
                           <div className="text-center flex items-center justify-center gap-4">
-                          <span className="font-semibold">${(item.price * item.quantity).toFixed(2)}</span>
+                          <span className="font-semibold">Rp. {(item.price * item.quantity).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                           <button
                             onClick={() => handleRemoveItem(item.id)}
                             className="p-2 text-red-500 hover:text-red-700"
@@ -426,24 +427,24 @@ export default function Cart() {
                   <div className="space-y-4 border-t pt-4">
                     <div className="flex justify-between">
                       <span>Subtotal:</span>
-                      <span>${cartState.subtotal.toFixed(2)}</span>
+                      <span>Rp. {cartState.subtotal.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                       {(cartState.discount || 0) > 0 && (
                       <div className="flex justify-between text-green-600">
                         <span>Discount:</span>
-                        <span>-${(cartState.discount || 0).toFixed(2)}</span>
+                        <span>-Rp. {(cartState.discount || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                       </div>
                     )}
                     
                     <div className="flex justify-between">
                       <span>Shipping:</span>
-                      <span>{cartState.shipping === 0 ? 'Free' : `$${cartState.shipping.toFixed(2)}`}</span>
+                      <span>{cartState.shipping === 0 ? 'Free' : `Rp. ${cartState.shipping.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</span>
                     </div>
                     
                     <div className="border-t pt-4">
                       <div className="flex justify-between text-lg font-semibold">
                         <span>Total:</span>
-                        <span>${cartState.total.toFixed(2)}</span>
+                        <span>Rp. {cartState.total.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                       </div>
                     </div>
                   </div>                {/* Checkout Button */}

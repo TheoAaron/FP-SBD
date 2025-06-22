@@ -22,20 +22,6 @@ const Footer = () => {
             <p className="text-gray-300 text-sm mb-4">
               Toko elektronik terpercaya dengan kualitas terbaik dan harga terjangkau.
             </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <FaFacebook size={20} />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <FaTwitter size={20} />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <FaInstagram size={20} />
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                <FaLinkedin size={20} />
-              </a>
-            </div>
           </div>
 
           {/* Quick Links */}
@@ -72,7 +58,7 @@ const Footer = () => {
 
           {/* Customer Service */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Customer Service</h3>
+            <h3 className="text-lg font-semibold mb-4">Customer Stuffs</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/profile" className="text-gray-300 hover:text-white transition-colors">
@@ -90,8 +76,8 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                  Help & FAQ
+                <a href="/order" className="text-gray-300 hover:text-white transition-colors">
+                  My Order
                 </a>
               </li>
             </ul>
@@ -101,10 +87,9 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact Info</h3>
             <div className="space-y-2 text-gray-300 text-sm">
-              <p>📍 Jakarta, Indonesia</p>
+              <p>📍 Surabaya, Indonesia</p>
               <p>📞 +62 821-4566-5062</p>
-              <p>✉️ info@tokit.com</p>
-              <p>🕒 Mon - Sat: 9:00 - 18:00</p>
+              <p>🕒 Kalo lagi Bangun</p>
             </div>
           </div>
         </div>
@@ -112,20 +97,9 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-gray-700 mt-8 pt-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <p className="text-gray-400 text-sm text-center sm:text-left">
-              &copy; 2025 Kelompok 1 SBD Anjay. All rights reserved.
+            <p className="text-gray-400 text-sm text-center sm:text-left mx-auto">
+              &copy; 2025 Kelompok 1 "Tokit". All rights reserved.
             </p>
-            <div className="flex flex-wrap justify-center sm:justify-end gap-4 text-sm">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                Privacy Policy
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                Terms of Service
-              </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                Shipping Policy
-              </a>
-            </div>
           </div>
         </div>
       </div>

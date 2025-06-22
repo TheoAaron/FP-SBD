@@ -57,13 +57,12 @@ export default function ProductCard({ product, onEdit, onDelete }: ProductCardPr
         <h3 className="font-medium text-gray-900 mb-2 text-sm line-clamp-2">
           {product.nama_produk}
         </h3>
-        <div className="flex items-center justify-center gap-2 flex-wrap">
-          <span className="text-red-500 font-semibold text-sm sm:text-base">
-            ${product.harga}
+        <div className="flex items-center justify-center gap-2 flex-wrap">          <span className="text-red-500 font-semibold text-sm sm:text-base">
+            Rp. {product.harga?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
           {/* {product.harga && (
             <span className="text-gray-400 line-through text-xs sm:text-sm">
-              ${product.harga}
+              Rp. {product.harga?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </span>
           )} */}
         </div>

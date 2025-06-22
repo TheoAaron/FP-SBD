@@ -178,12 +178,8 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
       default: return 'bg-gray-100 text-gray-800'
     }
   }
-
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount || 0)
+    return `Rp. ${(amount || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   }
 
   const subtotal = order.items?.reduce((sum, item) => sum + (item.subtotal || 0), 0) || 0
@@ -329,7 +325,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-green-600 mb-1">Discount</p>
-                      <p className="text-lg font-semibold text-green-700">-{formatCurrency(order.coupon.diskon)}</p>
+                      <p className="text-lg font-semibold text-green-700">{(order.coupon.diskon)}%</p>
                     </div>
                   </div>
                 </div>
@@ -369,7 +365,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
                   {discount > 0 && (
                     <div className="flex justify-between text-green-600">
                       <span>Discount:</span>
-                      <span className="font-medium">-{formatCurrency(discount)}</span>
+                      <span className="font-medium">{(discount)}%</span>
                     </div>
                   )}
                   

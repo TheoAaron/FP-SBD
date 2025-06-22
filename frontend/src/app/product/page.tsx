@@ -6,14 +6,17 @@ import CategorySection from "@/components/Category";
 import StarRating from "@/components/StarRating";
 import { formatImageUrl } from "@/utils/imageUtils";
 import Link from "next/link";
+import { ShoppingCart, Heart } from "lucide-react";
+import toast from "react-hot-toast";
 
 function ProductContent() {
   const searchParams = useSearchParams();
   const selectedCategory = searchParams.get('category');
-  const searchQuery = searchParams.get('search');
-  const [products, setProducts] = useState<any[]>([]);
+  const searchQuery = searchParams.get('search');  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [addingToCart, setAddingToCart] = useState<string | null>(null);
+  const [addingToWishlist, setAddingToWishlist] = useState<string | null>(null);
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
@@ -84,9 +87,88 @@ function ProductContent() {
         setLoading(false);
       }
     };
-    
-    fetchProducts();
+      fetchProducts();
   }, [selectedCategory, searchQuery]);
+
+  // Add to cart function
+  const handleAddToCart = async (productId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const token = sessionStorage.getItem('jwtToken');
+    if (!token) {
+      toast.error('Please login to add items to cart');
+      return;
+    }
+
+    setAddingToCart(productId);
+    
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/cart/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          product_id: productId,
+          qty: 1
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success('Product added to cart successfully!');
+        console.log('Added to cart:', data);
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || 'Failed to add product to cart');
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add product to cart');    } finally {
+      setAddingToCart(null);
+    }
+  };
+
+  // Add to wishlist function
+  const handleAddToWishlist = async (productId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const token = sessionStorage.getItem('jwtToken');
+    if (!token) {
+      toast.error('Please login to add items to wishlist');
+      return;
+    }
+
+    setAddingToWishlist(productId);
+    
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/wishlist`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          product_id: productId
+        })
+      });
+
+      if (response.ok) {
+        toast.success('Product added to wishlist successfully!');
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || 'Failed to add product to wishlist');
+      }
+    } catch (error) {
+      console.error('Error adding to wishlist:', error);
+      toast.error('Failed to add product to wishlist');
+    } finally {
+      setAddingToWishlist(null);
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
@@ -108,7 +190,8 @@ function ProductContent() {
           <div className="text-center py-8 text-gray-700 font-medium mb-2">Produk Tidak Ditemukan</div>
         </div>
       ) : (          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 py-4">
-            {products.map(product => (              <Link key={product.id_produk || product.id} href={`/product/${product.id_produk || product.id}`} className="group border rounded-lg p-3 sm:p-4 hover:shadow-md transition">
+            {products.map(product => (
+              <Link key={product.id_produk || product.id} href={`/product/${product.id_produk || product.id}`} className="group border rounded-lg p-3 sm:p-4 hover:shadow-md transition">
                 <div className="relative bg-gray-100 rounded-md flex items-center justify-center h-52 sm:h-64 overflow-hidden mb-3">
                   <img
                     src={product.image || '/shopit.svg'}
@@ -118,11 +201,46 @@ function ProductContent() {
                       e.currentTarget.src = '/shopit.svg';
                     }}
                   />
+                    {/* Action Buttons */}
+                  <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
+                      className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50 disabled:opacity-50"
+                      onClick={(e) => handleAddToWishlist(product.id_produk || product.id, e)}
+                      disabled={addingToWishlist === (product.id_produk || product.id)}
+                    >
+                      {addingToWishlist === (product.id_produk || product.id) ? (
+                        <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <Heart className="w-4 h-4 text-gray-600" />
+                      )}
+                    </button>
+                  </div>
+                  
+                  {/* Add to Cart Button */}
+                  <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4">
+                    <button 
+                      className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={(e) => handleAddToCart(product.id_produk || product.id, e)}
+                      disabled={addingToCart === (product.id_produk || product.id)}
+                    >
+                      {addingToCart === (product.id_produk || product.id) ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Adding...
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingCart className="w-4 h-4" />
+                          Add To Cart
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <div className="mt-3 sm:mt-4">
                   <h4 className="font-medium text-base sm:text-lg text-gray-800 line-clamp-2 mb-2">{product.name}</h4>
                   <div className="flex items-center justify-between mb-2 flex-wrap gap-1">
-                    <p className="text-red-500 font-semibold text-base sm:text-lg">${product.price}</p>
+                    <p className="text-red-500 font-semibold text-base sm:text-lg">Rp. {product.price?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <StarRating rating={product.rating || 0} />

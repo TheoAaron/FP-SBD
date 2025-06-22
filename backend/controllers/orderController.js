@@ -1,7 +1,7 @@
 const { pool } = require('../config/mysql');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
-const {deleteCart} = require('./cartController');
+const { deleteCartByUserId } = require('./cartController');
 
 
 
@@ -78,9 +78,7 @@ async function createOrder(req, res) {
       [orderId, userId, id_kupon, id_shipment, status_pembayaran, status_pengiriman, metode_pembayaran, total, currentDateTime, tracking_number]
     );
     
-    console.log('Order inserted successfully');
-
-    console.log('Inserting order details...');
+    console.log('Order inserted successfully');    console.log('Inserting order details...');
     for (const item of order_details) {  
       const { product_id, quantity, price } = item;
       console.log('Inserting item:', { product_id, quantity, price });
@@ -89,8 +87,17 @@ async function createOrder(req, res) {
         [uuidv4(), orderId, product_id, quantity]
       );
     }
-    await deleteCart(req.user.id);
+    
     console.log('All order details inserted successfully');
+    
+    // Clear cart after successful order creation
+    console.log('Clearing cart for user:', userId);
+    const cartDeleteResult = await deleteCartByUserId(userId);
+    if (cartDeleteResult.success) {
+      console.log('Cart cleared successfully');
+    } else {
+      console.log('Warning: Failed to clear cart:', cartDeleteResult.error);
+    }
     res.status(201).json({
       success: true,
       message: 'Order created successfully',

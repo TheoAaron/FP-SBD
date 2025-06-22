@@ -2,44 +2,47 @@ const { getDB } = require("../config/mongo.js");
 const { pool } = require("../config/mysql.js");
 const getCart = async (req, res) => {
     const db = getDB();
-    const userId = req.user.id;    try {
+    const userId = req.user.id;
+
+    try {
         const cart = await db.collection("cart").findOne({ id_user: userId });
         
-        if (!cart) {
-            return res.status(404).json({ message: "Cart not found" });
+        if (!cart || !cart.produk || cart.produk.length === 0) {
+            return res.json({ 
+                id_user: userId,
+                produk: []
+            });
         }
 
         // Extract product IDs from cart
-        const productIds = cart.produk ? cart.produk.map(item => item.product_id) : [];
-        
-        if (productIds.length === 0) {
-            return res.json(cart); // Return empty cart
-        }
+        const productIds = cart.produk.map(item => item.product_id);
 
         // Get product details from MySQL
         const [rows] = await pool.query(
-            `SELECT p.id_produk, p.nama_produk, p.harga, p.image, p.stock FROM products p WHERE p.id_produk IN (?)`, 
+            `SELECT id_produk, nama_produk, harga, image, stock FROM products WHERE id_produk IN (?)`, 
             [productIds]
         );
 
         // Merge cart data with product details
-        const enrichedCart = {
-            ...cart,
-            produk: cart.produk.map(cartItem => {
-                const productDetail = rows.find(product => product.id_produk === cartItem.product_id);
-                return {
-                    ...cartItem,
-                    name: productDetail?.nama_produk || `Product ${cartItem.product_id}`,
-                    price: productDetail?.harga || 0,
-                    image: productDetail?.gambar || null,
-                    stock: productDetail?.stok || 0
-                };
-            })
-        };
+        const enrichedProduk = cart.produk.map(cartItem => {
+            const productDetail = rows.find(product => product.id_produk === cartItem.product_id);
+            return {
+                product_id: cartItem.product_id,
+                qty: cartItem.qty,
+                name: productDetail?.nama_produk || `Product ${cartItem.product_id}`,
+                price: productDetail?.harga || 0,
+                image: productDetail?.image || null,
+                stock: productDetail?.stock || 0
+            };
+        });
 
-        res.json(enrichedCart);
+        res.json({
+            _id: cart._id,
+            id_user: cart.id_user,
+            produk: enrichedProduk        });
     } catch (error) {
-        res.status(500).json({ message: "Failed to retrieve cart", error });
+        console.error('Get cart error:', error);
+        res.status(500).json({ message: "Failed to retrieve cart", error: error.message });
     }
 }
 const addToCart = async (req, res) => {
@@ -52,14 +55,48 @@ const addToCart = async (req, res) => {
     }
 
     try {
-        const cart = await db.collection("cart").findOneAndUpdate(
-            { id_user: userId },
-            { $push: { produk: { product_id, qty } } },
-            { upsert: true, returnDocument: 'after' }
-        );
-        res.status(201).json(cart.value);
+        // Check if user already has a cart
+        const existingCart = await db.collection("cart").findOne({ id_user: userId });
+        
+        if (existingCart) {
+            // Check if product already exists in cart
+            const productExists = existingCart.produk && existingCart.produk.some(item => item.product_id === product_id);
+            
+            if (productExists) {
+                // Update existing product quantity using positional operator
+                const updateResult = await db.collection("cart").findOneAndUpdate(
+                    { 
+                        id_user: userId,
+                        "produk.product_id": product_id 
+                    },
+                    { 
+                        $inc: { "produk.$.qty": qty } 
+                    },
+                    { returnDocument: 'after' }
+                );
+                return res.status(200).json({ message: "Product quantity updated", cart: updateResult.value });
+            } else {
+                // Add new product to existing cart
+                const addResult = await db.collection("cart").findOneAndUpdate(
+                    { id_user: userId },
+                    { $push: { produk: { product_id, qty } } },
+                    { returnDocument: 'after' }
+                );
+                return res.status(201).json({ message: "Product added to cart", cart: addResult.value });
+            }
+        } else {
+            // Create new cart with first product
+            const newCart = await db.collection("cart").insertOne({
+                id_user: userId,
+                produk: [{ product_id, qty }]
+            });
+            
+            const createdCart = await db.collection("cart").findOne({ _id: newCart.insertedId });
+            return res.status(201).json({ message: "New cart created with product", cart: createdCart });
+        }
     } catch (error) {
-        res.status(500).json({ message: "Failed to add to cart", error });
+        console.error("Add to cart error:", error);
+        res.status(500).json({ message: "Failed to add to cart", error: error.message });
     }
 }
 
@@ -115,4 +152,17 @@ const deleteCart = async (req, res) => {
     }
 };
 
-module.exports = { getCart, addToCart, updateCart, deleteCart };
+// Helper function for internal use (without HTTP response)
+const deleteCartByUserId = async (userId) => {
+    const db = getDB();
+    
+    try {
+        const result = await db.collection("cart").deleteOne({ id_user: userId });
+        return { success: true, deletedCount: result.deletedCount };
+    } catch (error) {
+        console.error('Error deleting cart:', error);
+        return { success: false, error: error.message };
+    }
+};
+
+module.exports = { getCart, addToCart, updateCart, deleteCart, deleteCartByUserId };

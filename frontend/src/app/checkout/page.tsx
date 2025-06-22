@@ -32,7 +32,6 @@ interface ShipmentDetail {
   apartment_floor?: string;
   kota: string;
   phone_number: string;
-  email_address: string;
   kode_pos: string;
   label?: string;
 }
@@ -84,13 +83,23 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
             return;
           }
           throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
+        }        const data = await response.json();
         console.log('Cart data from backend:', data);
         
-        if (data.success && data.cart?.produk) {
-          // Transform cart items to checkout format
+        // Check if data has produk array (new structure)
+        if (data.produk && Array.isArray(data.produk)) {
+          // Transform cart items to checkout format (new structure)
+          const checkoutItems: CheckoutItem[] = data.produk.map((item: any) => ({
+            id: item.product_id,
+            name: item.name || item.product_name || 'Unknown Product',
+            price: item.price || 0,
+            image: item.image || 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop',
+            quantity: item.qty || 0,
+            stock: item.stock || 0
+          }));
+          setCartItems(checkoutItems);
+        } else if (data.success && data.cart?.produk) {
+          // Transform cart items to checkout format (old structure)
           const checkoutItems: CheckoutItem[] = data.cart.produk.map((item: CartItem) => ({
             id: item.product_id,
             name: item.product_name,
@@ -101,6 +110,7 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
           }));
           setCartItems(checkoutItems);
         } else {
+          console.log('No products found in cart data:', data);
           setCartItems([]);
         }
         
@@ -117,9 +127,8 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
     };
 
     loadCart();
-  }, []);
-  // Handle place order
-  const handlePlaceOrder = async (paymentMethod: string, couponCode?: string) => {
+  }, []);  // Handle place order
+  const handlePlaceOrder = async (paymentMethod: string, couponCode?: string, discountAmount?: number) => {
     setIsPlacingOrder(true);
     setError(null);
 
@@ -141,6 +150,7 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
     }    try {
       // Calculate total
       const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const finalTotal = discountAmount ? subtotal - discountAmount : subtotal;
       
       // Prepare order details
       const orderDetails = cartItems.map(item => ({
@@ -154,7 +164,7 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
         order_details: orderDetails,
         id_shipment: selectedAddress.id_shipment, // Use existing shipment ID
         metode_pembayaran: paymentMethod,
-        total: subtotal,
+        total: finalTotal, // Send discounted total
         ...(couponCode && { kode_kupon: couponCode })
       };
 
@@ -251,9 +261,9 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-600 text-sm">{error}</p>
             </div>
-          )}        {/* Checkout Content */}
+          )}          {/* Checkout Content */}
           <div className="flex flex-col lg:flex-row gap-8">
-            <ShipmentDetails onAddressSelect={setSelectedAddress} />
+            <ShipmentDetails onAddressSelect={(address) => setSelectedAddress(address)} />
             <CheckoutDetails 
               items={cartItems} 
               onPlaceOrder={handlePlaceOrder}

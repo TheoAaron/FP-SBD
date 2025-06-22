@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createCoupon, deleteCoupon, getAllCoupons, getCouponById, updateCoupon } = require('../controllers/couponController');
+const { createCoupon, deleteCoupon, getAllCoupons, getCouponById, updateCoupon, validateCoupon } = require('../controllers/couponController');
 
 // GET /api/admin/coupon - Get all coupons (admin only)
 router.get('/coupon', getAllCoupons);
@@ -16,5 +16,8 @@ router.put('/coupon/:id', updateCoupon);
 
 // DELETE /api/admin/coupon/:id - Delete coupon (admin only)
 router.delete('/coupon/:id', deleteCoupon);
+
+// POST /api/admin/coupon/validate - Validate coupon (for users during checkout)
+router.post('/coupon/validate', validateCoupon);
 
 module.exports = router;

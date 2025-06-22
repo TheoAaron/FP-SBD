@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 
 export default function LoginLayout() {
@@ -104,7 +104,6 @@ export default function LoginLayout() {
         }
     }    return (
         <>
-            <Toaster position="top-right" />
             <div className="min-h-screen flex flex-col lg:flex-row">
                 {/* Image Section - Hidden on mobile, shown on desktop */}
                 <div className="hidden lg:block lg:w-1/2 relative bg-slate-300 overflow-hidden">

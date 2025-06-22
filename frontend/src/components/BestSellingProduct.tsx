@@ -1,8 +1,9 @@
 'use client';
-import { Heart, Eye, ShoppingCart } from "lucide-react";
+import { Heart, ShoppingCart } from "lucide-react";
 import StarRating from "@/components/StarRating";
 import Link from "next/link";
 import { useEffect, useState } from 'react';
+import toast from "react-hot-toast";
 // import { Product } from '@/types/product';
 // 
 
@@ -34,9 +35,10 @@ export default function BestSellingProducts({
   products,
   title = "Best Selling Products",
   subtitle = "This Month"
-}: BestSellingProductsProps) {
-  const [productsWithReviews, setProductsWithReviews] = useState<ProductWithReviews[]>([]);
+}: BestSellingProductsProps) {  const [productsWithReviews, setProductsWithReviews] = useState<ProductWithReviews[]>([]);
   const [loading, setLoading] = useState(true);
+  const [addingToCart, setAddingToCart] = useState<number | null>(null);
+  const [addingToWishlist, setAddingToWishlist] = useState<number | null>(null);
 
   // Fetch reviews from MongoDB for each product
   useEffect(() => {
@@ -100,10 +102,87 @@ export default function BestSellingProducts({
       } finally {
         setLoading(false);
       }
-    };
-
-    fetchReviews();
+    };    fetchReviews();
   }, [products]);
+
+  // Add to cart function
+  const handleAddToCart = async (productId: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+      const token = sessionStorage.getItem('jwtToken');
+    if (!token) {
+      toast.error('Please login to add items to cart');
+      return;
+    }
+
+    setAddingToCart(productId);
+    
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/cart/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          product_id: productId,
+          qty: 1
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success('Product added to cart successfully!');
+        console.log('Added to cart:', data);      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || 'Failed to add product to cart');
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add product to cart');    } finally {
+      setAddingToCart(null);
+    }
+  };
+
+  // Add to wishlist function
+  const handleAddToWishlist = async (productId: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const token = sessionStorage.getItem('jwtToken');
+    if (!token) {
+      toast.error('Please login to add items to wishlist');
+      return;
+    }
+
+    setAddingToWishlist(productId);
+    
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/wishlist`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          product_id: productId.toString()
+        })
+      });
+
+      if (response.ok) {
+        toast.success('Product added to wishlist successfully!');
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || 'Failed to add product to wishlist');
+      }
+    } catch (error) {
+      console.error('Error adding to wishlist:', error);
+      toast.error('Failed to add product to wishlist');
+    } finally {
+      setAddingToWishlist(null);
+    }
+  };
+
   return (
     <div className="w-full bg-white">
       {/* Header */}
@@ -144,44 +223,37 @@ export default function BestSellingProducts({
                   onError={(e) => {
                     e.currentTarget.src = 'https://via.placeholder.com/300x300?text=No+Image';
                   }}
-                />
-
-                {/* Action Buttons */}
+                />                {/* Action Buttons */}
                 <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button 
-                    className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      // Add to wishlist logic here
-                    }}
+                    className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50 disabled:opacity-50"
+                    onClick={(e) => handleAddToWishlist(product.id_produk, e)}
+                    disabled={addingToWishlist === product.id_produk}
                   >
-                    <Heart className="w-4 h-4 text-gray-600" />
+                    {addingToWishlist === product.id_produk ? (
+                      <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <Heart className="w-4 h-4 text-gray-600" />
+                    )}
                   </button>
-                  <button 
-                    className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      // View logic here (can also redirect)
-                    }}
-                  >
-                    <Eye className="w-4 h-4 text-gray-600" />
-                  </button>
-                </div>
-
-                {/* Add to Cart Button */}
+                </div>{/* Add to Cart Button */}
                 <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4">
                   <button 
-                    className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      // Add to cart logic here
-                    }}
+                    className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={(e) => handleAddToCart(product.id_produk, e)}
+                    disabled={addingToCart === product.id_produk}
                   >
-                    <ShoppingCart className="w-4 h-4" />
-                    Add To Cart
+                    {addingToCart === product.id_produk ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Adding...
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="w-4 h-4" />
+                        Add To Cart
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -192,7 +264,7 @@ export default function BestSellingProducts({
 
                 {/* Price */}
                 <div className="flex items-center gap-2">
-                  <span className="text-red-500 font-medium">${product.harga}</span>
+                  <span className="text-red-500 font-medium">Rp. {product.harga?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   <span className="text-gray-400 text-sm">({product.total_quantity ?? 0} terjual)</span>
                 </div>
 

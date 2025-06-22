@@ -12,7 +12,6 @@ const createShipmentDetail = async (req, res) => {
       kota, 
       label, 
       phone_number, 
-      email_address,
       kode_pos
     } = req.body;
 
@@ -63,7 +62,6 @@ const createShipmentDetail = async (req, res) => {
       kota,
       label: label || '',
       phone_number,
-      email_address: email_address || '',
       kode_pos: kode_pos || ''
     };
 
@@ -103,7 +101,6 @@ const getShipmentDetails = async (req, res) => {
       kota: row.kota,
       label: row.label || '',
       phone_number: row.no_telepon, // Map no_telepon to phone_number
-      email_address: row.email_address || '',
       kode_pos: row.kode_pos || ''
     }));
 
@@ -144,7 +141,6 @@ const getShipmentDetailById = async (req, res) => {
       kota: row.kota,
       label: row.label || '',
       phone_number: row.no_telepon, // Map no_telepon to phone_number
-      email_address: row.email_address || '',
       kode_pos: row.kode_pos || ''
     };
 

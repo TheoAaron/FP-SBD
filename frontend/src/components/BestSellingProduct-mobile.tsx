@@ -131,13 +131,12 @@ export default function BestSellingProducts({
                   </h3>
                 </Link>
                 
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <span className="text-red-500 font-semibold text-sm sm:text-base">
-                    ${product.price}
+                <div className="flex items-center gap-2 sm:gap-3">                  <span className="text-red-500 font-semibold text-sm sm:text-base">
+                    Rp. {product.price?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                   {/* {product.originalPrice && (
                     <span className="text-gray-400 line-through text-xs sm:text-sm">
-                      ${product.originalPrice}
+                      Rp. {product.originalPrice?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                   )} */}
                 </div>

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import StarRating from '@/components/StarRating';
 import { Star } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export interface Review {
   id: number;
@@ -54,10 +55,10 @@ export default function UserReview({ id_produk }: UserReviewProps) {
         }
         
         console.log('Parsed reviews:', parsedReviews); // Debug log
-        setReviews(parsedReviews);
-      } catch (err) {
+        setReviews(parsedReviews);      } catch (err) {
         console.error('Error fetching reviews:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch reviews');
+        toast.error('Gagal menampilkan review');
         // Fallback to empty array if API fails
         setReviews([]);
       } finally {
@@ -104,20 +105,18 @@ export default function UserReview({ id_produk }: UserReviewProps) {
                 comment: review.comment || ''
               }));
             }
-          }
-          
+          }          
           setReviews(parsedReviews);
-        }} else {        // If API fails, add locally (fallback)
-        const next: Review = {
-          id: reviews.length + 1,
-          username: 'You', // ✅ Fallback username for local addition
-          date: new Date().toISOString().slice(0, 10),
-          rate: newRating,
-          comment: newComment
-        };
-        setReviews([next, ...reviews]);
+          toast.success('Review berhasil ditambahkan!');
+        } else {
+          toast.error('Review ditambahkan tapi gagal memuat ulang data');
+        }} else {
+        const errorData = await response.json().catch(() => ({}));
+        toast.error(errorData.message || 'Tidak bisa kirim review');
       }    } catch (error) {
-      console.error('Error adding review:', error);      // Fallback to local addition if API fails
+      console.error('Error adding review:', error);
+      toast.error('Tidak bisa kirim review');
+      // Fallback to local addition if API fails
       const next: Review = {
         id: reviews.length + 1,
         username: 'You', // ✅ Fallback username for local addition

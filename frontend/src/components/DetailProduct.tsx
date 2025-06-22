@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import StarRating from '@/components/StarRating';
 import { Heart } from 'lucide-react';
+import toast from "react-hot-toast";
 
 export type ProductDetailProps = { id_produk: string };
 
@@ -22,7 +23,9 @@ export default function DetailProduct({ id_produk }: ProductDetailProps) {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [addingToWishlist, setAddingToWishlist] = useState(false);
+  const [isInWishlist, setIsInWishlist] = useState(false);
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -42,10 +45,130 @@ export default function DetailProduct({ id_produk }: ProductDetailProps) {
       }
     };
 
+    const checkWishlistStatus = async () => {
+      const token = sessionStorage.getItem('jwtToken');
+      if (!token) return;
+
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/wishlist`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.wishlist?.produk) {
+            const productIds = Array.isArray(data.wishlist.produk) 
+              ? data.wishlist.produk.map((p: any) => p.id_produk || p.id || p)
+              : [];
+            setIsInWishlist(productIds.includes(id_produk) || productIds.includes(parseInt(id_produk)));
+          }
+        }
+      } catch (error) {
+        console.error('Error checking wishlist status:', error);
+      }
+    };
+
     if (id_produk) {
       fetchProduct();
+      checkWishlistStatus();
     }
   }, [id_produk]);
+
+  // Add to cart function
+  const handleAddToCart = async () => {
+    const token = sessionStorage.getItem('jwtToken');
+    if (!token) {
+      toast.error('Please login to add items to cart');
+      return;
+    }
+
+    setAddingToCart(true);
+    
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/cart/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          product_id: id_produk,
+          qty: quantity
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success(`${quantity} item(s) added to cart successfully!`);
+        console.log('Added to cart:', data);
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || 'Failed to add product to cart');
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add product to cart');
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+
+  // Add to wishlist function
+  const handleAddToWishlist = async () => {
+    const token = sessionStorage.getItem('jwtToken');
+    if (!token) {
+      toast.error('Please login to add items to wishlist');
+      return;
+    }
+
+    setAddingToWishlist(true);
+    
+    try {
+      if (isInWishlist) {
+        // Remove from wishlist
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/wishlist/${id_produk}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          setIsInWishlist(false);
+          toast.success('Product removed from wishlist');
+        } else {
+          const errorData = await response.json();
+          toast.error(errorData.message || 'Failed to remove product from wishlist');
+        }
+      } else {
+        // Add to wishlist
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/wishlist`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            product_id: id_produk
+          })
+        });
+
+        if (response.ok) {
+          setIsInWishlist(true);
+          toast.success('Product added to wishlist successfully!');
+        } else {
+          const errorData = await response.json();
+          toast.error(errorData.message || 'Failed to add product to wishlist');
+        }
+      }
+    } catch (error) {
+      console.error('Error updating wishlist:', error);
+      toast.error('Failed to update wishlist');
+    } finally {
+      setAddingToWishlist(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -110,7 +233,7 @@ export default function DetailProduct({ id_produk }: ProductDetailProps) {
 
           {/* Price */}
           <div className="text-xl sm:text-2xl font-normal text-black">
-            ${product.harga.toFixed(2)}
+            Rp. {product.harga?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
 
           {/* Description */}
@@ -121,7 +244,7 @@ export default function DetailProduct({ id_produk }: ProductDetailProps) {
           {/* Divider */}
           <div className="border-t border-black/20 my-4 sm:my-6"></div>
 
-          {/* Quantity and Add to Cart */}
+         
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center">
               {/* Quantity Selector */}
@@ -145,16 +268,39 @@ export default function DetailProduct({ id_produk }: ProductDetailProps) {
                 >
                   <span className="text-xl font-medium text-white">+</span>
                 </button>
-              </div>
-
-              {/* Add to Cart Button */}
-              <button className="flex-1 sm:flex-none h-11 px-8 sm:px-12 bg-red-500 hover:bg-red-600 active:bg-red-600 rounded text-white font-medium transition-colors touch-manipulation">
-                Add to Cart
-              </button>
-
-              {/* Wishlist Button */}
-              <button className="w-11 h-11 rounded border border-black/50 flex items-center justify-center hover:bg-gray-50 active:bg-gray-100 touch-manipulation">
-                <Heart className="w-5 h-5 text-gray-700" />
+              </div>              {/* Add to Cart Button */}
+              <button 
+                onClick={handleAddToCart}
+                disabled={addingToCart || quantity > product.stock}
+                className="flex-1 sm:flex-none h-11 px-8 sm:px-12 bg-red-500 hover:bg-red-600 active:bg-red-600 rounded text-white font-medium transition-colors touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {addingToCart ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Adding...
+                  </>
+                ) : (
+                  'Add to Cart'
+                )}
+              </button>              {/* Wishlist Button */}
+              <button 
+                onClick={handleAddToWishlist}
+                disabled={addingToWishlist}
+                className={`w-11 h-11 rounded border flex items-center justify-center transition-colors touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed ${
+                  isInWishlist 
+                    ? 'bg-red-500 border-red-500 hover:bg-red-600 active:bg-red-600' 
+                    : 'border-black/50 hover:bg-gray-50 active:bg-gray-100'
+                }`}
+              >
+                {addingToWishlist ? (
+                  <div className={`w-4 h-4 border-2 border-t-transparent rounded-full animate-spin ${
+                    isInWishlist ? 'border-white' : 'border-gray-600'
+                  }`}></div>
+                ) : (
+                  <Heart className={`w-5 h-5 ${
+                    isInWishlist ? 'text-white fill-red' : 'text-gray-700'
+                  }`} />
+                )}
               </button>
             </div>
           </div>

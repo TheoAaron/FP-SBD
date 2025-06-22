@@ -1,12 +1,13 @@
 'use client';
 
-import { ShoppingCart, Trash2, Eye } from "lucide-react";
+import { ShoppingCart, Trash2, Heart } from "lucide-react";
 import { useSearchParams } from 'next/navigation';
 import StarRating from "@/components/StarRating";
 import RequireAuth from "@/components/RequireAuth";
 import React, { useEffect, useState } from "react";
 import { formatImageUrl } from "@/utils/imageUtils";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 interface Product {
   id: number;
@@ -25,6 +26,8 @@ export default function WishlistPage() {
   const [lastView, setLastView] = useState<Product[]>([]);
   const [loadingLastView, setLoadingLastView] = useState(true);
   const [errorLastView, setErrorLastView] = useState<string | null>(null);
+  const [addingToWishlist, setAddingToWishlist] = useState<number | null>(null);
+  const [addingToCart, setAddingToCart] = useState<number | null>(null);
 
   useEffect(() => {
     // ambil user id
@@ -157,18 +160,155 @@ export default function WishlistPage() {
         .catch((error) => {
           console.error('Error fetching last view:', error);
           setErrorLastView("Gagal mengambil last view");
-          setLoadingLastView(false);
-        });
+          setLoadingLastView(false);        });
     }
   }, []);
+
+  // Add to wishlist function
+  const handleAddToWishlist = async (productId: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const token = sessionStorage.getItem('jwtToken');
+    if (!token) {
+      toast.error('Please login to add items to wishlist');
+      return;
+    }
+
+    setAddingToWishlist(productId);
+    
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/wishlist`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          product_id: productId.toString()
+        })
+      });
+
+      if (response.ok) {
+        toast.success('Product added to wishlist successfully!');
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || 'Failed to add product to wishlist');
+      }
+    } catch (error) {
+      console.error('Error adding to wishlist:', error);
+      toast.error('Failed to add product to wishlist');
+    } finally {
+      setAddingToWishlist(null);
+    }
+  };
+
+  // Add to cart function
+  const handleAddToCart = async (productId: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const token = sessionStorage.getItem('jwtToken');
+    if (!token) {
+      toast.error('Please login to add items to cart');
+      return;
+    }
+
+    setAddingToCart(productId);
+    
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/cart/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          product_id: productId.toString(),
+          qty: 1
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success('Product added to cart successfully!');
+        console.log('Added to cart:', data);
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.message || 'Failed to add product to cart');
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add product to cart');
+    } finally {
+      setAddingToCart(null);
+    }
+  };
+
   return (
     <RequireAuth>
       <div className="max-w-7xl mx-auto p-4 sm:p-6">
         {/* Wishlist Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
           <h2 className="text-lg sm:text-xl font-semibold">Wishlist ({wishlist.length})</h2>
-          <button className="border px-4 py-2.5 rounded hover:bg-gray-100 active:bg-gray-100 text-sm sm:text-base touch-manipulation">
-            Move All To Bag
+          <button 
+            className="border px-4 py-2.5 rounded hover:bg-gray-100 active:bg-gray-100 text-sm sm:text-base touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={async () => {
+              const token = sessionStorage.getItem('jwtToken');
+              if (!token) {
+          toast.error('Please login to add items to cart');
+          return;
+              }
+
+              if (wishlist.length === 0) {
+          toast.error('Wishlist is empty');
+          return;
+              }
+
+              setAddingToCart(-1); // Use -1 to indicate "all items"
+              
+              try {
+          const promises = wishlist.map(product => 
+            fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/cart/add`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                product_id: product.id.toString(),
+                qty: 1
+              })
+            })
+          );
+
+          const results = await Promise.all(promises);
+          const successCount = results.filter(res => res.ok).length;
+          
+          if (successCount === wishlist.length) {
+            toast.success(`All ${successCount} items added to cart successfully!`);
+          } else if (successCount > 0) {
+            toast.success(`${successCount} of ${wishlist.length} items added to cart`);
+          } else {
+            toast.error('Failed to add items to cart');
+          }
+              } catch (error) {
+          console.error('Error adding all to cart:', error);
+          toast.error('Failed to add items to cart');
+              } finally {
+          setAddingToCart(null);
+              }
+            }}
+            disabled={addingToCart === -1 || wishlist.length === 0}
+          >
+            {addingToCart === -1 ? (
+              <div className="flex items-center gap-2">
+          <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
+          Adding to Cart...
+              </div>
+            ) : (
+              'Move All To Bag'
+            )}
           </button>
         </div>
         {/* Wishlist Grid */}
@@ -196,18 +336,43 @@ export default function WishlistPage() {
                   />
 
                   {/* Action Buttons */}
-                  <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex">
+                    <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex">
                     <button 
-                      className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        // Remove from wishlist logic here
+                      className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50 disabled:opacity-50"
+                      onClick={async (e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      
+                      const token = sessionStorage.getItem('jwtToken');
+                      if (!token) {
+                        toast.error('Please login to remove items from wishlist');
+                        return;
+                      }
+
+                      try {
+                        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/wishlist/${product.id}`, {
+                        method: 'DELETE',
+                        headers: {
+                          'Authorization': `Bearer ${token}`
+                        }
+                        });
+
+                        if (response.ok) {
+                        toast.success('Product removed from wishlist');
+                        window.location.reload();
+                        } else {
+                        const errorData = await response.json();
+                        toast.error(errorData.message || 'Failed to remove product from wishlist');
+                        }
+                      } catch (error) {
+                        console.error('Error removing from wishlist:', error);
+                        toast.error('Failed to remove product from wishlist');
+                      }
                       }}
                     >
                       <Trash2 className="w-4 h-4 text-gray-600" />
                     </button>
-                  </div>
+                    </div>
 
                   {/* Mobile: Always visible Trash Icon */}
                   <button 
@@ -243,9 +408,9 @@ export default function WishlistPage() {
 
                   {/* Price */}
                   <div className="flex items-center gap-2">
-                    <span className="text-red-500 font-medium">${product.price}</span>
+                    <span className="text-red-500 font-medium">Rp. {product.price?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     {product.originalPrice && (
-                      <span className="text-gray-400 line-through">${product.originalPrice}</span>
+                      <span className="text-gray-400 line-through">Rp. {product.originalPrice?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     )}
                   </div>
 
@@ -304,32 +469,32 @@ export default function WishlistPage() {
                   onError={(e) => {
                     e.currentTarget.src = '/shopit.svg';
                   }}
-                />
-
-                {/* Action Buttons */}
+                />                {/* Action Buttons */}
                 <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex">
                   <button 
-                    className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      // View logic here (can also redirect)
-                    }}
+                    className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50 disabled:opacity-50"
+                    onClick={(e) => handleAddToWishlist(product.id, e)}
+                    disabled={addingToWishlist === product.id}
                   >
-                    <Eye className="w-4 h-4 text-gray-600" />
+                    {addingToWishlist === product.id ? (
+                      <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                      <Heart className="w-4 h-4 text-gray-600" />
+                    )}
                   </button>
                 </div>
 
-                {/* Mobile: Always visible Eye Icon */}
+                {/* Mobile: Always visible Heart Icon */}
                 <button 
-                  className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center text-black active:bg-gray-200 transition-colors z-10 sm:hidden touch-manipulation"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // View logic here (can also redirect)
-                  }}
+                  className="absolute top-2 right-2 bg-white/90 rounded-full w-7 h-7 flex items-center justify-center text-black active:bg-gray-200 transition-colors z-10 sm:hidden touch-manipulation disabled:opacity-50"
+                  onClick={(e) => handleAddToWishlist(product.id, e)}
+                  disabled={addingToWishlist === product.id}
                 >
-                  <Eye className="w-4 h-4" />
+                  {addingToWishlist === product.id ? (
+                    <div className="w-3.5 h-3.5 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Heart className="w-4 h-4" />
+                  )}
                 </button>
 
                 {/* Add to Cart Button */}
@@ -354,9 +519,9 @@ export default function WishlistPage() {
 
                 {/* Price */}
                 <div className="flex items-center gap-2">
-                  <span className="text-red-500 font-medium">${product.price}</span>
+                  <span className="text-red-500 font-medium">Rp. {product.price?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   {product.originalPrice && (
-                    <span className="text-gray-400 line-through">${product.originalPrice}</span>
+                    <span className="text-gray-400 line-through">Rp. {product.originalPrice?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   )}
                 </div>
 

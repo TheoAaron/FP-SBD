@@ -11,7 +11,6 @@ interface ShipmentDetail {
   apartment_floor?: string;
   kota: string;
   phone_number: string;
-  email_address: string;
   kode_pos: string;
   label?: string; // "Home", "Office", etc.
 }
@@ -33,7 +32,6 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
     apartment_floor: '',
     kota: '',
     phone_number: '',
-    email_address: '',
     kode_pos: '',
     label: ''
   });
@@ -144,7 +142,6 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
         apartment_floor: '',
         kota: '',
         phone_number: '',
-        email_address: '',
         kode_pos: '',
         label: ''
       });
@@ -231,10 +228,6 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
                     <FiPhone className="w-4 h-4 flex-shrink-0" />
                     <span>{address.phone_number}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <FiMail className="w-4 h-4 flex-shrink-0" />
-                    <span>{address.email_address}</span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -315,16 +308,7 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
             className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
           />
-          
-          <input
-            name="email_address"
-            value={form.email_address}
-            onChange={handleChange}
-            placeholder="Email Address*"
-            type="email"
-            className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
-          />
+        
           
           <input
             name="label"

@@ -204,7 +204,7 @@ export default function OrdersPage() {
                         </div>
                       </td>                      <td className="px-6 py-6 whitespace-nowrap text-center">
                         <div className="text-sm font-medium text-gray-900">
-                          ${(order.total_harga || 0).toLocaleString()}
+                          Rp. {(order.total_harga || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                       </td>                      <td className="px-6 py-6 whitespace-nowrap text-center">
                         <div className="text-sm text-gray-900 uppercase">

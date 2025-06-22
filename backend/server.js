@@ -19,6 +19,7 @@ const shipmentRoutes = require("./routes/shipmentRoutes");
 const lastViewRoutes = require("./routes/lastViewRoute");
 
 const cartRoutes = require("./routes/cartRoutes");
+const couponRoutes = require("./routes/couponRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -39,6 +40,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/wishlist", wishlistRoutes);
 app.use("/api/shipments", shipmentRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/coupons", couponRoutes);
 app.use("/api/lastview", lastViewRoutes);
 
 const start = async () => {

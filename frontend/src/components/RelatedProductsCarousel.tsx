@@ -138,7 +138,7 @@ export default function RelatedProductsCarousel({ products }: CarouselProps) {
             <div className="flex-grow">
               <h3 className="font-medium text-gray-900 text-sm">{prod.nama_produk}</h3>
               <div className="flex items-center gap-2 text-sm">
-                <span className="text-red-500 font-semibold">${prod.harga}</span>
+                <span className="text-red-500 font-semibold">Rp. {prod.harga?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <StarRating rating={prod.real_rating ?? 0} />

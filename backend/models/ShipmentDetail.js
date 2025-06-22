@@ -44,10 +44,6 @@ const ShipmentDetail = sequelize.define('ShipmentDetail', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  email_address: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
   negara: {
     type: DataTypes.STRING,
     allowNull: false

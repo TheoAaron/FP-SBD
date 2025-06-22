@@ -10,7 +10,7 @@
     "migrate:reviews": "node scripts/migrate-reviews.js",
     "sync-reviews": "node scripts/sync-reviews.js"
   },
-  "keywords": [],
+  "keywords": [], 
   "author": "",
   "license": "ISC",
   "description": "",
