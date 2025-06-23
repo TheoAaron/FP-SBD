@@ -1,14 +1,14 @@
-// filepath: src/lib/dummyProducts.ts
+﻿
 export interface Product {
   id_produk: number;
   id_kategori: number;
   category: string;
   nama_produk: string;
-  avg_rating: number; // e.g., 4.5
-  harga: number;      // price in float
+  avg_rating: number;
+  harga: number;
   description: string;
-  image: string;      // URL string
-  stock: number;      // available stock
+  image: string;
+  stock: number;
   total_review: number;
 }
 

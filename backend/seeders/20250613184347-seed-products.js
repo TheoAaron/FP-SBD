@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 const { v4: uuidv4 } = require('uuid');
 
@@ -42,7 +42,7 @@ module.exports = {
       {
         id_produk: uuidv4(),
         nama_produk: 'Sony WH-1000XM5',
-       
+
         harga: 4990000,
         description: 'Headphone noise cancelling terbaik dari Sony.',        image: 'sonywh1000xm5.jpg',
         stock: 30,
@@ -57,3 +57,4 @@ module.exports = {
     await queryInterface.bulkDelete('products', null, {});
   }
 };
+

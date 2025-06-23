@@ -1,4 +1,4 @@
-export interface OrderItem {
+﻿export interface OrderItem {
   id: string;
   name: string;
   price: number;
@@ -44,20 +44,20 @@ export const dummyOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=300&fit=crop'
       },
       {
-        id: '2', 
+        id: '2',
         name: 'Hi Gamepad',
         price: 550,
         quantity: 2,
         image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=300&fit=crop'
       },
             {
-        id: '3', 
+        id: '3',
         name: 'Hi Gamepad',
         price: 550,
         quantity: 2,
         image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=300&fit=crop'
       }
-      
+
     ],
     subtotal: 1750,
     shipping: 0,

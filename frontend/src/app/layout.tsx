@@ -1,4 +1,4 @@
-import "./globals.css";
+﻿import "./globals.css";
 import LayoutWrapper from "@/components/LayoutWrapper";
 import type { Metadata, Viewport } from "next";
 
@@ -21,7 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <LayoutWrapper>
-          {children}          
+          {children}
         </LayoutWrapper>
       </body>
     </html>

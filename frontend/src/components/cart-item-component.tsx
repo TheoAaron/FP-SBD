@@ -1,4 +1,4 @@
-import React from 'react'
+﻿import React from 'react'
 import { CartItem as CartItemType } from './cart-types'
 
 interface CartItemProps {
@@ -8,11 +8,11 @@ interface CartItemProps {
   formatCurrency: (amount: number) => string
 }
 
-export default function CartItem({ 
-  item, 
-  onUpdateQuantity, 
-  onRemove, 
-  formatCurrency 
+export default function CartItem({
+  item,
+  onUpdateQuantity,
+  onRemove,
+  formatCurrency
 }: CartItemProps) {
   const handleQuantityChange = (newQuantity: number) => {
     if (item.maxStock && newQuantity > item.maxStock) {
@@ -24,15 +24,15 @@ export default function CartItem({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 py-6">
-      {/* Product Info */}
+      {}
       <div className="flex items-center space-x-4">
         <div className="relative w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
-          {/* Product image placeholder */}
-          <div className="w-8 h-8 bg-red-500 rounded"></div>
-          {/* Remove button */}
+          {}
+          <div className="w-8 h-8 bg-blue-500 rounded"></div>
+          {}
           <button
             onClick={() => onRemove(item.id)}
-            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 transition-colors"
+            className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 text-white rounded-full text-xs hover:bg-blue-600 transition-colors"
             aria-label={`Remove ${item.name} from cart`}
           >
             ×
@@ -46,13 +46,13 @@ export default function CartItem({
         </div>
       </div>
 
-      {/* Price */}
+      {}
       <div className="text-gray-900 font-medium md:text-center">
         <span className="md:hidden font-normal text-gray-600">Price: </span>
         {formatCurrency(item.price)}
       </div>
 
-      {/* Quantity Controls */}
+      {}
       <div className="flex items-center md:justify-center">
         <span className="md:hidden mr-2 text-gray-600">Qty:</span>
         <div className="flex items-center border border-gray-300 rounded-md">
@@ -87,7 +87,7 @@ export default function CartItem({
         </div>
       </div>
 
-      {/* Subtotal */}
+      {}
       <div className="text-gray-900 font-medium md:text-center">
         <span className="md:hidden font-normal text-gray-600">Subtotal: </span>
         {formatCurrency(item.price * item.quantity)}

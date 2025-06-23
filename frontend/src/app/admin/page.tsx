@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -6,14 +6,12 @@ import ProductCard from '../../components/ProductCard'
 import { Product } from '../../types/product'
 import {jwtDecode} from 'jwt-decode'
 
-
 export default function AdminProductsPage() {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [products, setProducts] = useState<Product[]>([])
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
-
 
   useEffect(() => {
     const checkAuthAndFetch = async () => {
@@ -31,7 +29,6 @@ export default function AdminProductsPage() {
           return
         }
 
-        // If the user is admin, fetch the products
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/product`,{
           method: 'GET',
           headers: {
@@ -52,8 +49,7 @@ export default function AdminProductsPage() {
     }
 
     checkAuthAndFetch()
-  }, [router])  
-
+  }, [router])
 
   const filteredProducts = products.filter(product =>
     product.nama_produk.toLowerCase().includes(search.toLowerCase())
@@ -68,7 +64,7 @@ export default function AdminProductsPage() {
       fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/product/${id}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${sessionStorage.getItem('jwtToken')}`,        
+          'Authorization': `Bearer ${sessionStorage.getItem('jwtToken')}`,
         }
       })
         .then(response => {
@@ -93,16 +89,15 @@ export default function AdminProductsPage() {
     router.push('/admin/coupon/list/')
   }
 
-  
   if (loading) {
     return <div className="p-10 text-center text-gray-600">Loading...</div>
   if (error) {
-    return <div className="p-10 text-center text-red-500">{error}</div>
+    return <div className="p-10 text-center text-blue-500">{error}</div>
   }
   }else{
   return (
     <div className="min-h-screen bg-gray-50">
-      <main className="max-w-7xl mx-auto px-8 py-8">        {/* Header */}        <div className="flex items-center justify-between mb-8">
+      <main className="max-w-7xl mx-auto px-8 py-8">        {}        <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-semibold text-gray-900">All Produk</h1>
           <div className="flex gap-3">
             <button
@@ -126,7 +121,7 @@ export default function AdminProductsPage() {
           </div>
         </div>
 
-        {/* Search Bar */}
+        {}
         <div className="mb-8 max-w-sm">
           <div className="relative">
             <input
@@ -144,8 +139,8 @@ export default function AdminProductsPage() {
           </div>
         </div>
 
-        {/* Product Grid */}
-        {/* jika product kosong */}
+        {}
+        {}
         {filteredProducts.length === 0 && (
           <div className="text-center text-gray-500 mb-8">
             <p className="text-lg">No products found</p>
@@ -153,8 +148,7 @@ export default function AdminProductsPage() {
           </div>
         )}
 
-
-        {/* jika ada */}
+        {}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-16">
             {filteredProducts.map(product => (
               <ProductCard
@@ -167,12 +161,7 @@ export default function AdminProductsPage() {
           </div>
       </main>
 
-      {/* Footer
-      <footer className="bg-black text-white py-6">
-        <div className="max-w-7xl mx-auto px-8 text-center">
-          <p className="text-sm">© Copyright SBD Kelompok 1 anjay 2025</p>
-        </div>
-      </footer> */}
+      {}
     </div>
   )
 }

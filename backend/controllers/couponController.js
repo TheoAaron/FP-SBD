@@ -1,16 +1,13 @@
-const { pool } = require('../config/mysql');
+﻿const { pool } = require('../config/mysql');
 const { v4: uuidv4 } = require('uuid');
 
-// POST - Create new coupon
 const createCoupon = async (req, res) => {
   try {
     console.log('📝 Request body:', req.body);
     const { kode_kupon, expire_date, expired_at, status, diskon } = req.body;
-    
-    // Support both expire_date and expired_at field names
+
     const expireDateValue = expired_at || expire_date;
 
-    // Validasi input
     if (!kode_kupon || !expireDateValue || !diskon) {
       console.log('❌ Validation error: Missing required fields');
       return res.status(400).json({
@@ -18,7 +15,6 @@ const createCoupon = async (req, res) => {
       });
     }
 
-    // Validasi diskon (0-100)
     if (diskon < 0 || diskon > 100) {
       console.log('❌ Validation error: Invalid discount range');
       return res.status(400).json({
@@ -26,11 +22,10 @@ const createCoupon = async (req, res) => {
       });
     }
 
-    // Validasi tanggal kadaluwarsa
     const expireDate = new Date(expireDateValue);
     const currentDate = new Date();
     console.log('📅 Expire date:', expireDate, 'Current date:', currentDate);
-    
+
     if (expireDate <= currentDate) {
       console.log('❌ Validation error: Past expiry date');
       return res.status(400).json({
@@ -38,7 +33,6 @@ const createCoupon = async (req, res) => {
       });
     }
 
-    // Cek apakah kode kupon sudah ada
     console.log('🔍 Checking existing coupon with code:', kode_kupon);
     const [existingCoupons] = await pool.query(
       'SELECT id_kupon FROM coupons WHERE kode_kupon = ?',
@@ -52,24 +46,22 @@ const createCoupon = async (req, res) => {
       });
     }
 
-    // Buat kupon baru
     console.log('✅ Creating new coupon...');
     const id_kupon = uuidv4();
     const currentDateTime = new Date();
-    
+
     await pool.query(
       'INSERT INTO coupons (id_kupon, kode_kupon, expired_at, status, diskon, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [id_kupon, kode_kupon, expireDate, status || 'active', parseFloat(diskon), currentDateTime, currentDateTime]
     );
 
-    // Ambil data kupon yang baru dibuat
     const [newCouponRows] = await pool.query(
       'SELECT * FROM coupons WHERE id_kupon = ?',
       [id_kupon]
     );
 
     console.log('✅ Coupon created successfully:', newCouponRows[0]);
-    
+
     res.status(201).json({
       message: 'Kupon berhasil dibuat',
       data: newCouponRows[0]
@@ -89,19 +81,16 @@ const createCoupon = async (req, res) => {
   }
 };
 
-// DELETE - Delete coupon by ID
 const deleteCoupon = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validasi ID
     if (!id) {
       return res.status(400).json({
         error: 'ID kupon harus disediakan'
       });
     }
 
-    // Cari kupon berdasarkan ID
     const [couponRows] = await pool.query(
       'SELECT id_kupon FROM coupons WHERE id_kupon = ?',
       [id]
@@ -113,7 +102,6 @@ const deleteCoupon = async (req, res) => {
       });
     }
 
-    // Hapus kupon
     await pool.query(
       'DELETE FROM coupons WHERE id_kupon = ?',
       [id]
@@ -132,7 +120,6 @@ const deleteCoupon = async (req, res) => {
   }
 };
 
-// GET - Get all coupons
 const getAllCoupons = async (req, res) => {
   try {
     const [coupons] = await pool.query(
@@ -152,7 +139,6 @@ const getAllCoupons = async (req, res) => {
   }
 };
 
-// GET - Get coupon by ID
 const getCouponById = async (req, res) => {
   try {
     const { kode_kupon } = req.params;
@@ -181,30 +167,25 @@ const getCouponById = async (req, res) => {
   }
 };
 
-// PUT - Update existing coupon
 const updateCoupon = async (req, res) => {
   try {
     const { id } = req.params;
     const { kode_kupon, expired_at, expire_date, status, diskon } = req.body;
 
-    // Support both expired_at and expire_date field names
     const expiredAtValue = expired_at || expire_date;
 
-    // Validasi input
     if (!kode_kupon || !expiredAtValue || !diskon) {
       return res.status(400).json({
         error: 'Kode kupon, tanggal kadaluwarsa, dan diskon harus diisi'
       });
     }
 
-    // Validasi diskon (0-100)
     if (diskon < 0 || diskon > 100) {
       return res.status(400).json({
         error: 'Diskon harus antara 0-100 persen'
       });
     }
 
-    // Cari coupon yang akan diupdate
     const [existingCouponRows] = await pool.query(
       'SELECT id_kupon FROM coupons WHERE id_kupon = ?',
       [id]
@@ -216,7 +197,6 @@ const updateCoupon = async (req, res) => {
       });
     }
 
-    // Cek apakah kode kupon sudah digunakan oleh coupon lain
     const [duplicateCoupons] = await pool.query(
       'SELECT id_kupon FROM coupons WHERE kode_kupon = ? AND id_kupon != ?',
       [kode_kupon, id]
@@ -228,7 +208,6 @@ const updateCoupon = async (req, res) => {
       });
     }
 
-    // Update coupon
     const currentDateTime = new Date();
     const [updateResult] = await pool.query(
       'UPDATE coupons SET kode_kupon = ?, expired_at = ?, status = ?, diskon = ?, updatedAt = ? WHERE id_kupon = ?',
@@ -241,7 +220,6 @@ const updateCoupon = async (req, res) => {
       });
     }
 
-    // Ambil data coupon yang sudah diupdate
     const [updatedCouponRows] = await pool.query(
       'SELECT * FROM coupons WHERE id_kupon = ?',
       [id]
@@ -260,7 +238,6 @@ const updateCoupon = async (req, res) => {
   }
 };
 
-// POST - Validate and apply coupon (bonus feature)
 const validateCoupon = async (req, res) => {
   try {
     const { kode_kupon } = req.body;

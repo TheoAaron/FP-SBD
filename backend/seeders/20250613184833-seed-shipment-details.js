@@ -1,8 +1,8 @@
-const { v4: uuidv4 } = require('uuid');
+﻿const { v4: uuidv4 } = require('uuid');
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    // Ambil user dari DB
+
     const users = await queryInterface.sequelize.query(
       `SELECT id_user, first_name FROM users LIMIT 3;`,
       { type: Sequelize.QueryTypes.SELECT }
@@ -32,3 +32,4 @@ module.exports = {
     await queryInterface.bulkDelete('shipment_details', null, {});
   }
 };
+

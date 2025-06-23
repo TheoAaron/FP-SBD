@@ -1,4 +1,4 @@
-// src/app/page.tsx
+﻿
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -74,22 +74,20 @@ export default function Profile() {
     return (
       <div className="px-[10vw] py-8">
         <div className="flex justify-center items-center">
-          <div className="text-red-500 text-lg">{error}</div>
+          <div className="text-blue-500 text-lg">{error}</div>
         </div>
       </div>
     );
   }
 
   return (
-    // <>    //   {/* <h2 className="text-2xl font-semibold mb-4">Profile Page</h2>
-    //   <p>This is the Profile page content.</p> */}
-    // </>
+
     <RequireAuth>
-      <div className="px-[10vw]">      
+      <div className="px-[10vw]">
         <ol className="flex items-center px-4 space-x-2 text-sm py-4 text-gray-600">
           <li className="text-gray-900 font-medium">Welcome! </li>
-          <li className="text-red-500 font-medium">{userProfile?.name || userProfile?.email || 'User'}</li>
-        </ol>      <div className="flex">     
+          <li className="text-blue-500 font-medium">{userProfile?.name || userProfile?.email || 'User'}</li>
+        </ol>      <div className="flex">
           <ProfileSidebar />
           <EditProfile userProfile={userProfile} />
         </div>

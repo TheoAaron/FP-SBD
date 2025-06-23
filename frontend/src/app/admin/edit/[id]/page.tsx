@@ -1,4 +1,3 @@
-// src/app/admin/products/edit/[id]/page.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -76,7 +75,7 @@ export default function EditProductPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 mb-4">{error || 'Produk tidak ditemukan'}</p>
+          <p className="text-blue-600 mb-4">{error || 'Produk tidak ditemukan'}</p>
           <a href="/admin/products" className="text-blue-500 hover:underline">
             Kembali ke daftar produk
           </a>

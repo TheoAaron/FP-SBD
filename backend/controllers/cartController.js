@@ -1,4 +1,4 @@
-const { getDB } = require("../config/mongo.js");
+﻿const { getDB } = require("../config/mongo.js");
 const { pool } = require("../config/mysql.js");
 const getCart = async (req, res) => {
     const db = getDB();
@@ -6,24 +6,21 @@ const getCart = async (req, res) => {
 
     try {
         const cart = await db.collection("cart").findOne({ id_user: userId });
-        
+
         if (!cart || !cart.produk || cart.produk.length === 0) {
-            return res.json({ 
+            return res.json({
                 id_user: userId,
                 produk: []
             });
         }
 
-        // Extract product IDs from cart
         const productIds = cart.produk.map(item => item.product_id);
 
-        // Get product details from MySQL
         const [rows] = await pool.query(
-            `SELECT id_produk, nama_produk, harga, image, stock FROM products WHERE id_produk IN (?)`, 
+            `SELECT id_produk, nama_produk, harga, image, stock FROM products WHERE id_produk IN (?)`,
             [productIds]
         );
 
-        // Merge cart data with product details
         const enrichedProduk = cart.produk.map(cartItem => {
             const productDetail = rows.find(product => product.id_produk === cartItem.product_id);
             return {
@@ -55,28 +52,28 @@ const addToCart = async (req, res) => {
     }
 
     try {
-        // Check if user already has a cart
+
         const existingCart = await db.collection("cart").findOne({ id_user: userId });
-        
+
         if (existingCart) {
-            // Check if product already exists in cart
+
             const productExists = existingCart.produk && existingCart.produk.some(item => item.product_id === product_id);
-            
+
             if (productExists) {
-                // Update existing product quantity using positional operator
+
                 const updateResult = await db.collection("cart").findOneAndUpdate(
-                    { 
+                    {
                         id_user: userId,
-                        "produk.product_id": product_id 
+                        "produk.product_id": product_id
                     },
-                    { 
-                        $inc: { "produk.$.qty": qty } 
+                    {
+                        $inc: { "produk.$.qty": qty }
                     },
                     { returnDocument: 'after' }
                 );
                 return res.status(200).json({ message: "Product quantity updated", cart: updateResult.value });
             } else {
-                // Add new product to existing cart
+
                 const addResult = await db.collection("cart").findOneAndUpdate(
                     { id_user: userId },
                     { $push: { produk: { product_id, qty } } },
@@ -85,12 +82,12 @@ const addToCart = async (req, res) => {
                 return res.status(201).json({ message: "Product added to cart", cart: addResult.value });
             }
         } else {
-            // Create new cart with first product
+
             const newCart = await db.collection("cart").insertOne({
                 id_user: userId,
                 produk: [{ product_id, qty }]
             });
-            
+
             const createdCart = await db.collection("cart").findOne({ _id: newCart.insertedId });
             return res.status(201).json({ message: "New cart created with product", cart: createdCart });
         }
@@ -100,7 +97,6 @@ const addToCart = async (req, res) => {
     }
 }
 
-
 const updateCart = async (req, res) => {
     const db = getDB();
     const userId = req.user?.id;
@@ -109,16 +105,16 @@ const updateCart = async (req, res) => {
         return res.status(401).json({ message: "Unauthorized: User ID not found" });
     }
 
-    const produk = req.body.produk; 
+    const produk = req.body.produk;
     if (!Array.isArray(produk) || produk.length === 0) {
         return res.status(400).json({ message: "Produk array is required and cannot be empty" });
     }
 
     try {
         const result = await db.collection("cart").findOneAndUpdate(
-            { id_user: userId },                 
-            { $set: { produk: produk } },        
-            { upsert: true, returnDocument: 'after' } 
+            { id_user: userId },
+            { $set: { produk: produk } },
+            { upsert: true, returnDocument: 'after' }
         );
 
         if (!result) {
@@ -152,10 +148,9 @@ const deleteCart = async (req, res) => {
     }
 };
 
-// Helper function for internal use (without HTTP response)
 const deleteCartByUserId = async (userId) => {
     const db = getDB();
-    
+
     try {
         const result = await db.collection("cart").deleteOne({ id_user: userId });
         return { success: true, deletedCount: result.deletedCount };

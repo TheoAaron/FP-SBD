@@ -1,10 +1,8 @@
+﻿const crypto = require('crypto');
 const { v4: uuidv4 } = require('uuid');
-const crypto = require('crypto');
 
-// Load environment variables
 require('dotenv').config();
 
-// Fungsi hash password pakai SHA-256
 function hashPassword(password) {
   const salt = process.env.PASSWORD_SALT || 'defaultsalt';
   if (!process.env.PASSWORD_SALT) {
@@ -13,8 +11,7 @@ function hashPassword(password) {
   return crypto.createHash('sha256').update(`${password}${salt}`).digest('hex');
 }
 
-module.exports = {
-  up: async (queryInterface, Sequelize) => {
+module.exports = {  up: async (queryInterface, Sequelize) => {
     const users = [
       {
         id_user: uuidv4(),
@@ -27,8 +24,7 @@ module.exports = {
         phone_number: '08123456789',
         role: 'admin',
         createdAt: new Date(),
-        updatedAt: new Date()
-      },
+        updatedAt: new Date()      },
       {
         id_user: uuidv4(),
         username: 'john_doe',
@@ -40,8 +36,7 @@ module.exports = {
         phone_number: '08123456780',
         role: 'user',
         createdAt: new Date(),
-        updatedAt: new Date()
-      },
+        updatedAt: new Date()      },
       {
         id_user: uuidv4(),
         username: 'jane_doe',
@@ -54,13 +49,18 @@ module.exports = {
         role: 'user',
         createdAt: new Date(),
         updatedAt: new Date()
-      }
-    ];
+      }    ];
 
-    return queryInterface.bulkInsert('users', users);
+    try {
+      return await queryInterface.bulkInsert('users', users);
+    } catch (error) {
+      console.error('Seeding error:', error);
+      throw error;
+    }
   },
 
   down: async (queryInterface, Sequelize) => {
     return queryInterface.bulkDelete('users', null, {});
   }
 };
+

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { Heart, ShoppingCart } from "lucide-react";
 import StarRating from "@/components/StarRating";
 import Link from "next/link";
@@ -19,18 +19,16 @@ interface ProductWithReviews extends Product {
 export default function ExploreProducts({ products }: ExploreProductsProps) {
   const [productsWithReviews, setProductsWithReviews] = useState<ProductWithReviews[]>([]);
   const [loading, setLoading] = useState(true);
-  const [addingToCart, setAddingToCart] = useState<string | null>(null); // Track which product is being added
+  const [addingToCart, setAddingToCart] = useState<string | null>(null);
   const [addingToWishlist, setAddingToWishlist] = useState<string | null>(null);
 
-  // Filter out invalid products
-  const validProducts = products?.filter(product => 
-    product && 
-    product.id_produk && 
-    product.nama_produk && 
+  const validProducts = products?.filter(product =>
+    product &&
+    product.id_produk &&
+    product.nama_produk &&
     typeof product.harga === 'number'
   ) || [];
 
-  // Add to cart function
   const handleAddToCart = async (productId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -41,7 +39,7 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
     }
 
     setAddingToCart(productId);
-    
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/cart/add`, {
         method: 'POST',
@@ -68,11 +66,11 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
       setAddingToCart(null);
     }
   };
-  // Add to wishlist function
+
   const handleAddToWishlist = async (productId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const token = sessionStorage.getItem('jwtToken');
     if (!token) {
       toast.error('Please login to add items to wishlist');
@@ -104,7 +102,6 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
     }
   };
 
-  // Fetch reviews from MongoDB for each product
   useEffect(() => {
     const fetchReviews = async () => {
       if (validProducts.length === 0) {
@@ -120,14 +117,12 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
               if (response.ok) {
                 const data = await response.json();
                 console.log(`Raw API response for product ${product.id_produk}:`, data);
-                
-                // Extract reviews from the correct path
-                // data.reviews is array of documents, each document has a 'review' array
+
                 let reviews = [];                if (data.reviews && data.reviews.length > 0 && data.reviews[0].reviews) {
                   reviews = data.reviews[0].reviews;
                 }
                 console.log(`Extracted reviews for product ${product.id_produk}:`, reviews);
-                
+
                 let real_rating = 0;
                 let real_review_count = reviews.length;
                 if (reviews.length > 0) {
@@ -135,7 +130,7 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
                   real_rating = totalRating / reviews.length;
                   console.log(`Product ${product.id_produk}: Calculated rating=${real_rating}, count=${real_review_count}`);
                 }
-                
+
                 return {
                   ...product,
                   real_rating,
@@ -158,7 +153,7 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
             }
           })
         );
-        
+
         setProductsWithReviews(productsWithReviewData);
       } catch (error) {
         console.error('Error fetching reviews:', error);
@@ -173,16 +168,15 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
 
   return (
     <div className="w-full bg-white">
-      {/* Header */}
+      {}
       <div className="mb-6 sm:mb-8">
-        <div className="flex items-center gap-4 mb-2">
-          <div className="w-1 h-6 sm:h-8 bg-red-500 rounded"></div>
-          <span className="text-red-500 font-medium text-sm sm:text-base">Our Products</span>
+        <div className="flex items-center gap-4 mb-2">          <div className="w-1 h-6 sm:h-8 bg-blue-500 rounded"></div>
+          <span className="text-blue-500 font-medium text-sm sm:text-base">Our Products</span>
         </div>
         <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Explore Our Products</h2>
       </div>
 
-      {/* Grid */}
+      {}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {Array.from({ length: 8 }).map((_, index) => (
@@ -202,7 +196,7 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
               href={`/product/${product.id_produk}`}
               className="group relative border rounded-lg p-4 hover:shadow-lg transition flex flex-col"
             >
-              {/* Image */}
+              {}
               <div className="relative bg-gray-100 rounded-lg h-48 sm:h-56 mb-3 sm:mb-4 flex items-center justify-center overflow-hidden">
                 <img
                   src={product.image || 'https://via.placeholder.com/300x300?text=No+Image'}
@@ -212,9 +206,9 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
                     e.currentTarget.src = 'https://via.placeholder.com/300x300?text=No+Image';
                   }}
                 />
-                  {/* Desktop: Hover buttons */}
+                  {}
                 <div className="absolute top-3 right-3 hidden sm:flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button 
+                  <button
                     className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50 disabled:opacity-50"
                     onClick={(e) => handleAddToWishlist(product.id_produk, e)}
                     disabled={addingToWishlist === product.id_produk}
@@ -226,10 +220,10 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
                     )}
                   </button>
                 </div>
-                
-                {/* Mobile: Always visible buttons */}
+
+                {}
                 <div className="absolute top-2 right-2 flex sm:hidden flex-col gap-1">
-                  <button 
+                  <button
                     className="w-7 h-7 bg-white/90 rounded-full flex items-center justify-center shadow-md active:bg-gray-100 touch-manipulation disabled:opacity-50"
                     onClick={(e) => handleAddToWishlist(product.id_produk, e)}
                     disabled={addingToWishlist === product.id_produk}
@@ -241,10 +235,10 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
                     )}
                   </button>
                 </div>
-                
-                {/* Desktop: Hover Add To Cart */}
+
+                {}
                 <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4 hidden sm:block">
-                  <button 
+                  <button
                     className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={(e) => handleAddToCart(product.id_produk, e)}
                     disabled={addingToCart === product.id_produk}
@@ -264,11 +258,11 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
                 </div>
               </div>
 
-              {/* Info */}
+              {}
               <div className="flex-grow">
                 <h3 className="font-medium text-gray-900 text-sm">{product.nama_produk}</h3>
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-red-500 font-semibold">Rp. {product.harga?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  <span className="text-blue-500 font-semibold">Rp. {product.harga?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <StarRating rating={product.real_rating ?? 0} />
@@ -277,9 +271,9 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
                 </div>
               </div>
 
-              {/* Mobile: Always visible Add To Cart */}
+              {}
               <div className="block sm:hidden">
-                <button 
+                <button
                   className="w-full bg-black text-white py-2.5 rounded hover:bg-gray-800 active:bg-gray-800 transition-colors flex items-center justify-center gap-2 touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={(e) => handleAddToCart(product.id_produk, e)}
                   disabled={addingToCart === product.id_produk}
@@ -312,9 +306,9 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
         </div>
       )}
 
-      {/* View All Button */}
+      {}
       <div className="flex justify-center mt-8 sm:mt-10">
-        <Link href="/product" className="bg-red-500 hover:bg-red-600 active:bg-red-600 text-white px-6 py-2.5 sm:py-2 rounded transition-colors touch-manipulation">
+        <Link href="/product" className="bg-blue-500 hover:bg-blue-600 active:bg-blue-600 text-white px-6 py-2.5 sm:py-2 rounded transition-colors touch-manipulation">
           View All Products
         </Link>
       </div>

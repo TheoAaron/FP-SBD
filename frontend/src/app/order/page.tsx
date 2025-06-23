@@ -1,4 +1,4 @@
-// src/app/orders/page.tsx
+﻿
 "use client"
 
 import Link from "next/link"
@@ -32,7 +32,6 @@ export default function OrdersPage() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  // Get token from sessionStorage
   const getAuthToken = () => {
     if (typeof window !== 'undefined') {
       return sessionStorage.getItem('jwtToken')
@@ -40,12 +39,11 @@ export default function OrdersPage() {
     return null
   }
 
-  // Load orders from API
   useEffect(() => {
     const loadOrders = async () => {
       setIsLoading(true)
       setError(null)
-      
+
       const token = getAuthToken()
       if (!token) {
         setError('Please login to view your orders')
@@ -69,8 +67,7 @@ export default function OrdersPage() {
         }        const data = await response.json()
         console.log('Orders data from backend:', data)
         console.log('First order structure:', data.orders?.[0])
-        
-        // Debug setiap field di order pertama
+
         if (data.orders?.[0]) {
           const firstOrder = data.orders[0]
           console.log('=== ORDER FIELDS DEBUG ===')
@@ -84,13 +81,13 @@ export default function OrdersPage() {
           console.log('items length:', firstOrder.items?.length)
           console.log('=== END DEBUG ===')
         }
-        
+
         if (data.success) {
           setOrders(data.orders || [])
         } else {
           throw new Error(data.message || 'Failed to load orders')
         }
-        
+
       } catch (error) {
         console.error('Error loading orders:', error)
         if (error instanceof Error) {
@@ -106,7 +103,6 @@ export default function OrdersPage() {
     loadOrders()
   }, [])
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -124,7 +120,7 @@ export default function OrdersPage() {
     <RequireAuth>
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Breadcrumb */}
+          {}
           <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-8">
             <Link href="/" className="hover:text-gray-900 transition-colors">
               Home
@@ -133,14 +129,13 @@ export default function OrdersPage() {
             <span className="font-medium text-gray-900">Order</span>
           </nav>
 
-        {/* Error Display */}
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600 text-sm">{error}</p>
+        {}
+        {error && (          <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-blue-600 text-sm">{error}</p>
           </div>
         )}
 
-        {/* Orders Table */}
+        {}
         {orders.length > 0 ? (
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
@@ -165,21 +160,21 @@ export default function OrdersPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">                  {orders.map((order) => (
-                    <tr 
-                      key={order.id_order} 
+                    <tr
+                      key={order.id_order}
                       className="hover:bg-gray-50 transition-colors cursor-pointer"
                       onClick={() => router.push(`/order/${order.id_order}`)}
                     >
                       <td className="px-6 py-6 whitespace-nowrap">
-                        <div className="flex flex-col space-y-3">                          {/* Order Info */}
+                        <div className="flex flex-col space-y-3">                          {}
                           <div className="text-sm font-medium text-gray-900">
                             Order #{order.id_order || 'N/A'}
                           </div>
                           <div className="text-xs text-gray-500">
                             {order.tanggal_order ? new Date(order.tanggal_order).toLocaleDateString() : 'No date'}
                           </div>
-                          
-                          {/* First Product Preview */}
+
+                          {}
                           {order.items && order.items.length > 0 && order.items[0] && (
                             <div className="flex items-center space-x-3">
                               <div className="flex-shrink-0 w-12 h-12">
@@ -213,18 +208,18 @@ export default function OrdersPage() {
                       </td>
                       <td className="px-6 py-6 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          (order.status_pembayaran || '').toLowerCase() === 'pending' 
+                          (order.status_pembayaran || '').toLowerCase() === 'pending'
                             ? 'bg-yellow-100 text-yellow-800'
                             : (order.status_pembayaran || '').toLowerCase() === 'paid'
                             ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
+                            : 'bg-blue-100 text-blue-800'
                         }`}>
                           {order.status_pembayaran ? order.status_pembayaran.charAt(0).toUpperCase() + order.status_pembayaran.slice(1) : 'Unknown'}
                         </span>
                       </td>
                       <td className="px-6 py-6 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          (order.status_pengiriman || '').toLowerCase() === 'shipped' 
+                          (order.status_pengiriman || '').toLowerCase() === 'shipped'
                             ? 'bg-blue-100 text-blue-800'
                             : (order.status_pengiriman || '').toLowerCase() === 'delivered'
                             ? 'bg-green-100 text-green-800'
@@ -245,21 +240,21 @@ export default function OrdersPage() {
             </div>
           </div>
         ) : (
-          /* Empty State */
+
           !isLoading && (
             <div className="text-center py-12">
               <div className="text-gray-500 text-lg mb-4">No orders found</div>
               <Link href="/product">
-                <button className="px-6 py-3 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-200">
+                <button className="px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200">
                   Start Shopping
                 </button>
               </Link>
             </div>
           )
-        )}        {/* Return to Shop Button */}
+        )}        {}
         <div className="mt-8">
           <Link href="/product">
-            <button className="px-8 py-3 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+            <button className="px-8 py-3 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
               Return To Shop
             </button>
           </Link>

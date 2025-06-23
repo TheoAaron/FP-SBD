@@ -1,10 +1,9 @@
-const { pool } = require('../config/mysql');
+﻿const { pool } = require('../config/mysql');
 const jwt = require('jsonwebtoken');
 const { addLastView } = require('../controllers/lastViewController');
 const { add } = require('lodash');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'APINGANTENG';
-
 
 const getAllProducts = async (req, res) => {
   try {
@@ -14,7 +13,7 @@ const getAllProducts = async (req, res) => {
     const conditions = [];
 
     if (search) {
-      const words = search.split(' ').filter(Boolean); 
+      const words = search.split(' ').filter(Boolean);
 
       const likeConditions = words.map(() => `(nama_produk LIKE ? OR description LIKE ?)`).join(' AND ');
       conditions.push(`(${likeConditions})`);
@@ -41,14 +40,13 @@ const getAllProducts = async (req, res) => {
   }
 };
 
-
 const getBestSellingProducts = async (req, res) => {
   try {
     const { getDB } = require("../config/mongo");
     const db = getDB();
-    
+
     const query = `
-  SELECT 
+  SELECT
   p.id_produk,
   p.nama_produk,
   p.harga,
@@ -67,23 +65,22 @@ const getBestSellingProducts = async (req, res) => {
       return res.status(200).json([]);
     }
 
-    // Ambil rating dari MongoDB untuk setiap produk
     const productsWithRating = await Promise.all(
       rows.map(async (product) => {
         try {
-          // Aggregate reviews untuk produk ini dari MongoDB
-          const reviews = await db.collection("product_review").find({ 
-            id_produk: product.id_produk.toString() 
+
+          const reviews = await db.collection("product_review").find({
+            id_produk: product.id_produk.toString()
           }).toArray();
-          
+
           let avg_rating = 0;
           let total_review = reviews.length;
-          
+
           if (reviews.length > 0) {
             const totalRating = reviews.reduce((sum, review) => sum + (review.rate || 0), 0);
             avg_rating = totalRating / reviews.length;
           }
-          
+
           return {
             ...product,
             avg_rating: avg_rating,
@@ -106,12 +103,11 @@ const getBestSellingProducts = async (req, res) => {
       return res.status(200).json([]);
     }
 
-    // Handle all other types of errors safely
     console.warn('Non-fatal DB error:', error.code);
     return res.status(200).json([]);
   }
 };
-// GET Product by ID
+
 const getProductById = async (req, res) => {
   const productId = req.params.id;
 
@@ -126,22 +122,13 @@ const getProductById = async (req, res) => {
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Product not found' });
     }
-   
+
     res.status(200).json(rows[0]);
   } catch (error) {
     console.error('Error fetching product:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
-
-
-
-  
-  
-
-  
-
-
 
 module.exports = {
   getAllProducts,

@@ -1,4 +1,4 @@
-// src/app/page.tsx
+﻿
 
 'use client'
 
@@ -22,21 +22,21 @@ export default function Cart() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)  // Get token from localStorage
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const getAuthToken = () => {
     if (typeof window !== 'undefined') {
       return sessionStorage.getItem('jwtToken')
     }
     return null
-  }  // Load cart data from API
+  }
   useEffect(() => {
     const loadCartData = async () => {
       setIsLoading(true)
       setError(null)
-      
+
       const token = getAuthToken()
-      console.log('Token found:', token ? 'Yes' : 'No') // Debug log
-      
+      console.log('Token found:', token ? 'Yes' : 'No')
+
       if (!token) {
         setError('Please login to view your cart')
         setIsLoading(false)
@@ -45,8 +45,8 @@ export default function Cart() {
 
       try {
         const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/cart`
-        console.log('Making request to:', apiUrl) // Debug log
-        
+        console.log('Making request to:', apiUrl)
+
         const response = await fetch(apiUrl, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -54,18 +54,16 @@ export default function Cart() {
           }
         })
 
-        console.log('Response status:', response.status) // Debug log
-        console.log('Response ok:', response.ok) // Debug log
+        console.log('Response status:', response.status)
+        console.log('Response ok:', response.ok)
 
         if (!response.ok) {
           const errorText = await response.text()
-          console.log('Error response:', errorText) // Debug log
+          console.log('Error response:', errorText)
           throw new Error(`HTTP error! status: ${response.status} - ${errorText}`)
         }        const data = await response.json()
-        console.log('Cart data from backend:', data) // Debug log
-        
-        // Transform API data to match CartItem interface
-        // Backend now returns enriched data: { id_user, produk: [{ product_id, qty, name, price, image, stock }] }
+        console.log('Cart data from backend:', data)
+
         const cartItems: CartItem[] = (data.produk || []).map((item: any) => ({
           id: item.product_id,
           name: item.name || `Product ${item.product_id}`,
@@ -76,17 +74,17 @@ export default function Cart() {
         }))
 
         setCartItems(cartItems)
-        
+
       } catch (error) {
         console.error('Error loading cart data:', error)
-          // More specific error messages
+
         if (error instanceof Error) {
           if (error.message.includes('401')) {
             setError('Please login again - your session may have expired')
           } else if (error.message.includes('404')) {
-            // 404 is normal for empty cart, don't show error
-            setCartItems([]) // Set empty cart for 404
-            setError(null) // Clear any error for empty cart
+
+            setCartItems([])
+            setError(null)
           } else if (error.message.includes('Failed to fetch')) {
             setError('Unable to connect to server. Please check your internet connection.')
           } else {
@@ -95,8 +93,7 @@ export default function Cart() {
         } else {
           setError('Failed to load cart data')
         }
-        
-        // Set empty cart on error (except for 404 which is handled above)
+
         if (!(error instanceof Error) || !error.message.includes('404')) {
           setCartItems([])
         }
@@ -108,7 +105,6 @@ export default function Cart() {
     loadCartData()
   }, [setCartItems])
 
-  // Warn user before leaving page with unsaved changes
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges) {
@@ -121,18 +117,17 @@ export default function Cart() {
     window.addEventListener('beforeunload', handleBeforeUnload)
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [hasUnsavedChanges])
-  // Update cart item quantity in local state only
+
   const handleUpdateQuantity = (productId: string, newQuantity: number) => {
     updateQuantity(productId, newQuantity)
     setHasUnsavedChanges(true)
   }
 
-  // Remove cart item from local state only
   const handleRemoveItem = (productId: string) => {
     removeItem(productId)
     setHasUnsavedChanges(true)
   }
-  // Save all cart changes to backend
+
   const saveCartToBackend = async () => {
     const token = getAuthToken()
     if (!token) {
@@ -144,7 +139,6 @@ export default function Cart() {
       setIsSaving(true)
       setError(null)
 
-      // Transform cart items back to backend format
       const produk = cartState.items.map(item => ({
         product_id: item.id,
         qty: item.quantity
@@ -165,7 +159,7 @@ export default function Cart() {
 
       setHasUnsavedChanges(false)
       toast.success('Cart updated successfully!')
-      
+
     } catch (error) {
       console.error('Error saving cart:', error)
       setError('Failed to save cart changes')
@@ -173,11 +167,11 @@ export default function Cart() {
       setIsSaving(false)
     }
   }
-  // Refresh cart data from backend (reload from server)
+
   const refreshCart = async () => {
     setIsLoading(true)
     setError(null)
-    
+
     const token = getAuthToken()
     if (!token) {
       setError('Please login to refresh cart')
@@ -196,9 +190,7 @@ export default function Cart() {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }      const data = await response.json()
-      
-      // Transform API data to match CartItem interface
-      // Backend now returns enriched data: { id_user, produk: [{ product_id, qty, name, price, image, stock }] }
+
       const cartItems: CartItem[] = (data.produk || []).map((item: any) => ({
         id: item.product_id,
         name: item.name || `Product ${item.product_id}`,
@@ -209,8 +201,8 @@ export default function Cart() {
       }))
 
       setCartItems(cartItems)
-      setHasUnsavedChanges(false) // Reset unsaved changes after refresh
-      
+      setHasUnsavedChanges(false)
+
     } catch (error) {
       console.error('Error refreshing cart:', error)
       setError('Failed to refresh cart data')
@@ -219,7 +211,6 @@ export default function Cart() {
     }
   }
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
@@ -235,32 +226,31 @@ export default function Cart() {
         </div>
       </div>
     )
-  }  
+  }
   return (
     <RequireAuth>
       <div className="min-h-screen bg-gray-50 py-4 sm:py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Breadcrumb - Hidden on mobile */}
+          {}
           <nav className="hidden sm:flex text-sm mb-6">
             <Link href="/" className="text-gray-500 hover:text-gray-700">Home</Link>
             <span className="mx-2 text-gray-500">/</span>
             <span className="text-gray-900">Cart</span>
           </nav>
 
-          {/* Page Title */}
+          {}
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 sm:mb-8">
             Shopping Cart ({itemCount} items)
           </h1>
 
-          {/* Error Display */}
-          {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-600 text-sm">{error}</p>
+          {}
+          {error && (            <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-blue-600 text-sm">{error}</p>
             </div>
           )}
 
           {cartState.items.length === 0 ? (
-            /* Empty Cart State */
+
             <div className="text-center py-12 sm:py-16">
               <div className="max-w-md mx-auto">
                 <div className="text-6xl mb-4">🛒</div>
@@ -279,9 +269,9 @@ export default function Cart() {
             </div>
           ) : (
             <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-              {/* Cart Items - Mobile Stack, Desktop Side by Side */}
+              {}
               <div className="flex-1">
-                {/* Desktop Table Header - Hidden on mobile */}
+                {}
                 <div className="hidden sm:grid sm:grid-cols-5 gap-4 bg-white p-4 rounded-lg shadow-sm mb-4 font-medium text-gray-600">
                   <div className="col-span-2">Product</div>
                   <div className="text-center">Price</div>
@@ -289,11 +279,11 @@ export default function Cart() {
                   <div className="text-center">Subtotal</div>
                 </div>
 
-                {/* Cart Items */}
+                {}
                 <div className="space-y-4">
                   {cartState.items.map((item) => (
                     <div key={item.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
-                      {/* Mobile Layout */}
+                      {}
                       <div className="sm:hidden p-4">
                         <div className="flex gap-4">
                           <img
@@ -303,8 +293,8 @@ export default function Cart() {
                           />
                           <div className="flex-1 min-w-0">
                             <h3 className="font-medium text-gray-900 truncate">{item.name}</h3>
-                            <p className="text-red-600 font-semibold">Rp. {item.price?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                            
+                            <p className="text-blue-600 font-semibold">Rp. {item.price?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+
                             <div className="flex items-center justify-between mt-3">                            <div className="flex items-center border rounded">
                                 <button
                                   onClick={() => handleUpdateQuantity(item.id, Math.max(1, item.quantity - 1))}
@@ -319,12 +309,12 @@ export default function Cart() {
                                   +
                                 </button>
                               </div>
-                              
+
                               <div className="flex items-center gap-2">
                                 <span className="font-semibold">Rp. {(item.price * item.quantity).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                 <button
                                   onClick={() => handleRemoveItem(item.id)}
-                                  className="p-1 text-red-500 hover:text-red-700"
+                                  className="p-1 text-blue-500 hover:text-blue-700"
                                 >
                                   <FiTrash2 size={16} />
                                 </button>
@@ -334,7 +324,7 @@ export default function Cart() {
                         </div>
                       </div>
 
-                      {/* Desktop Layout */}
+                      {}
                       <div className="hidden sm:grid sm:grid-cols-5 gap-4 p-4 items-center">
                         <div className="col-span-2 flex items-center gap-4">
                           <img
@@ -346,11 +336,11 @@ export default function Cart() {
                             <h3 className="font-medium text-gray-900">{item.name}</h3>
                           </div>
                         </div>
-                        
+
                         <div className="text-center">
-                          <span className="text-red-600 font-semibold">Rp. {item.price?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          <span className="text-blue-600 font-semibold">Rp. {item.price?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         </div>
-                        
+
                         <div className="text-center">                        <div className="flex items-center justify-center border rounded max-w-32 mx-auto">
                             <button
                               onClick={() => handleUpdateQuantity(item.id, Math.max(1, item.quantity - 1))}
@@ -371,7 +361,7 @@ export default function Cart() {
                           <span className="font-semibold">Rp. {(item.price * item.quantity).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                           <button
                             onClick={() => handleRemoveItem(item.id)}
-                            className="p-2 text-red-500 hover:text-red-700"
+                            className="p-2 text-blue-500 hover:text-blue-700"
                           >
                             <FiTrash2 size={16} />
                           </button>
@@ -379,7 +369,7 @@ export default function Cart() {
                       </div>
                     </div>
                   ))}
-                </div>              {/* Action Buttons */}
+                </div>              {}
                 <div className="flex flex-col sm:flex-row justify-between gap-4 mt-6">
                   <Link
                     href="/product"
@@ -387,24 +377,24 @@ export default function Cart() {
                   >
                     Return To Shop
                   </Link>
-                  
+
                   <div className="flex flex-col sm:flex-row gap-2">
                     {hasUnsavedChanges && (
                       <div className="text-sm text-orange-600 flex items-center justify-center sm:justify-start px-2">
                         ⚠️ Unsaved changes
                       </div>
                     )}
-                    
-                    <button 
+
+                    <button
                       onClick={refreshCart}
                       disabled={isLoading}
                       className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isLoading ? 'Loading...' : 'Refresh Cart'}
                     </button>
-                    
+
                     {hasUnsavedChanges && (
-                      <button 
+                      <button
                         onClick={saveCartToBackend}
                         disabled={isSaving}
                         className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -416,14 +406,12 @@ export default function Cart() {
                 </div>
               </div>
 
-              {/* Order Summary */}
+              {}
               <div className="lg:w-96">
                 <div className="bg-white rounded-lg shadow-sm p-6">
                   <h2 className="text-xl font-semibold mb-6">Cart Total</h2>
-                  
-                  
 
-                  {/* Order Summary Details */}
+                  {}
                   <div className="space-y-4 border-t pt-4">
                     <div className="flex justify-between">
                       <span>Subtotal:</span>
@@ -435,19 +423,19 @@ export default function Cart() {
                         <span>-Rp. {(cartState.discount || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                       </div>
                     )}
-                    
+
                     <div className="flex justify-between">
                       <span>Shipping:</span>
                       <span>{cartState.shipping === 0 ? 'Free' : `Rp. ${cartState.shipping.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</span>
                     </div>
-                    
+
                     <div className="border-t pt-4">
                       <div className="flex justify-between text-lg font-semibold">
                         <span>Total:</span>
                         <span>Rp. {cartState.total.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                       </div>
                     </div>
-                  </div>                {/* Checkout Button */}
+                  </div>                {}
                   {hasUnsavedChanges ? (
                     <button
                       onClick={() => {
@@ -462,7 +450,7 @@ export default function Cart() {
                   ) : (
                     <Link
                       href="/checkout"
-                      className="block w-full mt-6 bg-red-500 text-white text-center py-3 rounded-lg hover:bg-red-600 transition-colors font-medium"
+                      className="block w-full mt-6 bg-blue-500 text-white text-center py-3 rounded-lg hover:bg-blue-600 transition-colors font-medium"
                     >
                       Proceed to checkout
                     </Link>

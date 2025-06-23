@@ -1,4 +1,4 @@
-// types/cart.ts
+﻿
 export interface CartItem {
   id: string
   name: string
@@ -24,8 +24,7 @@ export interface CouponCode {
   minOrderAmount?: number
 }
 
-// Action types for cart operations
-export type CartAction = 
+export type CartAction =
   | { type: 'ADD_ITEM'; payload: CartItem }
   | { type: 'REMOVE_ITEM'; payload: string }
   | { type: 'UPDATE_QUANTITY'; payload: { id: string; quantity: number } }

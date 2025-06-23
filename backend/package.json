@@ -5,10 +5,10 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "drop": "node scripts/init.js",
-    "setup": "node scripts/init.js",
-    "fresh": "npm run drop && npm run setup",
-        "seed": "npx sequelize-cli db:seed:all",
-    "migrate:reviews": "node scripts/migrate-reviews.js"
+    "setup": "npm run migrate && npm run seed",
+    "fresh": "npm run drop && npm run migrate",
+    "seed": "npx sequelize-cli db:seed:all",
+    "migrate": "node scripts/init.js"
     
   },
   "keywords": [], 

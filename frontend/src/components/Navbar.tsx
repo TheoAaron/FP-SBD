@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
@@ -28,12 +28,11 @@ const Navbar: React.FC = () => {
   const popupRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  // Check login status
   useEffect(() => {
     const checkLoginStatus = () => {
       const token = sessionStorage.getItem('jwtToken');
       setIsLoggedIn(!!token);
-      
+
       const userInfo = sessionStorage.getItem('user');
       if (userInfo) {
         try {
@@ -46,13 +45,12 @@ const Navbar: React.FC = () => {
 
     checkLoginStatus();
     window.addEventListener('storage', checkLoginStatus);
-    
+
     return () => {
       window.removeEventListener('storage', checkLoginStatus);
     };
   }, []);
 
-  // Close popup on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
@@ -75,7 +73,7 @@ const Navbar: React.FC = () => {
     pathname === path
       ? 'block px-4 py-3 text-black font-semibold bg-gray-100 rounded-lg'
       : 'block px-4 py-3 text-gray-700 hover:text-black hover:bg-gray-50 rounded-lg transition-colors';
-  
+
   const [query, setQuery] = useState('')
 
     const handleSearch = (e: React.FormEvent) => {
@@ -85,16 +83,15 @@ const Navbar: React.FC = () => {
       }
     }
 
-
   return (
     <nav className="w-full border-b shadow-sm bg-white sticky top-0 z-50">
       <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
-        {/* Logo */}
+        {}
         <Link href="/">
-          <Image src="/tokit.svg" alt="tokIT Logo" width={200} height={80} /> {/* Increased logo size */}
+          <Image src="/tokit.svg" alt="tokIT Logo" width={200} height={80} /> {}
         </Link>
 
-        {/* Desktop Nav Links - Hidden on mobile */}
+        {}
         <div className="hidden lg:flex space-x-8 xl:space-x-12 text-base xl:text-lg font-medium">
           <Link href="/" className={linkClass('/')}>Home</Link>
           <a
@@ -108,7 +105,7 @@ const Navbar: React.FC = () => {
           <Link href="/about" className={linkClass('/about')}>About</Link>
         </div>
 
-        {/* Desktop Search Bar - Hidden on mobile */}
+        {}
         <div className="hidden md:flex items-center flex-1 max-w-md mx-4 lg:mx-8">
           <div className="relative w-full">
             <form onSubmit={handleSearch}>
@@ -124,9 +121,9 @@ const Navbar: React.FC = () => {
           </div>
         </div>
 
-        {/* Right side icons */}
+        {}
         <div className="flex items-center space-x-2 sm:space-x-4">
-          {/* Mobile Search Toggle */}
+          {}
           <button
             onClick={() => setIsSearchOpen(!isSearchOpen)}
             className="md:hidden p-2 text-gray-600 hover:text-black transition-colors"
@@ -134,23 +131,23 @@ const Navbar: React.FC = () => {
             <FiSearch size={20} />
           </button>
 
-          {/* Wishlist Icon */}
-          <Link 
-            href="/wishlist" 
-            className="p-2 text-gray-600 hover:text-red-500 transition-colors relative"
+          {}
+          <Link
+            href="/wishlist"
+            className="p-2 text-gray-600 hover:text-blue-500 transition-colors relative"
           >
             <FiHeart size={20} />
           </Link>
 
-          {/* Cart Icon */}
-          <Link 
-            href="/cart" 
+          {}
+          <Link
+            href="/cart"
             className="p-2 text-gray-600 hover:text-blue-500 transition-colors relative"
           >
             <FiShoppingCart size={20} />
           </Link>
 
-          {/* User Profile */}
+          {}
           {isLoggedIn ? (
             <div className="relative" ref={popupRef}>
               <button
@@ -178,7 +175,7 @@ const Navbar: React.FC = () => {
                     </p>
                     <p className="text-xs text-gray-500">{userProfile?.email}</p>
                   </div>
-                  
+
                   <Link
                     href="/profile"
                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
@@ -187,7 +184,7 @@ const Navbar: React.FC = () => {
                     <FaUser className="mr-3" size={14} />
                     Profile
                   </Link>
-                  
+
                   {userProfile?.role === 'admin' && (
                     <Link
                       href="/admin"
@@ -198,7 +195,7 @@ const Navbar: React.FC = () => {
                       Admin Panel
                     </Link>
                   )}
-                  
+
                   <button
                     onClick={() => {
                       sessionStorage.removeItem('jwtToken');
@@ -208,7 +205,7 @@ const Navbar: React.FC = () => {
                       setShowPopup(false);
                       router.push('/');
                     }}
-                    className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                    className="flex items-center w-full px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
                   >
                     <FiLogOut className="mr-3" size={14} />
                     Logout
@@ -226,7 +223,7 @@ const Navbar: React.FC = () => {
             </Link>
           )}
 
-          {/* Mobile Menu Toggle */}
+          {}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="lg:hidden p-2 text-gray-600 hover:text-black transition-colors"
@@ -236,7 +233,7 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Search Bar */}
+      {}
       {isSearchOpen && (
         <div className="md:hidden px-4 pb-4 border-t bg-gray-50">
           <div className="relative">
@@ -250,12 +247,12 @@ const Navbar: React.FC = () => {
         </div>
       )}
 
-      {/* Mobile Navigation Menu */}
+      {}
       {isMobileMenuOpen && (
         <div className="lg:hidden border-t bg-white">
           <div className="px-4 py-4 space-y-2">
-            <Link 
-              href="/" 
+            <Link
+              href="/"
               className={mobileLinkClass('/')}
               onClick={() => setIsMobileMenuOpen(false)}
             >
@@ -270,15 +267,15 @@ const Navbar: React.FC = () => {
             >
               Contact
             </a>
-            <Link 
-              href="/about" 
+            <Link
+              href="/about"
               className={mobileLinkClass('/about')}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               About
             </Link>
-            
-            {/* Mobile Login Button */}
+
+            {}
             {!isLoggedIn && (
               <Link
                 href="/login"

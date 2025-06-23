@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -25,44 +25,43 @@ function ProductContent() {
       if (selectedCategory) {
         url += `?category=${encodeURIComponent(selectedCategory)}`;
       }
-      
+
       if (searchQuery) {
         url += `?search=${encodeURIComponent(searchQuery)}`;
       }
       console.log(url);
-      
+
       try {
         const res = await fetch(url);
         if (!res.ok) throw new Error('Gagal fetch produk');
         const data = await res.json();
-        
-        // Mapping field dari backend ke frontend
+
         const mapped = Array.isArray(data) ? await Promise.all(
           data.map(async (p: any) => {
             try {
-              // Fetch reviews from MongoDB for each product
+
               const reviewRes = await fetch(`http://localhost:8080/api/reviews/${p.id_produk}`);
               let real_rating = 0;
               let real_review_count = 0;
                 if (reviewRes.ok) {
                 const reviewData = await reviewRes.json();
-                // Extract reviews from the correct path
+
                 let reviews = [];                if (reviewData.reviews && reviewData.reviews.length > 0 && reviewData.reviews[0].reviews) {
                   reviews = reviewData.reviews[0].reviews;
                 }
                 real_review_count = reviews.length;
-                
+
                 if (reviews.length > 0) {
                   const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
                   real_rating = totalRating / reviews.length;
                 }
               }
-              
+
               return {
                 id: p.id_produk,
                 name: p.nama_produk,
                 price: p.harga,
-                image: formatImageUrl(p.image, '/tokit.svg'), 
+                image: formatImageUrl(p.image, '/tokit.svg'),
                 rating: real_rating,
                 reviews: real_review_count,
               };
@@ -72,7 +71,7 @@ function ProductContent() {
                 id: p.id_produk,
                 name: p.nama_produk,
                 price: p.harga,
-                image: formatImageUrl(p.image, '/tokit.svg'), 
+                image: formatImageUrl(p.image, '/tokit.svg'),
                 rating: 0,
                 reviews: 0,
               };
@@ -89,11 +88,10 @@ function ProductContent() {
       fetchProducts();
   }, [selectedCategory, searchQuery]);
 
-  // Add to cart function
   const handleAddToCart = async (productId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const token = sessionStorage.getItem('jwtToken');
     if (!token) {
       toast.error('Please login to add items to cart');
@@ -101,7 +99,7 @@ function ProductContent() {
     }
 
     setAddingToCart(productId);
-    
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/cart/add`, {
         method: 'POST',
@@ -130,11 +128,10 @@ function ProductContent() {
     }
   };
 
-  // Add to wishlist function
   const handleAddToWishlist = async (productId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const token = sessionStorage.getItem('jwtToken');
     if (!token) {
       toast.error('Please login to add items to wishlist');
@@ -142,7 +139,7 @@ function ProductContent() {
     }
 
     setAddingToWishlist(productId);
-    
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/wishlist`, {
         method: 'POST',
@@ -182,7 +179,7 @@ function ProductContent() {
         {loading ? (
           <div className="text-center py-8">Loading products...</div>
         ) : error ? (
-          <div className="text-center text-red-500 py-8">{error}</div>
+          <div className="text-center text-blue-500 py-8">{error}</div>
         ) : products.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12">
           <img src="https://res.cloudinary.com/dlwxkdjek/image/upload/v1750433799/capybara-turu_ledsfn.jpg" alt="Kosong" className="w-48 h-48 object-contain mb-6" />
@@ -200,9 +197,9 @@ function ProductContent() {
                       e.currentTarget.src = '/shopit.svg';
                     }}
                   />
-                    {/* Action Buttons */}
+                    {}
                   <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button 
+                    <button
                       className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:bg-gray-50 disabled:opacity-50"
                       onClick={(e) => handleAddToWishlist(product.id_produk || product.id, e)}
                       disabled={addingToWishlist === (product.id_produk || product.id)}
@@ -214,10 +211,10 @@ function ProductContent() {
                       )}
                     </button>
                   </div>
-                  
-                  {/* Add to Cart Button */}
+
+                  {}
                   <div className="absolute bottom-0 left-0 w-full opacity-0 translate-y-4 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 px-4 pb-4">
-                    <button 
+                    <button
                       className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                       onClick={(e) => handleAddToCart(product.id_produk || product.id, e)}
                       disabled={addingToCart === (product.id_produk || product.id)}
@@ -239,7 +236,7 @@ function ProductContent() {
                 <div className="mt-3 sm:mt-4">
                   <h4 className="font-medium text-base sm:text-lg text-gray-800 line-clamp-2 mb-2">{product.name}</h4>
                   <div className="flex items-center justify-between mb-2 flex-wrap gap-1">
-                    <p className="text-red-500 font-semibold text-base sm:text-lg">Rp. {product.price?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                    <p className="text-blue-500 font-semibold text-base sm:text-lg">Rp. {product.price?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <StarRating rating={product.rating || 0} />

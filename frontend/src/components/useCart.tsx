@@ -1,9 +1,8 @@
-'use client';
+﻿'use client';
 
 import { useState, useCallback } from 'react';
 import { CartItem, CartState } from './cart-types';
 
-// Mock coupon codes
 const validCoupons = {
   'SAVE10': { discountPercent: 10 },
   'SAVE20': { discountPercent: 20 },
@@ -20,19 +19,17 @@ export const useCart = () => {
     discount: 0
   });
 
-  // Calculate totals
   const calculateTotals = useCallback((items: CartItem[], discount = 0) => {
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const shipping = subtotal > 0 ? (subtotal > 100 ? 0 : 10) : 0; // Free shipping over $100
+    const shipping = subtotal > 0 ? (subtotal > 100 ? 0 : 10) : 0;
     const total = subtotal + shipping - discount;
 
     return { subtotal, shipping, total };
   }, []);
 
-  // Update cart state with new totals
   const updateCartState = useCallback((items: CartItem[], appliedCoupon?: string, discount = 0) => {
     const { subtotal, shipping, total } = calculateTotals(items, discount);
-    
+
     setCartState({
       items,
       subtotal,
@@ -43,31 +40,29 @@ export const useCart = () => {
     });
   }, [calculateTotals]);
 
-  // Set cart items (for initialization)
   const setCartItems = useCallback((items: CartItem[]) => {
     updateCartState(items, cartState.appliedCoupon, cartState.discount);
   }, [updateCartState, cartState.appliedCoupon, cartState.discount]);
 
-  // Add item to cart
   const addItem = useCallback((newItem: CartItem) => {
     setCartState(prev => {
       const existingItem = prev.items.find(item => item.id === newItem.id);
       let newItems;
 
       if (existingItem) {
-        // Update quantity if item exists
+
         newItems = prev.items.map(item =>
           item.id === newItem.id
             ? { ...item, quantity: Math.min(item.quantity + newItem.quantity, item.maxStock || 999) }
             : item
         );
       } else {
-        // Add new item
+
         newItems = [...prev.items, newItem];
       }
 
       const { subtotal, shipping, total } = calculateTotals(newItems, prev.discount);
-      
+
       return {
         ...prev,
         items: newItems,
@@ -78,12 +73,11 @@ export const useCart = () => {
     });
   }, [calculateTotals]);
 
-  // Remove item from cart
   const removeItem = useCallback((itemId: string) => {
     setCartState(prev => {
       const newItems = prev.items.filter(item => item.id !== itemId);
       const { subtotal, shipping, total } = calculateTotals(newItems, prev.discount);
-      
+
       return {
         ...prev,
         items: newItems,
@@ -94,7 +88,6 @@ export const useCart = () => {
     });
   }, [calculateTotals]);
 
-  // Update item quantity
   const updateQuantity = useCallback((itemId: string, newQuantity: number) => {
     if (newQuantity <= 0) {
       removeItem(itemId);
@@ -109,7 +102,7 @@ export const useCart = () => {
       );
 
       const { subtotal, shipping, total } = calculateTotals(newItems, prev.discount);
-      
+
       return {
         ...prev,
         items: newItems,
@@ -120,26 +113,23 @@ export const useCart = () => {
     });
   }, [calculateTotals, removeItem]);
 
-  // Apply coupon
   const applyCoupon = useCallback((couponCode: string): boolean => {
     const coupon = validCoupons[couponCode as keyof typeof validCoupons];
-    
+
     if (!coupon) {
       return false;
     }
 
     const discountAmount = (cartState.subtotal * coupon.discountPercent) / 100;
     updateCartState(cartState.items, couponCode, discountAmount);
-    
+
     return true;
   }, [cartState.subtotal, cartState.items, updateCartState]);
 
-  // Remove coupon
   const removeCoupon = useCallback(() => {
     updateCartState(cartState.items, undefined, 0);
   }, [cartState.items, updateCartState]);
 
-  // Clear cart
   const clearCart = useCallback(() => {
     setCartState({
       items: [],
@@ -151,7 +141,6 @@ export const useCart = () => {
     });
   }, []);
 
-  // Get item count
   const itemCount = cartState.items.reduce((sum, item) => sum + item.quantity, 0);
 
   return {

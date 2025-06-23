@@ -1,4 +1,4 @@
-const { pool } = require('../config/mysql');
+﻿const { pool } = require('../config/mysql');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { waitForDebugger } = require('inspector');
@@ -9,22 +9,20 @@ const JWT_SECRET = process.env.JWT_SECRET || 'APINGANTENG';
 const login = async (req, res) => {
   try {
     const { username, password } = req.body;
- 
 
     if (!username || !password) {
       return res.status(400).json({ message: "Username and password are required" });
 
-
-    }   
+    }
     const salt = process.env.PASSWORD_SALT;
     const pass = crypto.createHash('sha256').update(`${password}${salt}`).digest('hex');
     const [rows] = await pool.query('SELECT * FROM users WHERE username = ? AND password = ?', [username, pass]);
-    
+
     if (rows.length === 0) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    
-    const user = rows[0]; // Get the first user from results
+
+    const user = rows[0];
     const token = jwt.sign(
       { id: user.id_user,  role: user.role },
       JWT_SECRET,

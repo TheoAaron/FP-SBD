@@ -1,9 +1,9 @@
-const { pool } = require('../config/mysql');
+﻿const { pool } = require('../config/mysql');
 
 const checkPurchaseHistory = async (req, res, next) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ 
+      return res.status(401).json({
         message: 'Authentication required',
         redirect: '/home'
       });
@@ -13,16 +13,15 @@ const checkPurchaseHistory = async (req, res, next) => {
     const productId = req.params.id_produk || req.body.productId;
 
     if (!productId) {
-      return res.status(400).json({ 
-        message: 'Product ID is required' 
+      return res.status(400).json({
+        message: 'Product ID is required'
       });
     }
 
     console.log(`Checking purchase history for user: ${userId}, product: ${productId}`);
 
-
     const [rows] = await pool.query(`
-      SELECT 
+      SELECT
         o.id_order,
         o.status_pembayaran,
         o.datetime,
@@ -30,8 +29,8 @@ const checkPurchaseHistory = async (req, res, next) => {
         do.qty
       FROM orders o
       JOIN detail_orders do ON o.id_order = do.id_order
-      WHERE o.id_user = ? 
-        AND do.id_produk = ? 
+      WHERE o.id_user = ?
+        AND do.id_produk = ?
         AND o.status_pengiriman = 'delivered'
     `, [userId, productId]);
 
@@ -52,7 +51,7 @@ const checkPurchaseHistory = async (req, res, next) => {
 
     const requirePurchase = async (req, res, next) => {
   try {
-    // Jalankan pengecekan purchase history dulu
+
     await new Promise((resolve, reject) => {
       checkPurchaseHistory(req, res, (err) => {
         if (err) reject(err);
@@ -61,7 +60,7 @@ const checkPurchaseHistory = async (req, res, next) => {
     });
 
     if (!req.purchaseHistory.hasPurchased) {
-      return res.status(403).json({ 
+      return res.status(403).json({
         message: 'You must purchase this product before performing this action',
         redirect: `/product/${req.params.productId || req.body.productId}`
       });
@@ -73,7 +72,6 @@ const checkPurchaseHistory = async (req, res, next) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-
 
 module.exports = {
   checkPurchaseHistory,

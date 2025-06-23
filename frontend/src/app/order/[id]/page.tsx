@@ -49,8 +49,6 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
   const [order, setOrder] = useState<OrderDetails | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
-  // Get token from sessionStorage
   const getAuthToken = () => {
     if (typeof window !== 'undefined') {
       return sessionStorage.getItem('jwtToken')
@@ -119,7 +117,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading order details...</p>
         </div>
       </div>
@@ -129,12 +127,11 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
   if (error) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Error Loading Order</h2>
+        <div className="text-center">          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Error Loading Order</h2>
           <p className="text-gray-600 mb-8">{error}</p>
           <Link
             href="/order"
-            className="inline-flex items-center px-6 py-3 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+            className="inline-flex items-center px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
           >
             Back to Orders
           </Link>
@@ -146,12 +143,11 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
   if (!order) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Order not found</h2>
+        <div className="text-center">          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Order not found</h2>
           <p className="text-gray-600 mb-8">The order you&apos;re looking for doesn&apos;t exist</p>
           <Link
             href="/order"
-            className="inline-flex items-center px-6 py-3 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+            className="inline-flex items-center px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
           >
             Back to Orders
           </Link>
@@ -164,7 +160,7 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
     switch (status?.toLowerCase()) {
       case 'pending': return 'bg-yellow-100 text-yellow-800'
       case 'paid': return 'bg-green-100 text-green-800'
-      case 'failed': return 'bg-red-100 text-red-800'
+      case 'failed': return 'bg-blue-100 text-blue-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
@@ -174,26 +170,23 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
       case 'shipped': return 'bg-blue-100 text-blue-800'
       case 'delivered': return 'bg-green-100 text-green-800'
       case 'processing': return 'bg-purple-100 text-purple-800'
-      case 'cancelled': return 'bg-red-100 text-red-800'
+      case 'cancelled': return 'bg-blue-100 text-blue-800'
       default: return 'bg-gray-100 text-gray-800'
     }
   }
   const formatCurrency = (amount: number) => {
     return `Rp. ${(amount || 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   }
-
   const subtotal = order.items?.reduce((sum, item) => sum + (item.subtotal || 0), 0) || 0
   const discount = order.coupon?.diskon || 0
-  const shipping = 0 // Free shipping based on your business logic
+  const shipping = 0 
   const total = order.total || 0
   return (
     <RequireAuth>
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
+      <div className="min-h-screen bg-gray-50 py-8">        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
             <nav className="mb-4">
-              <Link href="/order" className="text-red-500 hover:text-red-600 font-medium">
+              <Link href="/order" className="text-blue-500 hover:text-blue-600 font-medium">
               ← Back to Orders
             </Link>
           </nav>
@@ -215,19 +208,13 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Order Items - Make this section wider and more spacious */}
+        </div>        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            {/* Items List */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">Items Ordered</h2>
               <div className="space-y-6">
                 {order.items && order.items.length > 0 ? (
-                  order.items.map((item) => (
-                    <div key={item.id_detail_order} className="flex items-start space-x-6 p-6 border border-gray-100 rounded-lg bg-gray-50">
-                      {/* Product Image - Made larger */}
+                  order.items.map((item) => (                    <div key={item.id_detail_order} className="flex items-start space-x-6 p-6 border border-gray-100 rounded-lg bg-gray-50">
                       <div className="flex-shrink-0">
                         <img
                           src={item.image || 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop'}
@@ -236,10 +223,8 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
                           onError={(e) => {
                             e.currentTarget.src = 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop'
                           }}
-                        />
-                      </div>
+                        />                      </div>
                       
-                      {/* Product Details - More spacious */}
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start">
                           <div className="flex-1 pr-4">
@@ -251,10 +236,8 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
                               <span>Quantity: <span className="font-medium text-gray-900">{item.quantity}</span></span>
                               <span>•</span>
                               <span>Price: <span className="font-medium text-gray-900">{formatCurrency(item.price)}</span> each</span>
-                            </div>
-                          </div>
+                            </div>                          </div>
                           
-                          {/* Price Section */}
                           <div className="text-right flex-shrink-0">
                             <p className="text-lg font-semibold text-gray-900 mb-1">
                               {formatCurrency(item.subtotal)}
@@ -270,10 +253,8 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
                     <p className="text-gray-500 text-lg">No items found in this order</p>
                   </div>
                 )}
-              </div>
-            </div>
+              </div>            </div>
 
-            {/* Shipping Address */}
             {order.shipping && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Shipping Address</h2>
@@ -290,10 +271,8 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
                     </p>
                   )}
                 </div>
-              </div>
-            )}
+              </div>            )}
 
-            {/* Tracking Info */}
             {order.tracking_number && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Shipping Information</h2>
@@ -310,10 +289,8 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
+              </div>            )}
 
-            {/* Coupon Info */}
             {order.coupon && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Coupon Applied</h2>
@@ -330,10 +307,8 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
                   </div>
                 </div>
               </div>
-            )}
-          </div>
+            )}          </div>
 
-          {/* Order Summary */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-4">
               <h2 className="text-lg font-semibold text-gray-900 mb-6">Order Summary</h2>
@@ -373,15 +348,13 @@ export default function OrderDetailPage({ params }: OrderDetailPageProps) {
                   
                   <div className="flex justify-between font-semibold text-xl">
                     <span>Total:</span>
-                    <span className="text-red-600">{formatCurrency(total)}</span>
+                    <span className="text-blue-600">{formatCurrency(total)}</span>
                   </div>
-                </div>
-              </div>
+                </div>              </div>
 
-              {/* Action Buttons */}
               <div className="mt-8 space-y-3">
                 {order.status_pengiriman === 'delivered' && (
-                  <button className="w-full px-4 py-3 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors font-medium">
+                  <button className="w-full px-4 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors font-medium">
                     Leave Review
                   </button>
                 )}

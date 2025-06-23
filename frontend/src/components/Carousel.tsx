@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
@@ -23,12 +23,12 @@ const Carousel: React.FC<CarouselProps> = ({ images }) => {
             nextEl: '.swiper-button-next',
             prevEl: '.swiper-button-prev',
           }}
-          pagination={{ 
+          pagination={{
             clickable: true,
             bulletClass: 'swiper-pagination-bullet',
             bulletActiveClass: 'swiper-pagination-bullet-active'
           }}
-          autoplay={{ 
+          autoplay={{
             delay: 4000,
             disableOnInteraction: false,
           }}
@@ -43,7 +43,7 @@ const Carousel: React.FC<CarouselProps> = ({ images }) => {
                   alt={image.alt || `Slide ${index + 1}`}
                   className="w-full h-full object-cover"
                 />
-                {/* Optional overlay for better text readability */}
+                {}
                 <div className="absolute inset-0 bg-black bg-opacity-20"></div>
               </div>
             </SwiperSlide>

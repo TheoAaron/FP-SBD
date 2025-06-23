@@ -1,4 +1,4 @@
-// src/components/CouponCard.tsx
+﻿
 'use client'
 
 import { Coupon } from '@/types/coupon'
@@ -11,11 +11,11 @@ interface CouponCardProps {
 
 export default function CouponCard({ coupon, onEdit, onDelete }: CouponCardProps) {
   const isExpired = new Date(coupon.expired_at) < new Date()
-  const statusColor = coupon.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-  
+  const statusColor = coupon.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'
+
   return (
     <div className="bg-white border rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-      {/* Header */}
+      {}
       <div className="flex justify-between items-start mb-4">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">{coupon.kode_kupon}</h3>
@@ -29,11 +29,11 @@ export default function CouponCard({ coupon, onEdit, onDelete }: CouponCardProps
         </div>
       </div>
 
-      {/* Details */}
+      {}
       <div className="space-y-2 mb-4">
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Berlaku hingga:</span>
-          <span className={`font-medium ${isExpired ? 'text-red-600' : 'text-gray-900'}`}>
+          <span className={`font-medium ${isExpired ? 'text-blue-600' : 'text-gray-900'}`}>
             {new Date(coupon.expired_at).toLocaleDateString('id-ID', {
               year: 'numeric',
               month: 'long',
@@ -49,7 +49,7 @@ export default function CouponCard({ coupon, onEdit, onDelete }: CouponCardProps
         </div>
       </div>
 
-      {/* Actions */}
+      {}
       <div className="flex gap-2 pt-4 border-t">
         {onEdit && (
           <button
@@ -62,7 +62,7 @@ export default function CouponCard({ coupon, onEdit, onDelete }: CouponCardProps
         {onDelete && (
           <button
             onClick={onDelete}
-            className="flex-1 bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors text-sm font-medium"
+            className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors text-sm font-medium"
           >
             Hapus
           </button>

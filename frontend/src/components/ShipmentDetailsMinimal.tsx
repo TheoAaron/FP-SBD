@@ -1,4 +1,4 @@
-// components/ShipmentDetails.tsx
+﻿
 'use client';
 import React, { useState, useEffect } from 'react';
 
@@ -12,7 +12,7 @@ interface ShipmentDetail {
   phone_number: string;
   email_address: string;
   kode_pos: string;
-  label?: string; // "Home", "Office", etc.
+  label?: string;
 }
 
 const ShipmentDetails = () => {
@@ -21,7 +21,7 @@ const ShipmentDetails = () => {
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [form, setForm] = useState({
     first_name: '',
     last_name: '',
@@ -34,7 +34,6 @@ const ShipmentDetails = () => {
     label: ''
   });
 
-  // Get token from localStorage
   const getAuthToken = () => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('token');
@@ -42,12 +41,11 @@ const ShipmentDetails = () => {
     return null;
   };
 
-  // Load saved addresses from API
   useEffect(() => {
     const loadSavedAddresses = async () => {
       setIsLoading(true);
       setError(null);
-      
+
       const token = getAuthToken();
       if (!token) {
         setError('Please login to view saved addresses');
@@ -69,12 +67,11 @@ const ShipmentDetails = () => {
 
         const data = await response.json();
         setSavedAddresses(data.data || []);
-        
-        // Auto-select first address if exists
+
         if (data.data && data.data.length > 0) {
           setSelectedAddressId(data.data[0].id_shipment);
         }
-        
+
       } catch (error) {
         console.error('Error loading shipment details:', error);
         setError('Failed to load saved addresses');
@@ -101,19 +98,18 @@ const ShipmentDetails = () => {
   return (
     <div className="w-full max-w-md px-4 sm:px-10">
       <h2 className="text-xl sm:text-2xl font-semibold mb-6">Shipment Details</h2>
-      
-      {/* Error Display */}
-      {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-600 text-sm">{error}</p>
+
+      {}
+      {error && (        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-blue-600 text-sm">{error}</p>
         </div>
       )}
 
-      {/* Simplified content without icons */}
+      {}
       <div className="space-y-4">
         <p>Component loaded successfully!</p>
         <p>Saved addresses: {savedAddresses.length}</p>
-        {error && <p className="text-red-500">Error: {error}</p>}
+        {error && <p className="text-blue-500">Error: {error}</p>}
       </div>
     </div>
   );

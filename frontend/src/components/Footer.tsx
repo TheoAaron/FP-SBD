@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import Image from 'next/image';
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa';
 
@@ -6,15 +6,15 @@ const Footer = () => {
   return (
     <footer className="bg-neutral-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        {/* Main Footer Content */}
+        {}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Company Info */}
+          {}
           <div className="lg:col-span-1">
             <div className="mb-4">
-              <Image 
-                src="/tokit.svg" 
-                alt="tokIT Logo" 
-                width={120} 
+              <Image
+                src="/tokit.svg"
+                alt="tokIT Logo"
+                width={120}
                 height={60}
                 className="w-24 h-12 sm:w-28 sm:h-14"
               />
@@ -24,7 +24,7 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Quick Links */}
+          {}
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
@@ -44,9 +44,9 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a 
-                  href="https://wa.me/6282145665062" 
-                  target="_blank" 
+                <a
+                  href="https://wa.me/6282145665062"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-gray-300 hover:text-white transition-colors"
                 >
@@ -56,7 +56,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Customer Service */}
+          {}
           <div>
             <h3 className="text-lg font-semibold mb-4">Customer Stuffs</h3>
             <ul className="space-y-2">
@@ -83,7 +83,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Contact Info */}
+          {}
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact Info</h3>
             <div className="space-y-2 text-gray-300 text-sm">
@@ -94,7 +94,7 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom Bar */}
+        {}
         <div className="border-t border-gray-700 mt-8 pt-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-gray-400 text-sm text-center sm:text-left mx-auto">

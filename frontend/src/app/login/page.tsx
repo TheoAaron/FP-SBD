@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -10,14 +10,13 @@ export default function LoginLayout() {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Check if user is already logged in
     useEffect(() => {
         const checkAuth = () => {
             try {
                 const token = sessionStorage.getItem('jwtToken');
                 if (token) {
                     setIsAuthenticated(true);
-                    // Redirect to home if already logged in
+
                     toast.success('You are already logged in!');
                     router.push('/');
                 } else {
@@ -34,19 +33,17 @@ export default function LoginLayout() {
         checkAuth();
     }, [router]);
 
-    // Show loading state
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
                     <p className="mt-4 text-gray-600">Loading...</p>
                 </div>
             </div>
         );
     }
 
-    // If already authenticated, show message
     if (isAuthenticated) {
 
         return (
@@ -55,9 +52,9 @@ export default function LoginLayout() {
                     <h2 className="text-2xl font-bold text-gray-900 mb-4">Already Logged In</h2>
                     <p className="text-gray-600 mb-6">You are already logged in. Redirecting to home...</p>
 
-                    <Link 
-                        href="/" 
-                        className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg transition-colors"
+                    <Link
+                        href="/"
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors"
                     >
                         Go to Home
                     </Link>
@@ -69,7 +66,7 @@ export default function LoginLayout() {
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         const form = event.currentTarget;
-        const formData = new FormData(form);    
+        const formData = new FormData(form);
         const payload = {
             username: formData.get('email'),
             password: formData.get('password'),
@@ -105,19 +102,19 @@ export default function LoginLayout() {
     }    return (
         <>
             <div className="min-h-screen flex flex-col lg:flex-row">
-                {/* Image Section - Hidden on mobile, shown on desktop */}
+                {}
                 <div className="hidden lg:block lg:w-1/2 relative bg-slate-300 overflow-hidden">
-                    <img 
-                        className="w-full h-full object-cover" 
-                        src="https://magnoliahome.co.in/wp-content/uploads/2021/08/Jasper-Arm-Chair-1.1-1.jpg" 
+                    <img
+                        className="w-full h-full object-cover"
+                        src="https://magnoliahome.co.in/wp-content/uploads/2021/08/Jasper-Arm-Chair-1.1-1.jpg"
                         alt="Chair"
                     />
                 </div>
 
-                {/* Form Section */}
+                {}
                 <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
                     <div className="w-full max-w-md space-y-6 sm:space-y-8">
-                        {/* Header */}
+                        {}
                         <div className="text-center lg:text-left space-y-2 sm:space-y-4">
                             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-medium text-black leading-tight">
                                 Log in to Exclusive
@@ -127,9 +124,9 @@ export default function LoginLayout() {
                             </p>
                         </div>
 
-                        {/* Form */}
+                        {}
                         <form className="space-y-6 sm:space-y-8" onSubmit={handleSubmit}>
-                            {/* Email or Phone */}
+                            {}
                             <div className="space-y-2">
                                 <input
                                     name="email"
@@ -140,7 +137,7 @@ export default function LoginLayout() {
                                 />
                             </div>
 
-                            {/* Password */}
+                            {}
                             <div className="space-y-2">
                                 <input
                                     name="password"
@@ -151,30 +148,30 @@ export default function LoginLayout() {
                                 />
                             </div>
 
-                            {/* Submit Button */}
+                            {}
                             <div className="space-y-4">
                                 <button
                                     type="submit"
-                                    className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-red-500 hover:bg-red-600 active:bg-red-600 rounded text-white text-sm sm:text-base font-medium transition-colors touch-manipulation"
+                                    className="w-full sm:w-auto px-8 sm:px-12 py-3 sm:py-4 bg-blue-500 hover:bg-blue-600 active:bg-blue-600 rounded text-white text-sm sm:text-base font-medium transition-colors touch-manipulation"
                                 >
                                     Login
                                 </button>
 
-                                {/* Forgot Password */}
+                                {}
                                 <div className="text-center lg:text-left">
-                                    <Link 
-                                        href="/login" 
-                                        className="text-red-500 text-sm sm:text-base hover:text-red-600 active:text-red-600 underline transition-colors"
+                                    <Link
+                                        href="/login"
+                                        className="text-blue-500 text-sm sm:text-base hover:text-blue-600 active:text-blue-600 underline transition-colors"
                                     >
                                         Forgot Password?
                                     </Link>
                                 </div>
 
-                                {/* Sign Up Link */}                                <div className="text-center lg:text-left text-sm sm:text-base text-black/70">
+                                {}                                <div className="text-center lg:text-left text-sm sm:text-base text-black/70">
                                     Don&apos;t have an account?{' '}
                                     <Link
-                                        href="/register" 
-                                        className="text-red-500 hover:text-red-600 active:text-red-600 underline transition-colors"
+                                        href="/register"
+                                        className="text-blue-500 hover:text-blue-600 active:text-blue-600 underline transition-colors"
                                     >
                                         Sign up
                                     </Link>

@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+﻿const { DataTypes } = require('sequelize');
 const {sequelize} = require('../../config/mysql');
 const { uniq } = require('lodash');
 
@@ -15,7 +15,7 @@ const Order = sequelize.define('Order', {
   },
   id_kupon: {
     type: DataTypes.UUID,
-    allowNull: true 
+    allowNull: true
   },
   id_shipment: {
     type: DataTypes.UUID,

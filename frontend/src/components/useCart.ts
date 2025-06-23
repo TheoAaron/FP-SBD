@@ -1,10 +1,9 @@
-// hooks/useCart.ts
+﻿
 import { useState, useCallback } from 'react'
 import { CartItem, CartState } from './cart-types'
 
 export const useCart = () => {
 
-  
   const [cartState, setCartState] = useState<CartState>({
     items: [],
     subtotal: 0,
@@ -14,7 +13,7 @@ export const useCart = () => {
 
   const calculateTotals = useCallback((items: CartItem[]) => {
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-    const shipping = subtotal > 0 ? 0 : 0 // Free shipping
+    const shipping = subtotal > 0 ? 0 : 0
     const discount = cartState.discount || 0
     const total = subtotal + shipping - discount
 
@@ -76,7 +75,7 @@ export const useCart = () => {
   }, [calculateTotals])
 
   const applyCoupon = useCallback((couponCode: string) => {
-    // Mock coupon logic - in real app, this would call an API
+
     const mockCoupons: Record<string, number> = {
       'SAVE10': 0.1,
       'SAVE20': 0.2,

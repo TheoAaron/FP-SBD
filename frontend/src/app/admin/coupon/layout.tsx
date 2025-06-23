@@ -6,7 +6,6 @@ export const metadata: Metadata = {
   description: "TOKO ETerion - Admin Coupon Management",
 };
 
-// src/app/admin/coupon/layout.tsx
 export default function AdminCouponLayout({
   children,
 }: {

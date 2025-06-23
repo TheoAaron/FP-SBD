@@ -1,25 +1,25 @@
-const { getDB } = require("../config/mongo");
+﻿const { getDB } = require("../config/mongo");
 
 async function seedReviews(db = null) {
   try {
-    // Use provided db connection or get from mongo config
+
     const database = db || getDB();
     const collection = database.collection("product_review");
-    
+
     console.log('🌱 Starting MongoDB product_review seeding...');
-    
-    // Check if data already exists
+
+
     const existingCount = await collection.countDocuments();
     if (existingCount > 0) {
       console.log(`ℹ️  Found ${existingCount} existing reviews, skipping seeding`);
       console.log('💡 Use "npm run drop && npm run setup" to reset all data');
       return;
     }
-    
-    // Sample review data with new structure
+
+
     const reviewData = [
       {
-        id_produk: "1", // iPhone 14 Pro
+        id_produk: "1",
         total_review: 3,
         reviews: [
           {
@@ -30,7 +30,7 @@ async function seedReviews(db = null) {
             date: new Date('2025-06-15')
           },
           {
-            id_user: "2", 
+            id_user: "2",
             username: "jane_smith",
             rate: 4,
             comment: "Great phone overall, but the battery could be better. Love the design though!",
@@ -46,12 +46,12 @@ async function seedReviews(db = null) {
         ]
       },
       {
-        id_produk: "2", // MacBook Pro
+        id_produk: "2",
         total_review: 2,
         reviews: [
           {
             id_user: "1",
-            username: "john_doe", 
+            username: "john_doe",
             rate: 5,
             comment: "Perfect for development work. The M2 chip is a beast and battery life is amazing.",
             date: new Date('2025-06-18')
@@ -66,7 +66,7 @@ async function seedReviews(db = null) {
         ]
       },
       {
-        id_produk: "3", // iPad Air
+        id_produk: "3",
         total_review: 2,
         reviews: [
           {
@@ -86,7 +86,7 @@ async function seedReviews(db = null) {
         ]
       },
       {
-        id_produk: "4", // Apple Watch
+        id_produk: "4",
         total_review: 1,
         reviews: [
           {
@@ -99,7 +99,7 @@ async function seedReviews(db = null) {
         ]
       },
       {
-        id_produk: "5", // AirPods Pro
+        id_produk: "5",
         total_review: 2,
         reviews: [
           {
@@ -119,19 +119,19 @@ async function seedReviews(db = null) {
         ]
       }
     ];
-    
-    // Insert review data
+
+
     const result = await collection.insertMany(reviewData);
     console.log(`✅ Successfully seeded ${result.insertedCount} product reviews`);
-    
-    // Display summary
+
+
     for (const review of reviewData) {
       const avgRating = review.reviews.reduce((sum, r) => sum + r.rate, 0) / review.reviews.length;
       console.log(`   📱 Product ${review.id_produk}: ${review.total_review} reviews, avg rating: ${avgRating.toFixed(1)}/5`);
     }
-    
+
     console.log('🎉 MongoDB review seeding completed!');
-    
+
   } catch (error) {
     console.error('❌ Error seeding reviews:', error);
     throw error;
@@ -140,10 +140,9 @@ async function seedReviews(db = null) {
 
 module.exports = { seedReviews };
 
-// Run seeder if this file is executed directly
 if (require.main === module) {
   const { connectMongo } = require("../config/mongo");
-  
+
   const runSeeder = async () => {
     try {
       await connectMongo();
@@ -154,6 +153,7 @@ if (require.main === module) {
       process.exit(1);
     }
   };
-  
+
   runSeeder();
 }
+

@@ -1,4 +1,4 @@
-require("dotenv").config();
+﻿require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
@@ -27,7 +27,6 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-
 app.get("/", (req, res) => res.send("🛒 Backend running with Mongo & MySQL"));
 app.use("/api/auth", authRoutes );
 app.use("/api/products", productRoutes);
@@ -53,3 +52,4 @@ const start = async () => {
 };
 
 start();
+

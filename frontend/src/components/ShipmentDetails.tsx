@@ -1,4 +1,4 @@
-// components/ShipmentDetails.tsx
+﻿
 'use client';
 import React, { useState, useEffect } from 'react';
 import { FiMapPin, FiPhone, FiMail, FiPlus, FiCheck, FiEdit3 } from 'react-icons/fi';
@@ -12,7 +12,7 @@ interface ShipmentDetail {
   kota: string;
   phone_number: string;
   kode_pos: string;
-  label?: string; // "Home", "Office", etc.
+  label?: string;
 }
 
 interface Props {
@@ -24,7 +24,7 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [form, setForm] = useState({
     first_name: '',
     last_name: '',
@@ -36,7 +36,6 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
     label: ''
   });
 
-  // Get token from localStorage
   const getAuthToken = () => {
     if (typeof window !== 'undefined') {
       return sessionStorage.getItem('jwtToken');
@@ -44,12 +43,11 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
     return null;
   };
 
-  // Load saved addresses from API
   useEffect(() => {
     const loadSavedAddresses = async () => {
       setIsLoading(true);
       setError(null);
-      
+
       const token = getAuthToken();
       if (!token) {
         setError('Please login to view saved addresses');
@@ -71,12 +69,11 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
 
         const data = await response.json();
         setSavedAddresses(data.data || []);
-        
-        // Auto-select first address if exists
+
         if (data.data && data.data.length > 0) {
           setSelectedAddressId(data.data[0].id_shipment);
         }
-        
+
       } catch (error) {
         console.error('Error loading shipment details:', error);
         setError('Failed to load saved addresses');
@@ -86,7 +83,6 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
     };    loadSavedAddresses();
   }, []);
 
-  // Notify parent when address is selected
   useEffect(() => {
     const selectedAddress = savedAddresses.find(addr => addr.id_shipment === selectedAddressId);
     if (onAddressSelect) {
@@ -104,7 +100,7 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
   const handleSubmitNewAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    
+
     const token = getAuthToken();
     if (!token) {
       setError('Please login to save address');
@@ -129,12 +125,10 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
       const data = await response.json();
       const newAddress = data.data;
 
-      // Add to saved addresses
       setSavedAddresses(prev => [...prev, newAddress]);
       setSelectedAddressId(newAddress.id_shipment);
       setShowForm(false);
-      
-      // Reset form
+
       setForm({
         first_name: '',
         last_name: '',
@@ -168,15 +162,14 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
   return (
     <div className="w-full max-w-md px-4 sm:px-10">
       <h2 className="text-xl sm:text-2xl font-semibold mb-6">Shipment Details</h2>
-      
-      {/* Error Display */}
-      {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-600 text-sm">{error}</p>
+
+      {}
+      {error && (        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-blue-600 text-sm">{error}</p>
         </div>
       )}
-      
-      {/* Saved Addresses Selection */}
+
+      {}
       {savedAddresses.length > 0 && !showForm && (
         <div className="space-y-4 mb-6">
           <h3 className="text-sm font-medium text-gray-700">Choose Address:</h3>
@@ -190,7 +183,7 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
-              {/* Selection indicator */}
+              {}
               <div className={`absolute top-3 right-3 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                 selectedAddressId === address.id_shipment
                   ? 'border-blue-500 bg-blue-500'
@@ -201,7 +194,7 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
                 )}
               </div>
 
-              {/* Address info */}
+              {}
               <div className="pr-8">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="font-medium text-gray-900">
@@ -213,7 +206,7 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
                     </span>
                   )}
                 </div>
-                
+
                 <div className="space-y-1 text-sm text-gray-600">
                   <div className="flex items-start gap-2">
                     <FiMapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
@@ -232,8 +225,8 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
               </div>
             </div>
           ))}
-          
-          {/* Add New Address Button */}
+
+          {}
           <button
             onClick={() => setShowForm(true)}
             className="w-full p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors flex items-center justify-center gap-2 text-gray-600 hover:text-gray-700"
@@ -244,7 +237,7 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
         </div>
       )}
 
-      {/* New Address Form */}
+      {}
       {(showForm || savedAddresses.length === 0) && (        <form onSubmit={handleSubmitNewAddress} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <input
@@ -263,7 +256,7 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
               className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-          
+
           <input
             name="street_address"
             value={form.street_address}
@@ -272,7 +265,7 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
             className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
           />
-          
+
           <input
             name="apartment_floor"
             value={form.apartment_floor}
@@ -280,7 +273,7 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
             placeholder="Apartment, floor, etc. (optional)"
             className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <input
               name="kota"
@@ -299,7 +292,7 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
               required
             />
           </div>
-          
+
           <input
             name="phone_number"
             value={form.phone_number}
@@ -308,8 +301,7 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
             className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
           />
-        
-          
+
           <input
             name="label"
             value={form.label}
@@ -317,7 +309,7 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
             placeholder="Label (Home, Office)"
             className="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
-          
+
           <div className="flex gap-3 pt-4">
             {savedAddresses.length > 0 && (
               <button
@@ -336,7 +328,7 @@ const ShipmentDetails: React.FC<Props> = ({ onAddressSelect }) => {const [savedA
             </button>
           </div>
         </form>
-      )}      {/* Selected Address Summary */}
+      )}      {}
       {selectedAddress && !showForm && (
         <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
           <h4 className="font-medium text-green-800 mb-2">Selected Address:</h4>

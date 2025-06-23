@@ -1,8 +1,8 @@
-const { v4: uuidv4 } = require('uuid');
+﻿const { v4: uuidv4 } = require('uuid');
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    // Ambil data orders dan products
+
     const orders = await queryInterface.sequelize.query(
       `SELECT id_order FROM orders LIMIT 5;`,
       { type: Sequelize.QueryTypes.SELECT }
@@ -19,7 +19,7 @@ module.exports = {
 
     const detailOrders = [];
 
-    // Hubungkan tiap order dengan 2 produk unik
+
     orders.forEach((order, i) => {
       const firstProduct = products[i % products.length];
       const secondProduct = products[(i + 1) % products.length];
@@ -50,3 +50,4 @@ module.exports = {
     await queryInterface.bulkDelete('detail_orders', null, {});
   }
 };
+

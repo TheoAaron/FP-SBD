@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+﻿import { Suspense } from 'react';
 import Carousel from '@/components/Carousel';
 import BestSellingProducts from '@/components/BestSellingProduct';
 import DiscoveryProduct from '@/components/DiscoveryProduct';
@@ -14,9 +14,8 @@ interface bestSellingProduct {
   avg_rating?: number;
   total_review?: number;
   total_quantity?: number;
-  // Add other fields as necessary
-}
 
+}
 
 const images = [
   { src: 'https://images.unsplash.com/photo-1556656793-08538906a9f8?w=800&h=400&fit=crop', alt: 'First Slide' },
@@ -24,21 +23,19 @@ const images = [
   { src: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=400&fit=crop', alt: 'Third Slide' },
 ];
 
-// ✅ fetch produk best seller
 async function getBestSellingProducts(): Promise<bestSellingProduct[]> {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/products/bs`, {
       cache: 'no-store',
     });
-    
+
     if (!res.ok) {
       console.error('Failed to fetch best selling products:', res.status);
       return [];
     }
-    
+
     const data = await res.json();
-    
-    // Check if data is an array
+
     if (Array.isArray(data)) {
       return data.slice(0, 5);
     } else {
@@ -51,21 +48,19 @@ async function getBestSellingProducts(): Promise<bestSellingProduct[]> {
   }
 }
 
-// ✅ fetch produk umum
 async function getProducts(): Promise<Product[]> {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/products`, {
       cache: 'no-store',
     });
-    
+
     if (!res.ok) {
       console.error('Failed to fetch products:', res.status);
       return [];
     }
-    
+
     const data = await res.json();
-    
-    // Check if data is an array
+
     if (Array.isArray(data)) {
       return data.slice(0, 4);
     } else {
@@ -86,10 +81,10 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Carousel */}
+      {}
       <div className="w-full">
         <Carousel images={images} />
-      </div>      {/* Categories Section */}
+      </div>      {}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <Suspense fallback={
           <div className="flex justify-center items-center h-32">
@@ -101,12 +96,12 @@ export default async function Home() {
         </Suspense>
       </div>
 
-      {/* Best Selling Products Section */}
+      {}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <BestSellingProducts products={bestSelling} />
       </div>
 
-      {/* Discovery Products Section */}
+      {}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <DiscoveryProduct products={products} />
       </div>

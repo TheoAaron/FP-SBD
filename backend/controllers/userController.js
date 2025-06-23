@@ -1,12 +1,12 @@
-const { pool } = require('../config/mysql');
+﻿const { pool } = require('../config/mysql');
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto')
 
 const getProfile = async (req, res) => {
   try {
-    console.log('req.user:', req.user); // Debug log
+    console.log('req.user:', req.user);
     const userId = req.user.id;
-    console.log('userId:', userId); // Debug log
+    console.log('userId:', userId);
 
     const [rows] = await pool.query('SELECT * FROM users WHERE id_user = ?', [userId]);
 
@@ -33,7 +33,7 @@ const updateProfile = async (req, res) => {
     if (rows.length === 0) {
       return res.status(404).json({ message: 'User tidak ditemukan' });
     }
-    
+
     if(current !== rows[0].password && current_password != null){
         return res.status(401).json({message:"Incorrect Password"});
     }
@@ -43,7 +43,6 @@ const updateProfile = async (req, res) => {
   }catch(err){
     return res.status(500).json({message: "Server Error"});
   }
-
 
 }
 

@@ -1,6 +1,5 @@
 import React from 'react';
 
-
 <div className="inline-flex flex-col justify-start items-start gap-12">
     <div className="flex flex-col justify-start items-start gap-6">
         <div className="justify-start text-black text-4xl font-medium font-['Inter'] leading-loose tracking-wider">Create an account</div>
@@ -28,7 +27,7 @@ import React from 'react';
             </div>
         </div>
         <div className="flex flex-col justify-start items-start gap-4">
-            <div data-button="Primary" data-hover="No" className="px-32 py-4 bg-red-500 rounded inline-flex justify-center items-center gap-2.5">
+            <div data-button="Primary" data-hover="No" className="px-32 py-4 bg-blue-500 rounded inline-flex justify-center items-center gap-2.5">
                 <div className="justify-start text-neutral-50 text-base font-medium font-['Poppins'] leading-normal">Create Account</div>
             </div>
             <div className="flex flex-col justify-start items-center gap-8">

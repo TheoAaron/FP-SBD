@@ -1,7 +1,6 @@
-// import { MongoClient } from "mongodb";
+
 const { MongoClient } = require("mongodb");
 
-// Ensure environment variables are loaded
 require('dotenv').config();
 
 const MONGO_HOST = process.env.MONGO_HOST || '127.0.0.1';
@@ -36,4 +35,3 @@ const getDB = () => {
 };
 
 module.exports = { connectDB, getDB };
-

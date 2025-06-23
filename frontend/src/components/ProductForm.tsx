@@ -1,11 +1,10 @@
-// src/components/ProductForm.tsx
+﻿
 'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Product } from '@/types/product'
-
 
 interface ProductFormProps {
   product?: Product
@@ -20,10 +19,10 @@ export default function ProductForm({ product, mode, token }: ProductFormProps) 
     description: product?.description || '',
     image: product?.image || '',
     price: product?.harga.toString() || '',
-    kategori: product?.kategori || '',    
+    kategori: product?.kategori || '',
     stock: product?.stock?.toString() || ''
   })
-  const [isSubmitting, setIsSubmitting] = useState(false)  
+  const [isSubmitting, setIsSubmitting] = useState(false)
   useEffect(() => {
     if (product) {
       setFormData({
@@ -45,7 +44,7 @@ export default function ProductForm({ product, mode, token }: ProductFormProps) 
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()    
+    e.preventDefault()
     try {
     setIsSubmitting(true)
 
@@ -111,8 +110,8 @@ export default function ProductForm({ product, mode, token }: ProductFormProps) 
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="bg-white rounded-lg shadow p-8">
           <h1 className="text-2xl font-bold mb-8">{title}</h1>
-          
-          <form onSubmit={handleSubmit}>            
+
+          <form onSubmit={handleSubmit}>
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Nama Produk *
@@ -158,9 +157,8 @@ export default function ProductForm({ product, mode, token }: ProductFormProps) 
                 <option value="audio">Audio</option>
                 <option value="camera">Camera</option>
                 <option value="computer">Computer</option>
-                </select>          
+                </select>
             </div>
-            
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -177,9 +175,9 @@ export default function ProductForm({ product, mode, token }: ProductFormProps) 
               />
               {formData.image && (
                 <div className="mt-2">
-                  <img 
-                    src={formData.image} 
-                    alt="Preview" 
+                  <img
+                    src={formData.image}
+                    alt="Preview"
                     className="w-20 h-20 object-contain border rounded"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none'
@@ -187,7 +185,7 @@ export default function ProductForm({ product, mode, token }: ProductFormProps) 
                   />
                 </div>
               )}
-            </div>            
+            </div>
             <div className={`mb-6`}>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -204,7 +202,7 @@ export default function ProductForm({ product, mode, token }: ProductFormProps) 
                   step="0.01"
                   required
                 />
-              </div>              
+              </div>
             </div>
 
             <div className="mb-8">

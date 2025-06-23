@@ -1,4 +1,4 @@
-// components/CheckoutDetails.tsx
+﻿
 'use client';
 import React, { useState } from 'react';
 
@@ -25,9 +25,9 @@ const CheckoutDetails: React.FC<Props> = ({ items, onPlaceOrder, isLoading = fal
   const [couponValidating, setCouponValidating] = useState(false);
   const [couponError, setCouponError] = useState('');
   const [couponSuccess, setCouponSuccess] = useState('');
-  
+
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping: number = 0; // Free shipping
+  const shipping: number = 0;
   const discount = couponDiscount;  const total = subtotal + shipping - discount;
 
   const validateCoupon = async () => {
@@ -89,15 +89,15 @@ const CheckoutDetails: React.FC<Props> = ({ items, onPlaceOrder, isLoading = fal
   return (
     <div className="w-full max-w-md bg-white rounded-lg shadow-sm border border-gray-200 p-6 h-fit">
       <h2 className="text-lg font-semibold text-gray-900 mb-6">Order Summary</h2>
-      
-      {/* Items List */}
+
+      {}
       <div className="space-y-4 mb-6">
         {items.map(item => (
           <div key={item.id} className="flex items-center space-x-4">
             <div className="flex-shrink-0">
-              <img 
-                src={item.image} 
-                alt={item.name} 
+              <img
+                src={item.image}
+                alt={item.name}
                 className="w-16 h-16 object-cover rounded-lg border border-gray-200"
                 onError={(e) => {
                   e.currentTarget.src = 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=300&fit=crop';
@@ -116,7 +116,7 @@ const CheckoutDetails: React.FC<Props> = ({ items, onPlaceOrder, isLoading = fal
         ))}
       </div>
 
-      {/* Payment Method */}
+      {}
       <div className="mb-6">
         <h3 className="text-sm font-semibold text-gray-900 mb-3">Payment Method</h3>
         <div className="space-y-2">
@@ -124,10 +124,9 @@ const CheckoutDetails: React.FC<Props> = ({ items, onPlaceOrder, isLoading = fal
             <input
               type="radio"
               name="payment"
-              value="transfer_bank"
-              checked={paymentMethod === 'transfer bank'}
+              value="transfer_bank"              checked={paymentMethod === 'transfer bank'}
               onChange={(e) => setPaymentMethod(e.target.value)}
-              className="w-4 h-4 text-red-500 border-gray-300 focus:ring-red-500"
+              className="w-4 h-4 text-blue-500 border-gray-300 focus:ring-blue-500"
             />
             <span className="text-sm text-gray-700">Bank Transfer</span>
           </label>
@@ -135,18 +134,17 @@ const CheckoutDetails: React.FC<Props> = ({ items, onPlaceOrder, isLoading = fal
             <input
               type="radio"
               name="payment"
-              value="cod"
-              checked={paymentMethod === 'cod'}
+              value="cod"              checked={paymentMethod === 'cod'}
               onChange={(e) => setPaymentMethod(e.target.value)}
-              className="w-4 h-4 text-red-500 border-gray-300 focus:ring-red-500"
+              className="w-4 h-4 text-blue-500 border-gray-300 focus:ring-blue-500"
             />
             <span className="text-sm text-gray-700">Cash on Delivery</span>
           </label>
         </div>
-      </div>      {/* Coupon Code */}
+      </div>      {}
       <div className="mb-6">
         <h3 className="text-sm font-semibold text-gray-900 mb-3">Coupon Code</h3>
-        
+
         {!appliedCoupon ? (
           <div className="space-y-2">
             <div className="flex space-x-2">
@@ -160,20 +158,19 @@ const CheckoutDetails: React.FC<Props> = ({ items, onPlaceOrder, isLoading = fal
                   setCouponSuccess('');
                 }}
                 className={`flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 text-sm ${
-                  couponError 
-                    ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-                    : 'border-gray-300 focus:ring-red-500 focus:border-red-500'
+                  couponError                    ? 'border-blue-300 focus:ring-blue-500 focus:border-blue-500'
+                    : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
                 }`}
                 disabled={couponValidating}
               />
-              <button 
+              <button
                 type="button"
                 onClick={validateCoupon}
                 disabled={couponValidating || !couponCode.trim()}
                 className={`px-4 py-2 rounded-md transition-colors text-sm font-medium ${
                   couponValidating || !couponCode.trim()
                     ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    : 'bg-red-500 text-white hover:bg-red-600'
+                    : 'bg-blue-500 text-white hover:bg-blue-600'
                 }`}
               >
                 {couponValidating ? (
@@ -186,11 +183,11 @@ const CheckoutDetails: React.FC<Props> = ({ items, onPlaceOrder, isLoading = fal
                 )}
               </button>
             </div>
-            
+
             {couponError && (
-              <p className="text-xs text-red-600 mt-1">{couponError}</p>
+              <p className="text-xs text-blue-600 mt-1">{couponError}</p>
             )}
-            
+
             {couponSuccess && (
               <p className="text-xs text-green-600 mt-1">{couponSuccess}</p>
             )}
@@ -218,41 +215,41 @@ const CheckoutDetails: React.FC<Props> = ({ items, onPlaceOrder, isLoading = fal
         )}
       </div>
 
-      {/* Order Total */}
+      {}
       <div className="border-t border-gray-200 pt-4 space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Subtotal:</span>
           <span className="font-medium">Rp. {subtotal.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
         </div>
-        
+
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Shipping:</span>
           <span className="font-medium">{shipping === 0 ? 'Free' : `Rp. ${shipping.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</span>
         </div>
-        
+
         {discount > 0 && (
           <div className="flex justify-between text-sm text-green-600">
             <span>Discount:</span>
             <span className="font-medium">-Rp. {discount.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
         )}
-        
+
         <hr className="my-2" />
-        
+
         <div className="flex justify-between font-semibold text-lg">
           <span>Total:</span>
-          <span className="text-red-600">Rp. {total.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          <span className="text-blue-600">Rp. {total.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
         </div>
       </div>
 
-      {/* Place Order Button */}
+      {}
       <button
         onClick={handlePlaceOrder}
         disabled={isLoading || items.length === 0}
         className={`w-full mt-6 px-6 py-3 rounded-md font-medium transition-colors ${
           isLoading || items.length === 0
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            : 'bg-red-500 text-white hover:bg-red-600'
+            : 'bg-blue-500 text-white hover:bg-blue-600'
         }`}
       >
         {isLoading ? (
@@ -265,7 +262,7 @@ const CheckoutDetails: React.FC<Props> = ({ items, onPlaceOrder, isLoading = fal
         )}
       </button>
 
-      {/* Security Notice */}
+      {}
       <p className="text-xs text-gray-500 text-center mt-4">
         Your payment information is secure and encrypted
       </p>

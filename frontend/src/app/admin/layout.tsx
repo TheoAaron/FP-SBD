@@ -6,7 +6,6 @@ export const metadata: Metadata = {
   description: "TOKO ETerion",
 };
 
-// src/app/admin/products/layout.tsx
 export default function AdminProductsLayout({
   children,
 }: {

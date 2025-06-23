@@ -1,8 +1,8 @@
-const { v4: uuidv4 } = require('uuid');
+﻿const { v4: uuidv4 } = require('uuid');
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    // Ambil user dan kupon aktif dari DB
+
     const users = await queryInterface.sequelize.query(
       `SELECT id_user FROM users LIMIT 3;`,
       { type: Sequelize.QueryTypes.SELECT }
@@ -36,3 +36,4 @@ module.exports = {
     await queryInterface.bulkDelete('used_coupons', null, {});
   }
 };
+

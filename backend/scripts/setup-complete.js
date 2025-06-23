@@ -1,4 +1,4 @@
-const { execSync } = require('child_process');
+﻿const { execSync } = require('child_process');
 const { connectMongo } = require('../config/mongo');
 const { seedReviews } = require('../seeders/seed-reviews-mongo');
 const { migrateReviewStructure } = require('./migrate-reviews');
@@ -6,27 +6,27 @@ const { migrateReviewStructure } = require('./migrate-reviews');
 async function setupComplete() {
   try {
     console.log('🚀 Starting complete database setup...');
-    
-    // 1. Initialize databases (MySQL + MongoDB)
+
+
     console.log('\n📊 Step 1: Initializing databases...');
     execSync('npm run migrate', { stdio: 'inherit' });
-    
-    // 2. Seed MySQL data
+
+
     console.log('\n🌱 Step 2: Seeding MySQL data...');
     execSync('npm run seed', { stdio: 'inherit' });
-    
-    // 3. Connect to MongoDB
+
+
     console.log('\n🍃 Step 3: Connecting to MongoDB...');
     await connectMongo();
-    
-    // 4. Migrate existing MongoDB reviews (if any)
+
+
     console.log('\n🔄 Step 4: Migrating existing MongoDB reviews...');
     await migrateReviewStructure();
-    
-    // 5. Seed MongoDB reviews
+
+
     console.log('\n📝 Step 5: Seeding MongoDB reviews...');
     await seedReviews();
-    
+
     console.log('\n🎉 Complete database setup finished successfully!');
     console.log('\n📋 Summary:');
     console.log('   ✅ MySQL database initialized and seeded');
@@ -34,7 +34,7 @@ async function setupComplete() {
     console.log('   ✅ Review structure migrated to new format');
     console.log('   ✅ Sample reviews added to MongoDB');
     console.log('\n🚀 You can now start the server with: npm start');
-    
+
   } catch (error) {
     console.error('\n❌ Setup failed:', error.message);
     console.error('\n💡 Please check:');
@@ -45,7 +45,6 @@ async function setupComplete() {
   }
 }
 
-// Run setup if this file is executed directly
 if (require.main === module) {
   setupComplete()
     .then(() => process.exit(0))
@@ -56,3 +55,4 @@ if (require.main === module) {
 }
 
 module.exports = { setupComplete };
+

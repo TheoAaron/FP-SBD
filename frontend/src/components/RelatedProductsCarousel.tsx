@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import React, { useRef, useEffect, useState } from 'react';
 import StarRating from '@/components/StarRating';
 import { Product } from '@/lib/dummyProducts';
@@ -18,7 +18,6 @@ export default function RelatedProductsCarousel({ products }: CarouselProps) {
   const [productsWithReviews, setProductsWithReviews] = useState<ProductWithReviews[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch reviews from MongoDB for each product
   useEffect(() => {
     const fetchReviews = async () => {
       if (!products || products.length === 0) {
@@ -33,19 +32,18 @@ export default function RelatedProductsCarousel({ products }: CarouselProps) {
               const response = await fetch(`http://localhost:8080/api/reviews/${product.id_produk}`);
               if (response.ok) {
                 const data = await response.json();
-                
-                // Extract reviews from the correct path
+
                 let reviews = [];                if (data.reviews && data.reviews.length > 0 && data.reviews[0].reviews) {
                   reviews = data.reviews[0].reviews;
                 }
-                
+
                 let real_rating = 0;
                 let real_review_count = reviews.length;
                 if (reviews.length > 0) {
                   const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
                   real_rating = totalRating / reviews.length;
                 }
-                
+
                 return {
                   ...product,
                   real_rating,
@@ -68,7 +66,7 @@ export default function RelatedProductsCarousel({ products }: CarouselProps) {
             }
           })
         );
-        
+
         setProductsWithReviews(productsWithReviewData);
       } catch (error) {
         console.error('Error fetching reviews:', error);
@@ -121,7 +119,7 @@ export default function RelatedProductsCarousel({ products }: CarouselProps) {
             href={`/product/${prod.id_produk}`}
             className="min-w-[250px] max-w-[250px] flex-shrink-0 group border rounded-lg p-4 hover:shadow-lg transition flex flex-col"
           >
-            {/* Image */}
+            {}
             <div className="relative bg-gray-100 rounded-lg h-48 sm:h-56 mb-3 sm:mb-4 flex items-center justify-center overflow-hidden">
               <img
                 src={prod.image || 'https://via.placeholder.com/300x300?text=No+Image'}
@@ -133,11 +131,11 @@ export default function RelatedProductsCarousel({ products }: CarouselProps) {
               />
             </div>
 
-            {/* Info */}
+            {}
             <div className="flex-grow">
               <h3 className="font-medium text-gray-900 text-sm">{prod.nama_produk}</h3>
               <div className="flex items-center gap-2 text-sm">
-                <span className="text-red-500 font-semibold">Rp. {prod.harga?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                <span className="text-blue-500 font-semibold">Rp. {prod.harga?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <StarRating rating={prod.real_rating ?? 0} />

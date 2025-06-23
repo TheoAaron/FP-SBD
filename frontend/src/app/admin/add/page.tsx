@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import ProductForm from '../../../components/ProductForm'
 import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
@@ -6,7 +6,7 @@ import ProductCard from '../../../components/ProductCard'
 import { Product } from '../../../types/product'
 import {jwtDecode} from 'jwt-decode'
 
-export default function AddProductPage() {  
+export default function AddProductPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -34,5 +34,5 @@ export default function AddProductPage() {
     checkAuth()
   }, [token, router])
 
-  return <ProductForm mode="create" token={token || ''} />  
+  return <ProductForm mode="create" token={token || ''} />
 }

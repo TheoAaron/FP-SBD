@@ -1,10 +1,9 @@
-const { execSync } = require('child_process');
+﻿const { execSync } = require('child_process');
 const mysql = require('mysql2/promise');
 const mongoose = require('mongoose');
 const path = require('path');
 const { seedReviews } = require('./seed-reviews-mongo');
 
-// Load environment variables
 require('dotenv').config();
 
 console.log('🔍 Environment variables check:');
@@ -13,10 +12,8 @@ console.log('DB_PORT:', process.env.DB_PORT);
 console.log('DB_USER:', process.env.DB_USER);
 console.log('DB_NAME:', process.env.DB_NAME);
 
-// Ambil config Sequelize
 const dbConfig = require('../config/config').development;
 
-// MongoDB configuration
 const MONGO_HOST = process.env.MONGO_HOST || '127.0.0.1';
 const MONGO_PORT = process.env.MONGO_PORT || '27017';
 const DB_NAME = process.env.DB_NAME || 'sbdjaya';
@@ -26,14 +23,14 @@ const isDrop = process.env.npm_lifecycle_event === 'drop';
 
 async function init() {
   console.log('🚀 Starting initialization...');
-    // MYSQL
+
   console.log('📊 Initializing MySQL...');
   console.log('🔍 Using DB config:', {
     host: dbConfig.host,
     port: dbConfig.port,
     user: dbConfig.username,
     database: dbConfig.database
-  });  // Create connection without database first (to create database)
+  });
   const connectionWithoutDB = await mysql.createConnection({
     host: dbConfig.host,
     port: dbConfig.port,
@@ -42,16 +39,16 @@ async function init() {
   });
 
   if (isDrop) {
-    // Drop MySQL
+
     execSync(`npx sequelize-cli db:drop --config "${path.resolve(__dirname, '../config/config.js')}"`, {
       stdio: 'inherit'
     });
     console.log(`🗑  Dropped MySQL database '${dbConfig.database}'`);  } else {
-    // Create DB if not exist using connection without database
+
     await connectionWithoutDB.query(`CREATE DATABASE IF NOT EXISTS \`${dbConfig.database}\`;`);
     console.log(`✅ MySQL database '${dbConfig.database}' is ready.`);
 
-    // Now create connection with database for further operations
+
     const connection = await mysql.createConnection({
       host: dbConfig.host,
       port: dbConfig.port,
@@ -60,47 +57,35 @@ async function init() {
       database: dbConfig.database
     });
 
-    // Migrate
+
     const migrationsPath = path.resolve(__dirname, '../migrations');    execSync(`npx sequelize-cli db:migrate --config "${path.resolve(__dirname, '../config/config.js')}" --migrations-path "${migrationsPath}"`, {
       stdio: 'inherit'
     });    console.log('✅ Sequelize migration completed.');
-    
-    // Check if MySQL data already exists
+
+
     console.log('🔍 Checking if MySQL data already exists...');
-    const [rows] = await connection.execute('SELECT COUNT(*) as count FROM users');
-    const userCount = rows[0].count;
-    
-    if (userCount > 0) {
-      console.log(`ℹ️  MySQL data already exists (${userCount} users found). Skipping seeding.`);
-    } else {
-      // Run MySQL seeders immediately after migration
-      console.log('🌱 Starting MySQL seeding...');
-      execSync(`npx sequelize-cli db:seed:all --config "${path.resolve(__dirname, '../config/config.js')}"`, {
-        stdio: 'inherit'
-      });
-      console.log('✅ MySQL seeding completed.');
-    }
-    
+
+
     await connection.end();
   }
   await connectionWithoutDB.end();
-  // MongoDB
+
   console.log('🍃 Initializing MongoDB...');
   try {
     await mongoose.connect(mongoUri, {
-      serverSelectionTimeoutMS: 5000, // 5 second timeout
+      serverSelectionTimeoutMS: 5000,
     });
-    
+
     const db = mongoose.connection.db;
 
     if (isDrop) {
       await db.dropDatabase();
       console.log(`🗑  Dropped MongoDB database '${dbConfig.database}'`);
       await mongoose.disconnect();
-      return; // stop here if dropping
+      return;
     }
 
-    // Buat collection jika belum ada
+
     const collections = [      {
         name: 'wishlist',
         validator: {
@@ -185,16 +170,16 @@ async function init() {
       } else {
         console.log(`i MongoDB collection '${col.name}' already exists`);
       }
-    }    await mongoose.disconnect();    // Seed MongoDB reviews immediately after creating collections
+    }    await mongoose.disconnect();
     console.log('🌱 Starting MongoDB review seeding...');
     await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 5000,
     });
-    
-    // Pass the mongoose connection to the seeder
+
+
     const mongoDb = mongoose.connection.db;
     await seedReviews(mongoDb);
-    
+
     await mongoose.disconnect();
     console.log('✅ MongoDB initialization and seeding completed.');} catch (error) {
     console.warn('⚠️  MongoDB connection failed:', error.message);

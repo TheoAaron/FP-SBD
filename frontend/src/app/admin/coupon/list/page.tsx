@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -29,7 +29,6 @@ export default function AdminCouponListPage() {
           return
         }
 
-        // Fetch coupons
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/coupon`, {
           method: 'GET',
           headers: {
@@ -37,13 +36,13 @@ export default function AdminCouponListPage() {
             'Content-Type': 'application/json',
           },
         })
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch coupons')
         }
-        
+
         const data = await response.json()
-        setCoupons(data.data || data) // Handle different response formats
+        setCoupons(data.data || data)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
@@ -72,12 +71,11 @@ export default function AdminCouponListPage() {
             'Authorization': `Bearer ${token}`,
           }
         })
-        
+
         if (!response.ok) {
           throw new Error('Failed to delete coupon')
         }
-        
-        // Remove from state
+
         setCoupons(coupons.filter(coupon => coupon.id_kupon !== id))
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred while deleting the coupon')
@@ -94,13 +92,13 @@ export default function AdminCouponListPage() {
   }
 
   if (error) {
-    return <div className="p-10 text-center text-red-500">{error}</div>
+    return <div className="p-10 text-center text-blue-500">{error}</div>
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="max-w-7xl mx-auto px-8 py-8">
-        {/* Header */}
+        {}
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-2xl font-semibold text-gray-900">Kelola Kupon</h1>
           <button
@@ -111,7 +109,7 @@ export default function AdminCouponListPage() {
           </button>
         </div>
 
-        {/* Search Bar */}
+        {}
         <div className="mb-8 max-w-sm">
           <div className="relative">
             <input
@@ -129,7 +127,7 @@ export default function AdminCouponListPage() {
           </div>
         </div>
 
-        {/* Coupon Grid */}
+        {}
         {filteredCoupons.length === 0 && (
           <div className="text-center text-gray-500 mb-8">
             <p className="text-lg">Tidak ada kupon ditemukan</p>

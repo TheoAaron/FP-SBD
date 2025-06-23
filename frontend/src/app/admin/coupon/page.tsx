@@ -1,23 +1,19 @@
-'use client'
+﻿'use client'
 import CouponForm from '../../../components/CouponForm'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
 
 export default function AddCouponPage() {
-  // cek autentikasi
-  // jika tidak ada token, redirect ke halaman login
-  // jika ada token, cek role
-  // jika role bukan admin, redirect ke halaman login
-  // jika role admin, tampilkan halaman tambah kupon
+
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  
+
   useEffect(() => {
     const checkAuth = async () => {
       const token = sessionStorage.getItem('jwtToken')
-      
+
       if (!token) {
         router.push('/login')
         return
@@ -52,7 +48,7 @@ export default function AddCouponPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-lg text-red-500">Error: {error}</div>
+        <div className="text-lg text-blue-500">Error: {error}</div>
       </div>
     )
   }

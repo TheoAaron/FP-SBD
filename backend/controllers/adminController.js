@@ -1,4 +1,4 @@
-const { pool } = require('../config/mysql');
+﻿const { pool } = require('../config/mysql');
 
 const index = async (req, res) => {
   try {
@@ -10,14 +10,14 @@ const index = async (req, res) => {
 
     res.json(rows);
   } catch (err) {
-    
+
     res.status(500).json({ message: 'Server error' });
   }
 }
 
-const detail = async (req, res) => {  
+const detail = async (req, res) => {
   const { id } = req.params;
-  try {    
+  try {
     if (!id) {
       return res.status(400).json({ message: 'Product ID is required' });
     }
@@ -29,35 +29,31 @@ const detail = async (req, res) => {
 
     res.json(rows);
   } catch (err) {
-    
+
     res.status(500).json({ message: 'Server error' });
   }
 }
 
 const createProduct = async (req, res) => {
-  // const { name, price, description } = req.body;
+
   const {id_produk,nama_produk,description,avg_rating,harga,total_review,kategori,image,stock} = req.body;
-  // 
-  // if (!nama_produk || !description || !parseInt(harga) || !kategori || !image || !parseInt(stock)) {
-  //   return res.status(400).json({ message: 'All fields are required' });
-  // }
- 
+
   if ( nama_produk==''|| description=='' || !(harga.toString() && harga >= 0) || kategori=='' || image=='' || !stock.toString()) {
-    return res.status(400).json({ message: 'All fields are required' });    
+    return res.status(400).json({ message: 'All fields are required' });
   }
-  // cek image adalah url yang valid dan tidak localhost
+
   if (!/^https?:\/\/(?!localhost)([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\/.*/.test(image)) {
     return res.status(400).json({ message: 'Image must be a valid URL' });
   }
 
   try {
-    const [result] = await pool.query('INSERT INTO products (nama_produk, description, harga, kategori, image, stock) VALUES (?, ?, ?, ?, ?, ?)', 
+    const [result] = await pool.query('INSERT INTO products (nama_produk, description, harga, kategori, image, stock) VALUES (?, ?, ?, ?, ?, ?)',
       [ nama_produk, description, harga, kategori, image, stock]);
-    res.status(201).json({message: 'Product created successfully',      
+    res.status(201).json({message: 'Product created successfully',
     }
     );
   } catch (err) {
-    
+
     res.status(500).json({ message: 'Server error' });
   }
 }
@@ -70,16 +66,15 @@ const updateProduct = async (req, res) => {
   const {id_produk,nama_produk,description,avg_rating,harga,total_review,kategori,image,stock} = req.body;
 
   if ( nama_produk==''|| description=='' || !(harga.toString() && harga >= 0) || kategori=='' || image=='' || !stock.toString()) {
-    return res.status(400).json({ message: 'All fields are required' });    
+    return res.status(400).json({ message: 'All fields are required' });
   }
 
-  // cek image adalah url yang valid dan tidak localhost
   if (!/^https?:\/\/(?!localhost)([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\/.*/.test(image)) {
     return res.status(400).json({ message: 'Image must be a valid URL' });
   }
 
   try {
-    const [result] = await pool.query('UPDATE products SET nama_produk = ?, description = ?, harga = ?, kategori = ?, image = ?, stock = ? WHERE id_produk = ?', 
+    const [result] = await pool.query('UPDATE products SET nama_produk = ?, description = ?, harga = ?, kategori = ?, image = ?, stock = ? WHERE id_produk = ?',
       [nama_produk, description, harga, kategori, image, stock, id]);
 
     if (result.affectedRows === 0) {
@@ -88,14 +83,14 @@ const updateProduct = async (req, res) => {
 
     res.json({ message: 'Product updated successfully' });
   } catch (err) {
-    
+
     res.status(500).json({ message: 'Server error' });
   }
 }
 
 const deleteProduct = async (req, res) => {
   const { id } = req.params;
-  
+
   try {
     const [result] = await pool.query('DELETE FROM products WHERE id_produk = ?', [id]);
 
@@ -105,7 +100,7 @@ const deleteProduct = async (req, res) => {
 
     res.json({ message: 'Product deleted successfully' });
   } catch (err) {
-    
+
     res.status(500).json({ message: 'Server error' });
   }
 }
@@ -120,12 +115,9 @@ const getOrder = async (req, res) => {
 
     res.json(rows);
   } catch (err) {
-    
+
     res.status(500).json({ message: 'Server error' });
   }
 }
 
-
-
 module.exports = {getOrder, index, detail, createProduct, updateProduct, deleteProduct };
-// module.exports = {index};

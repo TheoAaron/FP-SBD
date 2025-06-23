@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FaInstagram, FaLinkedin } from "react-icons/fa";
 
@@ -61,7 +61,7 @@ const AboutSection = () => {
 
   return (
     <div className="w-full px-4 py-10 bg-white">
-      {/* Our Story */}
+      {}
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-10 items-center">
         <div>
           <h2 className="text-2xl font-semibold mb-4">Our Story</h2>
@@ -80,7 +80,7 @@ const AboutSection = () => {
         />
       </div>
 
-      {/* Our Member */}
+      {}
       <div className="max-w-6xl mx-auto mt-20 text-center">
         <h2 className="text-2xl font-semibold mb-10">Our Member</h2>
 
@@ -89,7 +89,7 @@ const AboutSection = () => {
             key={index}
             className={`grid ${
               row.length < 3
-                ? "grid-cols-2 place-items-center gap-x-0" 
+                ? "grid-cols-2 place-items-center gap-x-0"
                 : "sm:grid-cols-2 md:grid-cols-3 gap-x-8"
             } gap-y-9 mb-8`}
           >

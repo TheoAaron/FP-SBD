@@ -1,44 +1,40 @@
-const { pool } = require('../config/mysql');
+﻿const { pool } = require('../config/mysql');
 const { v4: uuidv4 } = require('uuid');
 
-// POST - Create new shipment detail
 const createShipmentDetail = async (req, res) => {
   try {
-    const { 
-      first_name, 
-      last_name, 
-      street_address, 
-      apartment_floor, 
-      kota, 
-      label, 
-      phone_number, 
+    const {
+      first_name,
+      last_name,
+      street_address,
+      apartment_floor,
+      kota,
+      label,
+      phone_number,
       kode_pos
     } = req.body;
 
-    // Validate required fields
     if (!first_name || !street_address || !kota || !phone_number) {
-      return res.status(400).json({ 
-        message: 'First name, street address, kota, and phone number are required' 
+      return res.status(400).json({
+        message: 'First name, street address, kota, and phone number are required'
       });
     }
 
     const id_shipment = uuidv4();
-    const id_user = req.user ? req.user.id : null; // Get user ID from auth middleware if available
+    const id_user = req.user ? req.user.id : null;
 
-    // Validate that user exists in database
     if (id_user) {
       const [userCheck] = await pool.query('SELECT id_user FROM users WHERE id_user = ?', [id_user]);
       if (userCheck.length === 0) {
-        return res.status(400).json({ 
-          message: 'Invalid user ID. User does not exist.' 
+        return res.status(400).json({
+          message: 'Invalid user ID. User does not exist.'
         });
       }
     }
 
-    // Check if table has the required columns first
     const query = `
-      INSERT INTO shipment_details 
-      (id_shipment, id_user, first_name, street_address, kota, kode_pos, no_telepon, createdAt, updatedAt) 
+      INSERT INTO shipment_details
+      (id_shipment, id_user, first_name, street_address, kota, kode_pos, no_telepon, createdAt, updatedAt)
       VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
     `;
 
@@ -52,7 +48,6 @@ const createShipmentDetail = async (req, res) => {
       phone_number
     ]);
 
-    // Return data in frontend format
     const responseData = {
       id_shipment,
       first_name,
@@ -77,7 +72,6 @@ const createShipmentDetail = async (req, res) => {
   }
 };
 
-// GET - Get all shipment details for a user
 const getShipmentDetails = async (req, res) => {
   try {
     const id_user = req.user ? req.user.id : null;
@@ -91,7 +85,6 @@ const getShipmentDetails = async (req, res) => {
       [id_user]
     );
 
-    // Map database field names to frontend expected field names
     const mappedRows = rows.map(row => ({
       id_shipment: row.id_shipment,
       first_name: row.first_name,
@@ -100,7 +93,7 @@ const getShipmentDetails = async (req, res) => {
       apartment_floor: row.apartment_floor || '',
       kota: row.kota,
       label: row.label || '',
-      phone_number: row.no_telepon, // Map no_telepon to phone_number
+      phone_number: row.no_telepon,
       kode_pos: row.kode_pos || ''
     }));
 
@@ -115,7 +108,6 @@ const getShipmentDetails = async (req, res) => {
   }
 };
 
-// GET - Get specific shipment detail by ID
 const getShipmentDetailById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -131,7 +123,7 @@ const getShipmentDetailById = async (req, res) => {
     }
 
     const row = rows[0];
-    // Map database field names to frontend expected field names
+
     const mappedData = {
       id_shipment: row.id_shipment,
       first_name: row.first_name,
@@ -140,7 +132,7 @@ const getShipmentDetailById = async (req, res) => {
       apartment_floor: row.apartment_floor || '',
       kota: row.kota,
       label: row.label || '',
-      phone_number: row.no_telepon, // Map no_telepon to phone_number
+      phone_number: row.no_telepon,
       kode_pos: row.kode_pos || ''
     };
 
@@ -155,7 +147,6 @@ const getShipmentDetailById = async (req, res) => {
   }
 };
 
-// DELETE - Delete shipment detail
 const deleteShipmentDetail = async (req, res) => {
   try {
     const { id } = req.params;
@@ -165,7 +156,6 @@ const deleteShipmentDetail = async (req, res) => {
       return res.status(401).json({ message: 'Authentication required' });
     }
 
-    // Check if shipment detail exists and belongs to user
     const [rows] = await pool.query(
       'SELECT * FROM shipment_details WHERE id_shipment = ? AND id_user = ?',
       [id, id_user]
@@ -175,7 +165,6 @@ const deleteShipmentDetail = async (req, res) => {
       return res.status(404).json({ message: 'Shipment detail not found' });
     }
 
-    // Delete the shipment detail
     await pool.query(
       'DELETE FROM shipment_details WHERE id_shipment = ? AND id_user = ?',
       [id, id_user]

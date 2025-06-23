@@ -1,4 +1,4 @@
-// src/components/CouponForm.tsx
+﻿
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -13,19 +13,19 @@ interface CouponFormProps {
 
 export default function CouponForm({ coupon, mode }: CouponFormProps) {
   const router = useRouter()
-  // Helper function to format date for datetime-local input
+
   const formatDateForInput = (dateString: string) => {
     if (!dateString) return ''
     const date = new Date(dateString)
     if (isNaN(date.getTime())) return ''
-    
-    // Format: YYYY-MM-DDTHH:mm
+
+
     const year = date.getFullYear()
     const month = String(date.getMonth() + 1).padStart(2, '0')
     const day = String(date.getDate()).padStart(2, '0')
     const hours = String(date.getHours()).padStart(2, '0')
     const minutes = String(date.getMinutes()).padStart(2, '0')
-    
+
     const formatted = `${year}-${month}-${day}T${hours}:${minutes}`
     console.log('Date formatting:', { input: dateString, output: formatted })
     return formatted
@@ -58,7 +58,7 @@ export default function CouponForm({ coupon, mode }: CouponFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     try {      setIsSubmitting(true)
 
       await new Promise(resolve => setTimeout(resolve, 1000))
@@ -97,11 +97,10 @@ export default function CouponForm({ coupon, mode }: CouponFormProps) {
         throw new Error(`Gagal ${mode === 'create' ? 'menambahkan' : 'memperbarui'} kupon`)
       }
 
-      // Redirect berdasarkan mode
       if (mode === 'create') {
-        router.push('/admin') // Ke halaman admin utama setelah create
+        router.push('/admin')
       } else {
-        router.push('/admin/coupon/list') // Ke halaman lihat kupon setelah edit
+        router.push('/admin/coupon/list')
       }
     } catch (catchError) {
       console.error('Error submitting coupon:', catchError)
@@ -121,7 +120,7 @@ export default function CouponForm({ coupon, mode }: CouponFormProps) {
       <div className="max-w-2xl mx-auto px-4 py-8">
         <div className="bg-white rounded-lg shadow p-8">
           <h1 className="text-2xl font-bold mb-8">{title}</h1>
-          
+
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">

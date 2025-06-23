@@ -1,8 +1,8 @@
-export interface Product {
+﻿export interface Product {
   id_produk: UUID;
-  nama_produk: string;  
+  nama_produk: string;
   avg_rating: number;
-  harga: number;  
+  harga: number;
   description: string;
   image: string;
   stock: number;

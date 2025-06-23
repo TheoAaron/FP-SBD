@@ -1,26 +1,26 @@
-const { MongoClient } = require('mongodb');
+﻿const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
 async function migrateReviewStructure() {
   const mongoUri = `${process.env.MONGODB_URI}${process.env.DB_NAME}`;
   const client = new MongoClient(mongoUri);
-  
+
   try {
     await client.connect();
     const db = client.db(process.env.DB_NAME);
     const collection = db.collection('product_review');
-    
+
     console.log('🚀 Starting review structure migration...');
-    
-    // Get all existing review documents
+
+
     const oldDocs = await collection.find({}).toArray();
     console.log(`📋 Found ${oldDocs.length} documents to migrate`);
-    
+
     let migratedCount = 0;
-    
+
     for (const doc of oldDocs) {
       if (doc.review && Array.isArray(doc.review) && !doc.reviews) {
-        // This is the old structure with 'review' array, migrate to new structure
+
         const newDoc = {
           id_produk: doc.id_produk,
           total_review: doc.review.length,
@@ -32,22 +32,22 @@ async function migrateReviewStructure() {
             date: review.date
           }))
         };
-        
-        // Replace the old document with new structure
+
+
         await collection.replaceOne(
           { _id: doc._id },
           newDoc
         );
-        
+
         console.log(`✅ Migrated product ${doc.id_produk}: ${doc.review.length} reviews`);
         migratedCount++;
       } else if (doc.reviews && Array.isArray(doc.reviews)) {
         console.log(`ℹ️  Product ${doc.id_produk} already has new structure`);
       }
     }
-    
+
     console.log(`🎉 Review structure migration completed! Migrated ${migratedCount} documents`);
-    
+
   } catch (error) {
     console.error('❌ Migration failed:', error);
     throw error;
@@ -56,7 +56,6 @@ async function migrateReviewStructure() {
   }
 }
 
-// Run migration if this file is executed directly
 if (require.main === module) {
   migrateReviewStructure()
     .then(() => {
@@ -70,3 +69,4 @@ if (require.main === module) {
 }
 
 module.exports = { migrateReviewStructure };
+

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -33,24 +33,24 @@ function ProductContent() {
         const data = await res.json();        const mapped = await Promise.all(
           data.map(async (p: any) => {
             try {
-              // Fetch reviews from MongoDB for each product
+
               const reviewRes = await fetch(`http://localhost:8080/api/reviews/${p.id_produk}`);
               let real_rating = 0;
               let real_review_count = 0;
                 if (reviewRes.ok) {
                 const reviewData = await reviewRes.json();
-                // Extract reviews from the correct path
+
                 let reviews = [];                if (reviewData.reviews && reviewData.reviews.length > 0 && reviewData.reviews[0].reviews) {
                   reviews = reviewData.reviews[0].reviews;
                 }
                 real_review_count = reviews.length;
-                
+
                 if (reviews.length > 0) {
                   const totalRating = reviews.reduce((sum: number, review: any) => sum + (review.rate || 0), 0);
                   real_rating = totalRating / reviews.length;
                 }
               }
-              
+
               return {
                 id: p.id_produk,
                 name: p.nama_produk,
@@ -117,7 +117,7 @@ function ProductContent() {
               <div className="mt-3 sm:mt-4">
                 <h4 className="font-medium text-base sm:text-lg text-gray-800 line-clamp-2 mb-2">{product.name}</h4>
                 <div className="flex items-center justify-between mb-2 flex-wrap gap-1">
-                  <p className="text-red-500 font-semibold text-base sm:text-lg">Rp. {product.price?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  <p className="text-blue-500 font-semibold text-base sm:text-lg">Rp. {product.price?.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                   <span className="text-gray-400 text-sm">({product.quantity} terjual)</span>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">

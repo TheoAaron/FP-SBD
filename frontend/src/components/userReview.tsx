@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import React, { useState, useEffect } from 'react';
 import StarRating from '@/components/StarRating';
 import { Star } from 'lucide-react';
@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 export interface Review {
   id: number;
-  username: string;  // ✅ Add username for display
+  username: string;
   date: string;
   rate: number;
   comment: string;
@@ -33,15 +33,14 @@ export default function UserReview({ id_produk }: UserReviewProps) {
           throw new Error('Failed to fetch reviews');
         }
           const responseData = await res.json();
-        console.log('Raw API response:', responseData); // Debug log
-        
-        // Parse the correct structure from MongoDB
+        console.log('Raw API response:', responseData);
+
         let parsedReviews: Review[] = [];
-        
+
         if (responseData.reviews && Array.isArray(responseData.reviews) && responseData.reviews.length > 0) {
-          // Get the first document from reviews array
+
           const reviewDocument = responseData.reviews[0];
-            // Extract reviews from the reviews array inside the document
+
           if (reviewDocument.reviews && Array.isArray(reviewDocument.reviews)) {
             parsedReviews = reviewDocument.reviews.map((review: any, index: number) => ({
               id: index + 1,
@@ -52,13 +51,13 @@ export default function UserReview({ id_produk }: UserReviewProps) {
             }));
           }
         }
-        
-        console.log('Parsed reviews:', parsedReviews); // Debug log
+
+        console.log('Parsed reviews:', parsedReviews);
         setReviews(parsedReviews);      } catch (err) {
         console.error('Error fetching reviews:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch reviews');
         toast.error('Gagal menampilkan review');
-        // Fallback to empty array if API fails
+
         setReviews([]);
       } finally {
         setLoading(false);
@@ -71,7 +70,7 @@ export default function UserReview({ id_produk }: UserReviewProps) {
   }, [id_produk]);
   const handleAddReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/reviews/${id_produk}`, {
         method: 'POST',
@@ -84,14 +83,13 @@ export default function UserReview({ id_produk }: UserReviewProps) {
           comment: newComment
         })
       });      if (response.ok) {
-        // Refresh reviews after adding new one
+
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/reviews/${id_produk}`);
         if (res.ok) {
           const responseData = await res.json();
-          
-          // Parse the correct structure (same logic as in useEffect)
+
           let parsedReviews: Review[] = [];
-          
+
           if (responseData.reviews && Array.isArray(responseData.reviews) && responseData.reviews.length > 0) {
             const reviewDocument = responseData.reviews[0];
               if (reviewDocument.reviews && Array.isArray(reviewDocument.reviews)) {
@@ -103,7 +101,7 @@ export default function UserReview({ id_produk }: UserReviewProps) {
                 comment: review.comment || ''
               }));
             }
-          }          
+          }
           setReviews(parsedReviews);
           toast.success('Review berhasil ditambahkan!');
         } else {
@@ -114,10 +112,10 @@ export default function UserReview({ id_produk }: UserReviewProps) {
       }    } catch (error) {
       console.error('Error adding review:', error);
       toast.error('Tidak bisa kirim review');
-      // Fallback to local addition if API fails
+
       const next: Review = {
         id: reviews.length + 1,
-        username: 'You', // ✅ Fallback username for local addition
+        username: 'You',
         date: new Date().toISOString().slice(0, 10),
         rate: newRating,
         comment: newComment
@@ -156,7 +154,7 @@ export default function UserReview({ id_produk }: UserReviewProps) {
 
   return (
     <div className="space-y-6">
-      {/* Summary */}
+      {}
       <div className="bg-white rounded shadow p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <StarRating rating={avgRating} />
@@ -171,7 +169,7 @@ export default function UserReview({ id_produk }: UserReviewProps) {
             className="w-16 h-16 object-cover rounded"
           />
         </button>
-      </div>      {/* Reviews List */}
+      </div>      {}
       <div className="bg-white rounded shadow p-4 space-y-6 h-60 overflow-y-auto">
         {reviews.map(review => (
           <div key={review.id} className="space-y-2">            <div className="flex items-center justify-between text-sm text-gray-500">
@@ -184,7 +182,7 @@ export default function UserReview({ id_produk }: UserReviewProps) {
         ))}
       </div>
 
-      {/* Modal */}
+      {}
       {showModal && (
         <div className="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm flex items-center justify-center">
           <form
@@ -226,7 +224,7 @@ export default function UserReview({ id_produk }: UserReviewProps) {
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 rounded bg-red-500 text-white"
+                className="px-4 py-2 rounded bg-blue-500 text-white"
               >
                 Kirim
               </button>

@@ -27,10 +27,8 @@ export default function EditCouponPage() {
         const decodedToken = jwtDecode<{ role: string }>(token)
         if (decodedToken.role !== 'admin') {
           router.push('/login')
-          return
-        }
+          return        }
 
-        // Fetch coupon data
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/admin/coupon/${couponId}`, {
           method: 'GET',
           headers: {
@@ -68,7 +66,7 @@ export default function EditCouponPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-lg text-red-500">Error: {error}</div>
+        <div className="text-lg text-blue-500">Error: {error}</div>
       </div>
     )
   }

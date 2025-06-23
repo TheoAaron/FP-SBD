@@ -1,10 +1,9 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import Link from 'next/link';
 import { Toaster, toast } from 'react-hot-toast';
 
-// form submission handler
 async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
@@ -38,19 +37,19 @@ export default function RegisterPage() {
         <>
             <Toaster position="top-right" />
             <div className="min-h-screen flex flex-col lg:flex-row">
-                {/* Left Side - Image (Hidden on mobile) */}
+                {}
                 <div className="hidden lg:flex w-full lg:w-1/2 relative bg-slate-300 overflow-hidden">
-                    <img 
-                        className="w-full h-full object-cover" 
-                        src="https://magnoliahome.co.in/wp-content/uploads/2021/08/Jasper-Arm-Chair-1.1-1.jpg" 
+                    <img
+                        className="w-full h-full object-cover"
+                        src="https://magnoliahome.co.in/wp-content/uploads/2021/08/Jasper-Arm-Chair-1.1-1.jpg"
                         alt="Register illustration"
                     />
                 </div>
 
-                {/* Right Side - Form */}
+                {}
                 <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
                     <div className="w-full max-w-md space-y-8">
-                        {/* Header */}
+                        {}
                         <div className="text-center lg:text-left">
                             <h1 className="text-3xl sm:text-4xl font-medium text-black leading-tight tracking-wide">
                                 Create an account
@@ -60,10 +59,10 @@ export default function RegisterPage() {
                             </p>
                         </div>
 
-                        {/* Form */}
+                        {}
                         <form className="space-y-8" onSubmit={handleSubmit}>
                             <div className="space-y-6">
-                                {/* Name Input */}
+                                {}
                                 <div className="space-y-2">
                                     <input
                                         name="name"
@@ -74,7 +73,7 @@ export default function RegisterPage() {
                                     />
                                 </div>
 
-                                {/* Email Input */}
+                                {}
                                 <div className="space-y-2">
                                     <input
                                         name="email"
@@ -85,7 +84,7 @@ export default function RegisterPage() {
                                     />
                                 </div>
 
-                                {/* Password Input */}
+                                {}
                                 <div className="space-y-2">
                                     <input
                                         name="password"
@@ -97,21 +96,21 @@ export default function RegisterPage() {
                                 </div>
                             </div>
 
-                            {/* Submit Button */}
+                            {}
                             <div className="space-y-4">
                                 <button
                                     type="submit"
-                                    className="w-full py-3 px-8 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                    className="w-full py-3 px-8 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                 >
                                     Create Account
                                 </button>
 
-                                {/* Login Link */}
+                                {}
                                 <div className="text-center">
                                     <span className="text-gray-600">Already have account? </span>
-                                    <Link 
-                                        href="/login" 
-                                        className="text-black font-medium hover:text-red-500 transition-colors border-b border-transparent hover:border-red-500"
+                                    <Link
+                                        href="/login"
+                                        className="text-black font-medium hover:text-blue-500 transition-colors border-b border-transparent hover:border-blue-500"
                                     >
                                         Log in
                                     </Link>

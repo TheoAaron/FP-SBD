@@ -1,4 +1,4 @@
-const { getDB } = require("../config/mongo.js");
+﻿const { getDB } = require("../config/mongo.js");
 
 async function getWishlist(req, res) {
   try {
@@ -13,16 +13,16 @@ async function getWishlist(req, res) {
     const userId = req.user.id;
     console.log('Getting wishlist for user ID:', userId);
 
-    const db = getDB(); 
-    
+    const db = getDB();
+
     if (!db) {
       console.error('Failed to connect to MongoDB');
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: 'Database connection failed',
         details: 'Could not establish MongoDB connection'
       });
     }
-    
+
     const wishlistCollection = db.collection('wishlist');
 
     const userWishlist = await wishlistCollection.findOne({ id_user: userId });
@@ -56,10 +56,10 @@ async function getWishlist(req, res) {
     console.error('=== GET WISHLIST ERROR ===');
     console.error('Error message:', error.message);
     console.error('Error stack:', error.stack);
-    
-    res.status(500).json({ 
-      error: 'Internal server error', 
-      details: error.message 
+
+    res.status(500).json({
+      error: 'Internal server error',
+      details: error.message
     });
   }
 }
@@ -82,27 +82,26 @@ async function addToWishlist(req, res) {
 
     if (!product_id) {
       console.log('Validation error: product_id is missing');
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'product_id is required',
         details: 'Request body must contain a product_id field',
         received_body: req.body
       });
     }
 
-    // Pastikan product_id dalam bentuk string
     const productId = String(product_id);
     console.log('Adding product to wishlist:', { userId: userId, productId: productId });
 
-    const db = getDB(); 
-    
+    const db = getDB();
+
     if (!db) {
       console.error('Failed to connect to MongoDB');
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: 'Database connection failed',
         details: 'Could not establish MongoDB connection'
       });
     }
-    
+
     const wishlistCollection = db.collection('wishlist');
     const existingWishlist = await wishlistCollection.findOne({ id_user: userId });
 
@@ -118,10 +117,10 @@ async function addToWishlist(req, res) {
 
       const result = await wishlistCollection.updateOne(
         { id_user: userId },
-        { 
-          $push: { 
+        {
+          $push: {
             produk: productId
-          } 
+          }
         }
       );
 
@@ -136,7 +135,6 @@ async function addToWishlist(req, res) {
       console.log('New wishlist created:', result);
     }
 
-    // Get updated wishlist
     const updatedWishlist = await wishlistCollection.findOne({ id_user: userId });
 
     res.status(201).json({
@@ -153,10 +151,10 @@ async function addToWishlist(req, res) {
     console.error('=== ADD TO WISHLIST ERROR ===');
     console.error('Error message:', error.message);
     console.error('Error stack:', error.stack);
-    
-    res.status(500).json({ 
-      error: 'Internal server error', 
-      details: error.message 
+
+    res.status(500).json({
+      error: 'Internal server error',
+      details: error.message
     });
   }
 }
@@ -176,25 +174,24 @@ async function removeFromWishlist(req, res) {
     const { product_id } = req.params;
 
     if (!product_id) {
-      return res.status(400).json({ 
-        error: 'product_id is required' 
+      return res.status(400).json({
+        error: 'product_id is required'
       });
     }
 
-    // Pastikan product_id dalam bentuk string
     const productId = String(product_id);
     console.log('Removing product from wishlist:', { userId, productId });
 
     const db = getDB();
-    
+
     if (!db) {
       console.error('Failed to connect to MongoDB');
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: 'Database connection failed',
         details: 'Could not establish MongoDB connection'
       });
     }
-    
+
     const wishlistCollection = db.collection('wishlist');
     const existingWishlist = await wishlistCollection.findOne({ id_user: userId });
 
@@ -216,10 +213,10 @@ async function removeFromWishlist(req, res) {
 
     const result = await wishlistCollection.updateOne(
       { id_user: userId },
-      { 
-        $pull: { 
+      {
+        $pull: {
           produk: productId
-        } 
+        }
       }
     );
 
@@ -240,10 +237,10 @@ async function removeFromWishlist(req, res) {
     console.error('=== REMOVE FROM WISHLIST ERROR ===');
     console.error('Error message:', error.message);
     console.error('Error stack:', error.stack);
-    
-    res.status(500).json({ 
-      error: 'Internal server error', 
-      details: error.message 
+
+    res.status(500).json({
+      error: 'Internal server error',
+      details: error.message
     });
   }
 }

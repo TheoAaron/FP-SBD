@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -10,10 +10,10 @@ interface RequireAuthProps {
   showMessage?: boolean;
 }
 
-export default function RequireAuth({ 
-  children, 
+export default function RequireAuth({
+  children,
   redirectTo = '/login',
-  showMessage = true 
+  showMessage = true
 }: RequireAuthProps) {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -45,24 +45,22 @@ export default function RequireAuth({
     checkAuth();
   }, [router, redirectTo, showMessage]);
 
-  // Show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
+      <div className="min-h-screen flex items-center justify-center">        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
           <p className="mt-4 text-gray-600">Checking authentication...</p>
         </div>
       </div>
     );
   }
-  // If not authenticated, show login prompt
+
   if (!isAuthenticated && showMessage) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <div className="text-center max-w-md w-full">
           <div className="mb-8">
-            <img 
+            <img
               src="https://res.cloudinary.com/dp8hpdiop/image/upload/angrycapy_hz49er.png"
               alt="Please login"
               className="w-48 h-48 mx-auto mb-6 object-contain"
@@ -72,21 +70,21 @@ export default function RequireAuth({
              Login Dulu Kalau nggak Nanti dicium Apin
             </p>
           </div>
-          
+
           <div className="space-y-3">
-            <Link 
+            <Link
               href={redirectTo}
-              className="block w-full bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg transition-colors font-medium"
+              className="block w-full bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors font-medium"
             >
               Go to Login
             </Link>
-            <Link 
+            <Link
               href="/register"
               className="block w-full border border-gray-300 hover:border-gray-400 text-gray-700 px-6 py-3 rounded-lg transition-colors"
             >
               Create New Account
             </Link>
-            <Link 
+            <Link
               href="/"
               className="block w-full text-gray-500 hover:text-gray-700 transition-colors py-2"
             >
@@ -98,18 +96,15 @@ export default function RequireAuth({
     );
   }
 
-  // If not authenticated and showMessage is false, redirect will happen in useEffect
   if (!isAuthenticated && !showMessage) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto"></div>
+      <div className="min-h-screen flex items-center justify-center">        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
           <p className="mt-4 text-gray-600">Redirecting to login...</p>
         </div>
       </div>
     );
   }
 
-  // If authenticated, render children
   return <>{children}</>;
 }

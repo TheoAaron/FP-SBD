@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import ShipmentDetails from '../../components/ShipmentDetails';
@@ -43,7 +43,6 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
   const [selectedAddress, setSelectedAddress] = useState<ShipmentDetail | null>(null);
   const router = useRouter();
 
-  // Get token from sessionStorage
   const getAuthToken = () => {
     if (typeof window !== 'undefined') {
       return sessionStorage.getItem('jwtToken');
@@ -51,12 +50,11 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
     return null;
   };
 
-  // Load cart data from API
   useEffect(() => {
     const loadCart = async () => {
       setLoading(true);
       setError(null);
-      
+
       const token = getAuthToken();
       if (!token) {
         setError('Please login to view cart');
@@ -77,7 +75,7 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
             throw new Error('Please login again - your session may have expired');
           }
           if (response.status === 404) {
-            // Empty cart is not an error for checkout
+
             setCartItems([]);
             setLoading(false);
             return;
@@ -85,10 +83,9 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
           throw new Error(`HTTP error! status: ${response.status}`);
         }        const data = await response.json();
         console.log('Cart data from backend:', data);
-        
-        // Check if data has produk array (new structure)
+
         if (data.produk && Array.isArray(data.produk)) {
-          // Transform cart items to checkout format (new structure)
+
           const checkoutItems: CheckoutItem[] = data.produk.map((item: any) => ({
             id: item.product_id,
             name: item.name || item.product_name || 'Unknown Product',
@@ -99,7 +96,7 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
           }));
           setCartItems(checkoutItems);
         } else if (data.success && data.cart?.produk) {
-          // Transform cart items to checkout format (old structure)
+
           const checkoutItems: CheckoutItem[] = data.cart.produk.map((item: CartItem) => ({
             id: item.product_id,
             name: item.product_name,
@@ -113,7 +110,7 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
           console.log('No products found in cart data:', data);
           setCartItems([]);
         }
-        
+
       } catch (error) {
         console.error('Error loading cart:', error);
         if (error instanceof Error) {
@@ -127,7 +124,7 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
     };
 
     loadCart();
-  }, []);  // Handle place order
+  }, []);
   const handlePlaceOrder = async (paymentMethod: string, couponCode?: string, discountAmount?: number) => {
     setIsPlacingOrder(true);
     setError(null);
@@ -148,23 +145,21 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
       setIsPlacingOrder(false);
       return;
     }    try {
-      // Calculate total
+
       const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       const finalTotal = discountAmount ? subtotal - discountAmount : subtotal;
-      
-      // Prepare order details
+
       const orderDetails = cartItems.map(item => ({
         product_id: item.id,
         quantity: item.quantity,
         price: item.price
       }));
 
-      // Create order directly using existing shipment address ID
       const orderPayload = {
         order_details: orderDetails,
-        id_shipment: selectedAddress.id_shipment, // Use existing shipment ID
+        id_shipment: selectedAddress.id_shipment,
         metode_pembayaran: paymentMethod,
-        total: finalTotal, // Send discounted total
+        total: finalTotal,
         ...(couponCode && { kode_kupon: couponCode })
       };
 
@@ -187,9 +182,8 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
       const orderData = await orderResponse.json();
       console.log('Order created successfully:', orderData);
 
-      // Redirect to order confirmation or orders page
       router.push(`/order/${orderData.order.id_order}`);
-      
+
     } catch (error) {
       console.error('Error placing order:', error);
       if (error instanceof Error) {
@@ -206,7 +200,7 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading checkout...</p>
         </div>
       </div>
@@ -218,10 +212,9 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">Error Loading Cart</h2>
-          <p className="text-gray-600 mb-8">{error}</p>
-          <button 
+          <p className="text-gray-600 mb-8">{error}</p>          <button
             onClick={() => router.push('/cart')}
-            className="px-6 py-3 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+            className="px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
           >
             Back to Cart
           </button>
@@ -235,10 +228,9 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">Your cart is empty</h2>
-          <p className="text-gray-600 mb-8">Add some items to your cart before checkout</p>
-          <button 
+          <p className="text-gray-600 mb-8">Add some items to your cart before checkout</p>          <button
             onClick={() => router.push('/product')}
-            className="px-6 py-3 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+            className="px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
           >
             Continue Shopping
           </button>
@@ -250,22 +242,21 @@ export default function Checkout() {  const [cartItems, setCartItems] = useState
     <RequireAuth>
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header */}
+          {}
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-gray-900">Checkout</h1>
             <p className="text-gray-600">Review your order and complete your purchase</p>
           </div>
 
-          {/* Error Display */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-600 text-sm">{error}</p>
+          {}
+          {error && (            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-blue-600 text-sm">{error}</p>
             </div>
-          )}          {/* Checkout Content */}
+          )}          {}
           <div className="flex flex-col lg:flex-row gap-8">
             <ShipmentDetails onAddressSelect={(address) => setSelectedAddress(address)} />
-            <CheckoutDetails 
-              items={cartItems} 
+            <CheckoutDetails
+              items={cartItems}
               onPlaceOrder={handlePlaceOrder}
               isLoading={isPlacingOrder}
             />

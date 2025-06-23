@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('used_coupons', {
@@ -6,7 +6,7 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.literal('(UUID())'),
         primaryKey: true,
-        allowNull: false,        
+        allowNull: false,
       },
       id_user: {
         type: Sequelize.UUID,
@@ -37,7 +37,6 @@ module.exports = {
       updatedAt: Sequelize.DATE
     });
 
-    // Tambahkan constraint unik kombinasi id_user dan id_kupon
     await queryInterface.addConstraint('used_coupons', {
       fields: ['id_user', 'id_kupon'],
       type: 'unique',
