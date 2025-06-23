@@ -9,7 +9,6 @@ module.exports = {
     await queryInterface.bulkInsert('products', [      {
         id_produk: uuidv4(),
         nama_produk: 'iPhone 15 Pro',
-        avg_rating: 4.7,
         harga: 17990000,
         description: 'Smartphone flagship dengan chip A17 Pro dan kamera canggih.',
         image: 'https://www.apple.com/newsroom/images/2023/09/apple-unveils-iphone-15-pro-and-iphone-15-pro-max/article/Apple-iPhone-15-Pro-lineup-hero-230912_Full-Bleed-Image.jpg.xlarge.jpg',
@@ -21,7 +20,7 @@ module.exports = {
       {
         id_produk: uuidv4(),
         nama_produk: 'PlayStation 5',
-        avg_rating: 4.9,        harga: 8490000,
+        harga: 8490000,
         description: 'Konsol generasi terbaru dari Sony dengan performa tinggi.',
         image: 'https://akcdn.detik.net.id/visual/2024/09/11/playstation-5-pro_169.jpeg?w=900&q=80',
         stock: 40,
@@ -32,7 +31,6 @@ module.exports = {
       {
         id_produk: uuidv4(),
         nama_produk: 'MacBook Pro M3',
-        avg_rating: 4.8,
         harga: 31999000,
         description: 'Laptop profesional dengan chip Apple M3 dan layar Retina.',
         image: 'macbookpro.jpg',
@@ -44,7 +42,7 @@ module.exports = {
       {
         id_produk: uuidv4(),
         nama_produk: 'Sony WH-1000XM5',
-        avg_rating: 4.6,
+       
         harga: 4990000,
         description: 'Headphone noise cancelling terbaik dari Sony.',        image: 'sonywh1000xm5.jpg',
         stock: 30,

@@ -1,6 +1,5 @@
 const { getDB } = require("../config/mongo");
 const {pool} = require("../config/mysql");
-const { syncSingleProductReview } = require("../utils/syncReviews");
 
 // import { getDB } from "../config/mongo.js"; // ESM style
  // pastikan koneksi dibuat sebelum akses DB
@@ -35,22 +34,56 @@ const addReview = async (req, res) => {
         if (!rating || !comment) {
             return res.status(400).json({ message: "Silahkan Rating dan Reviewnya diisi!" });
         }        // Tambah review ke MongoDB
-        const result = await db.collection("product_review").updateOne(
-            { id_produk },
-            {
-                $push: {
-                    review: {
-                        username: username, // Only store username, not user_id
-                        rate: rating,
-                        comment: comment,
-                        date: new Date()
+        const newReview = {
+            id_user : id_user, // Store user ID for reference
+            username: username, // Only store username, not user_id
+            rate: rating,
+            comment: comment,
+            date: new Date()
+        };
+
+        // Check if document exists
+        const existingDoc = await db.collection("product_review").findOne({ id_produk });
+        
+        let result;        if (existingDoc) {
+            // Update existing document - push new review
+            result = await db.collection("product_review").updateOne(
+                { id_produk },
+                {
+                    $push: {
+                        reviews: newReview
                     }
                 }
-            },
-            { upsert: true }        );
+            );
+        } else {
+            // Create new document with proper structure
+            result = await db.collection("product_review").insertOne({
+                id_produk: id_produk,
+                total_review: 1,
+                reviews: [newReview]
+            });
+        }
+
+        // Get updated reviews for calculating total and average
+        const updatedDoc = await db.collection("product_review").findOne({ id_produk });
+        const totalReviews = updatedDoc ? updatedDoc.reviews.length : 1;
+        const avgRating = updatedDoc ? 
+            updatedDoc.reviews.reduce((sum, r) => sum + r.rate, 0) / totalReviews : rating;
+
+        // Update total_review field in MongoDB
+        await db.collection("product_review").updateOne(
+            { id_produk },
+            {
+                $set: {
+                    total_review: totalReviews
+                }
+            }        );
 
         // Sync review count dan rating ke MySQL
-        const { totalReviews, avgRating } = await syncSingleProductReview(id_produk);
+        await pool.query(
+            'UPDATE products SET total_review = ?, avg_rating = ? WHERE id_produk = ?',
+            [totalReviews, avgRating, id_produk]
+        );
 
         res.status(201).json({ 
             message: "Review berhasil ditambahkan",

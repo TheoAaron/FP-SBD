@@ -1,9 +1,15 @@
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 
+// Load environment variables
+require('dotenv').config();
+
 // Fungsi hash password pakai SHA-256
 function hashPassword(password) {
-  const salt = process.env.PASSWORD_SALT;
+  const salt = process.env.PASSWORD_SALT || 'defaultsalt';
+  if (!process.env.PASSWORD_SALT) {
+    console.warn('WARNING: PASSWORD_SALT not found in environment variables, using default salt');
+  }
   return crypto.createHash('sha256').update(`${password}${salt}`).digest('hex');
 }
 

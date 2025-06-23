@@ -40,9 +40,8 @@ function ProductContent() {
                 if (reviewRes.ok) {
                 const reviewData = await reviewRes.json();
                 // Extract reviews from the correct path
-                let reviews = [];
-                if (reviewData.reviews && reviewData.reviews.length > 0 && reviewData.reviews[0].review) {
-                  reviews = reviewData.reviews[0].review;
+                let reviews = [];                if (reviewData.reviews && reviewData.reviews.length > 0 && reviewData.reviews[0].reviews) {
+                  reviews = reviewData.reviews[0].reviews;
                 }
                 real_review_count = reviews.length;
                 

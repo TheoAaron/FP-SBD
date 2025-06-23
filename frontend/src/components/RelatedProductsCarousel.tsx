@@ -35,9 +35,8 @@ export default function RelatedProductsCarousel({ products }: CarouselProps) {
                 const data = await response.json();
                 
                 // Extract reviews from the correct path
-                let reviews = [];
-                if (data.reviews && data.reviews.length > 0 && data.reviews[0].review) {
-                  reviews = data.reviews[0].review;
+                let reviews = [];                if (data.reviews && data.reviews.length > 0 && data.reviews[0].reviews) {
+                  reviews = data.reviews[0].reviews;
                 }
                 
                 let real_rating = 0;

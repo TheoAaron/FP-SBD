@@ -123,9 +123,8 @@ export default function ExploreProducts({ products }: ExploreProductsProps) {
                 
                 // Extract reviews from the correct path
                 // data.reviews is array of documents, each document has a 'review' array
-                let reviews = [];
-                if (data.reviews && data.reviews.length > 0 && data.reviews[0].review) {
-                  reviews = data.reviews[0].review;
+                let reviews = [];                if (data.reviews && data.reviews.length > 0 && data.reviews[0].reviews) {
+                  reviews = data.reviews[0].reviews;
                 }
                 console.log(`Extracted reviews for product ${product.id_produk}:`, reviews);
                 

@@ -7,8 +7,9 @@
     "drop": "node scripts/init.js",
     "setup": "node scripts/init.js",
     "fresh": "npm run drop && npm run setup",
-    "migrate:reviews": "node scripts/migrate-reviews.js",
-    "sync-reviews": "node scripts/sync-reviews.js"
+        "seed": "npx sequelize-cli db:seed:all",
+    "migrate:reviews": "node scripts/migrate-reviews.js"
+    
   },
   "keywords": [], 
   "author": "",

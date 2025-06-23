@@ -41,10 +41,9 @@ export default function UserReview({ id_produk }: UserReviewProps) {
         if (responseData.reviews && Array.isArray(responseData.reviews) && responseData.reviews.length > 0) {
           // Get the first document from reviews array
           const reviewDocument = responseData.reviews[0];
-          
-          // Extract reviews from the review array inside the document
-          if (reviewDocument.review && Array.isArray(reviewDocument.review)) {
-            parsedReviews = reviewDocument.review.map((review: any, index: number) => ({
+            // Extract reviews from the reviews array inside the document
+          if (reviewDocument.reviews && Array.isArray(reviewDocument.reviews)) {
+            parsedReviews = reviewDocument.reviews.map((review: any, index: number) => ({
               id: index + 1,
               username: review.username || 'Anonymous',
               date: new Date(review.date).toISOString().slice(0, 10),
@@ -95,9 +94,8 @@ export default function UserReview({ id_produk }: UserReviewProps) {
           
           if (responseData.reviews && Array.isArray(responseData.reviews) && responseData.reviews.length > 0) {
             const reviewDocument = responseData.reviews[0];
-            
-            if (reviewDocument.review && Array.isArray(reviewDocument.review)) {
-              parsedReviews = reviewDocument.review.map((review: any, index: number) => ({
+              if (reviewDocument.reviews && Array.isArray(reviewDocument.reviews)) {
+              parsedReviews = reviewDocument.reviews.map((review: any, index: number) => ({
                 id: index + 1,
                 username: review.username || 'Anonymous',
                 date: new Date(review.date).toISOString().slice(0, 10),
